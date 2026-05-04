@@ -1,0 +1,26 @@
+{
+  "name": "progetto_career_service",
+  "version": "1.0.0",
+  "main": "index.js",
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "client-dev": "npm run dev --prefix frontend",
+    "server-dev": "npm run dev --prefix backend",
+    "client-build": "npm run build --prefix frontend",
+    "server-build": "npm run build --prefix backend",
+    "install-all": "npm install && npm install --prefix frontend && npm install --prefix backend",
+    "dev": "concurrently --names  \"Client - React, Server - Express.js node\" --prefix-colors \"blue,magenta\" \"npm run client-dev\" \"npm run server-dev\"",
+    "build": "concurrently --names  \"Client - React, Server - Express.js Node\" --prefix-colors \"blue,magenta\" \"npm run client-build\" \"npm run server-build\"",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}

@@ -1,62 +1,57 @@
 import express from "express";
-import { MongoClient, ServerApiVersion } from 'mongodb';
-const cors = require("cors");
-
+import { db } from "./db/db";
+import cors from "cors";
+import { fromNodeHeaders, toNodeHandler } from "better-auth/node";
+import { auth } from "./auth/auth";
 const app = express();
 const port = process.env.PORT;
-const uri=`mongodb+srv://career-service:${process.env.MONGO_PASSWORD}@clustercareerservice.fqehjf0.mongodb.net/?appName=ClusterCareerService`
 
+// Per gestione routes autenticazione. -> splat altrimenti non va (express 5)
+app.all("/api/auth/*splat", toNodeHandler(auth));
 
-//creazione client per mongoDB
-const client = new MongoClient(uri, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
-  },
-});
-
-
-//connessione di prova mongoDB
-export async function runStableAPIConnect() {
-  try {
-    // Connect the client to the server (optional starting in v4.7)
-    await client.connect();
-    // Send a ping to confirm a successful connection
-    const result = await client.db('admin').command({ ping: 1 });
-    console.log(
-      'Pinged your deployment. You successfully connected to MongoDB!'
-    );
-    return result;
-  } finally {
-    // Ensures that the client will close when you finish/error
-    await client.close();
-  }
-}
-
-
+// Middleware express. Va sotto altrimenti intercetta anche quelle di better-auth prima
+app.use(express.json());
 
 // Elenco di origins permesse per chiamare  API
 // TODO: in futuro da inserire nell'array url effettivo
 const allowedOrigins = ["http://localhost:5173"];
 
+// Gestione CORS
 app.use(cors({
-    origin: allowedOrigins,
-    credentials: true,
+  origin: allowedOrigins,
+  credentials: true,
 }));
 
+// Test chiamata per ottenere sessione
+app.get("/api/me", async (req, res) => {
+  const session = await auth.api.getSession({
+    headers: fromNodeHeaders(req.headers),
+  });
+  return res.json(session);
+});
 
-app.get("/api/test", (req, res) => {
-    runStableAPIConnect().catch(console.dir);
-    res.send("Hello world via GET!");
-    console.log("Response sent get");
+
+
+app.get("/api/test", async (req, res) => {
+  res.send("Hello world via GET!");
+  console.log("Response sent get");
+  // Creo utente. Nota per Manuel: se tu ora provi a farlo col get, ti dirà utente già esistente. 
+  await auth.api.signUpEmail({
+    body: {
+      email: "mario.rossi04@gmail.com",
+      password: "12345678",
+      name: "Mario",
+    },
+    headers: await fromNodeHeaders(req.headers)
+  })
+
 });
 
 app.post("/api/test", (req, res) => {
-    res.send("Hello world via POST!");
-    console.log("Response sent POST");
+  res.send("Hello world via POST!");
+  console.log("Response sent POST");
 });
 
 app.listen(port, () => {
-    console.log(`Example app listening on port ${port}`);
+  console.log(`Example app listening on port ${port}`);
 });

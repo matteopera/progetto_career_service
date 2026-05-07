@@ -1,8 +1,8 @@
 import express from "express";
-import { db } from "./db/db";
+import { db } from "./db/db.js";
 import cors from "cors";
 import { fromNodeHeaders, toNodeHandler } from "better-auth/node";
-import { auth } from "./auth/auth";
+import { auth } from "./auth/auth.js";
 const app = express();
 const port = process.env.PORT;
 

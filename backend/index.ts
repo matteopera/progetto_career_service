@@ -3,8 +3,10 @@ import { db } from "./db/db.js";
 import cors from "cors";
 import { fromNodeHeaders, toNodeHandler } from "better-auth/node";
 import { auth } from "./auth/auth.js";
+import aziendeRouter from "./routes/azienda.routes.js"
 const app = express();
 const port = process.env.PORT;
+
 
 // Elenco di origins permesse per chiamare  API
 // TODO: in futuro da inserire nell'array url effettivo
@@ -51,6 +53,8 @@ app.post("/api/test", (req, res) => {
   res.send("Hello world via POST!");
   console.log("Response sent POST");
 });
+
+app.use("/api/aziende",aziendeRouter)
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);

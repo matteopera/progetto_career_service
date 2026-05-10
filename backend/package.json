@@ -4,7 +4,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "dev": "nodemon --verbose --watch src --watch index.ts --ext ts --exec 'tsx --env-file .env index.ts'",
+    "dev": "nodemon --verbose --watch src --watch index.ts --ext ts --exec \"tsx --env-file .env index.ts\"",
     "start": "node --env-file .env dist/index.js",
     "build": "tsc",
     "lint": "eslint .",

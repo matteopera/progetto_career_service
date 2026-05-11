@@ -1,17 +1,23 @@
-import { findFaq } from "../db/faq.js";
+import { MongoError } from "mongodb";
+import { findFaq, formRequest } from "../db/company.js";
 import {FAQs} from "../models/azienda.model.js"
-
+import { DBError } from "../errors/DBError.js";
 
 export async function findAllFaq(){
-    try{
-        console.log("Arrivo al service");
         //richiesta al mongoDB
         const res=await findFaq();
         //validazione dei dati ottenuti
         const faq=FAQs.parse(res);
-        console.log(faq);
+        //restituzione dei dati ottenuti
         return faq;
-    }catch(error){
-        console.error(error)
-    }
+}
+
+
+
+export async function findForm(){
+        const form=await formRequest();
+
+        // TODO validazione del risultato
+
+        return form;
 }

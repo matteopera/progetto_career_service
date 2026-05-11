@@ -17,25 +17,27 @@ import {
 } from "@/components/ui/accordion";
 import { useEffect, useState } from "react";
 import type { FAQ } from "@/type/FAQType";
+import { getFAQ } from "@/api/FAQ";
+import getForm from "@/api/formApi";
+import { type textField, type formType } from "@/type/formType";
+import { Check } from "lucide-react";
+
 export default function Form() {
-    const [FAQ,setFAQ]=useState<FAQ[]|[]>([]);
+  const [FAQ, setFAQ] = useState<FAQ[] | []>([]);
+  const [form, setForm] = useState<formType | null>(null);
+  useEffect(() => {
+    getFAQ().then((res) => {
+      setFAQ(res);
+    });
+  }, []);
 
-    useEffect(()=>{
+  useEffect(() => {
+    getForm().then((res) => {
+      console.log(res);
+      setForm(res);
+    });
+  }, []);
 
-        const fetchFAQ=async ()=>{
-            const url="http://localhost:3000/api/aziende/FAQ";
-
-            const res=await fetch(url);
-            const faq= await res.json()
-
-            setFAQ(faq);
-        }
-
-        fetchFAQ();
-
-
-    },[]);
-    
   return (
     <div className="bg-linear-to-br from-gray-100 via-blue-50 to-gray-100">
       <nav>
@@ -56,7 +58,95 @@ export default function Form() {
             </h2>
             <div className="bg-white border rounded-2xl pl-3 pr-3 mt-10 p-4">
               <FieldGroup className="grid grid-cols-1 sm:grid-cols-2">
-                <h3 className="font-normal col-span-full">Dati dell'azienda</h3>
+                {form?.sezioni.map((s) => {
+                  return (
+                    <>
+                      <h3 className="col-span-full">{s.titolo}</h3>
+                      {s.nota != "null" ? <p className="col-span-full text-gray-400">{s.nota}</p> : <></>}
+                      {s.campi.map((c) => {
+                        if (c.tipo == "text") {
+                          //gestione del campo come textField
+                          return (
+                            <div key={`${c.nome}_${s.titolo}`}>
+                              <Field>
+                                <FieldLabel htmlFor={`${c.nome}_${s.titolo}`}>
+                                  {c.nome}
+                                </FieldLabel>
+                                <Input
+                                  id={`${c.nome}_${s.titolo}`}
+                                  placeholder={
+                                    c.placeolder != null ? c.placeolder : ""
+                                  }
+                                ></Input>
+                              </Field>
+                            </div>
+                          );
+                        }
+                        if (c.tipo == "selezione") {
+                          return (
+                            <>
+                            <h4 className="col-span-full">{c.nome}</h4>
+                              <Field orientation="horizontal">
+                                {c.selezioni.map((sel) => {
+                                  return (
+                                    <div>
+                                      <Checkbox
+                                        key={`${s.nota}_${c.nome}_${c.nome}`}
+                                        id={`${s.nota}_${c.nome}_${c.nome}`}
+                                        name={`${s.nota}_${c.nome}_${c.nome}`}
+                                      />
+                                      <FieldLabel className="col-span-full"
+                                        htmlFor={`${s.nota}_${c.nome}_${c.nome}`}
+                                      >
+                                        {sel.nome}
+                                      </FieldLabel>
+                                      {sel.nota!="null"?(<FieldDescription>
+                                          {sel.nota}
+                                        </FieldDescription>):<></>}
+                                    </div>
+                                  );
+                                })}
+                              </Field>
+                            </>
+                          );
+                        }
+                        if (c.tipo == "selezione-multipla") {
+                          return (
+                            <>
+                            <h4 className="col-span-full">{c.nome}</h4>
+                              <RadioGroup
+                                defaultValue=""
+                                className="w-fit sm:col-span-2 "
+                              >
+                                {c.selezioni.map((sel) => {
+                                  return (
+                                    <>
+                                      <Field orientation="horizontal">
+                                        <RadioGroupItem
+                                          value={sel.nome}
+                                          id={sel.nome}
+                                        ></RadioGroupItem>
+                                        <FieldContent>
+                                          <FieldLabel htmlFor={sel.nome}>
+                                            {sel.nome}
+                                          </FieldLabel>
+                                        </FieldContent>
+                                        {sel.nota!="null"?(<FieldDescription>
+                                          {sel.nota}
+                                        </FieldDescription>):<></>}
+                                      </Field>
+                                    </>
+                                  );
+                                })}
+                              </RadioGroup>
+                            </>
+                          );
+                        }
+                      })}
+                    </>
+                  );
+                })}
+                {/* <h3 className="font-normal col-span-full">Dati dell'azienda</h3>
                 <Field>
                   <FieldLabel htmlFor="nomeAzienda">Nome azienda</FieldLabel>
                   <Input id="nomeAzienda" placeholder="nome azienda" />
@@ -196,7 +286,7 @@ export default function Form() {
                     id="emailAziendale"
                     placeholder="azienda@dominio.it"
                   ></Input>
-                </Field>
+                </Field> */}
               </FieldGroup>
               <p className="mt-4">
                 Vi preghiamo di prendere visione dell'informativa{" "}
@@ -223,12 +313,18 @@ export default function Form() {
               className=" flex flex-col items-center mt-10 w-full"
             >
               <h2 className="text-3xl">Frequently Asked Questions</h2>
-              <Accordion type="single" className="mb-10 w-full sm:max-w-3xl" collapsible>
-                {FAQ.map((question,index) => {
+              <Accordion
+                type="single"
+                className="mb-10 w-full sm:max-w-3xl"
+                collapsible
+              >
+                {FAQ.map((question, index) => {
                   return (
                     <AccordionItem value={`accordioni${index}`}>
                       <AccordionTrigger>{question.domanda}</AccordionTrigger>
-                      <AccordionContent className="pb-4">{question.risposta}</AccordionContent>
+                      <AccordionContent className="pb-4">
+                        {question.risposta}
+                      </AccordionContent>
                     </AccordionItem>
                   );
                 })}

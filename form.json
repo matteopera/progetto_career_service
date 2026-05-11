@@ -1,0 +1,159 @@
+{
+  "nome": "OTTOBRE2025",
+  "sezioni": [
+    {
+      "titolo": "Dati dell'azienda",
+      "nota": "null",
+      "campi": [
+        {
+          "nome": "Nome Azienda",
+          "tipo": "text",
+          "placeolder": "nome azienda"
+        },
+        {
+          "nome": "Sede legale",
+          "tipo": "text",
+          "placeolder": "Italia"
+        },
+        {
+          "nome": "Codice fiscale",
+          "tipo": "text",
+          "placeolder": "CF"
+        },
+        {
+          "nome": "Partita IVA",
+          "tipo": "text",
+          "placeolder": "P. IVA"
+        }
+      ]
+    },
+    {
+      "titolo": "Dettagli di partecipazione",
+      "nota": "null",
+      "campi": [
+        {
+          "nome": "L'azienda desidera partecipare:",
+          "nota": "",
+          "tipo": "selezione-multipla",
+          "selezioni": [
+            {
+              "nome": "Solo online",
+              "nota": "Descrizione"
+            },
+            {
+              "nome": "Online + Presenza",
+              "nota": "Descrizione"
+            }
+          ]
+        },
+        {
+          "nome": "Giorno di partecipazione",
+          "nota": "L'evento si svolge presso il Polo Santa Marta dell'univeristà degli studi di Verona (via Cantarane 24) il 22, il 23 e il 24 ottobre 2025. L’azienda può candidarsi* alla partecipazione ad una giornata in presenza esprimendo la propria preferenza per uno o più dei seguenti giorni: (barrare una o più opzioni)",
+          "tipo": "selezione",
+          "selezioni": [
+            {
+              "nome": "mercoledì 22 ottobre (9:30-16:30)",
+              "nota": "null"
+            },
+            {
+              "nome": "mercoledì 23 ottobre (9:30-16:30)",
+              "nota": "null"
+            },
+            {
+              "nome": "mercoledì 24 ottobre (9:30-16:30)",
+              "nota": "null"
+            }
+          ]
+        },
+        {
+          "nome": "Numero di posizioni da coprire",
+          "nota": "null",
+          "tipo": "selezione-multipla",
+          "selezioni": [
+            {
+              "nome": "umanistica",
+              "nota": "null"
+            },
+            {
+              "nome": "economica",
+              "nota": "null"
+            },
+            {
+              "nome": "giuridica",
+              "nota": "null"
+            },
+            {
+              "nome": "scientifica",
+              "nota": "null"
+            }
+          ]
+        },
+        {
+          "nome": "Posizioni categorie protette",
+          "nota": "null",
+          "tipo": "selezione-multipla",
+          "selezioni": [
+            {
+              "nome": "umanistica",
+              "nota": "null"
+            },
+            {
+              "nome": "economica",
+              "nota": "null"
+            },
+            {
+              "nome": "giuridica",
+              "nota": "null"
+            },
+            {
+              "nome": "scientifica",
+              "nota": "null"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "titolo": "Nota",
+      "nota": "Qui ci andrebbero le note specificate",
+      "campi": []
+    },
+    {
+      "titolo": "Contatti del referente aziendale",
+      "nota": "null",
+      "campi": [
+        {
+          "nome": "Nome e cognome",
+          "tipo": "text",
+          "placeolder": "nome e cognome"
+        },
+        {
+          "nome": "Ruolo aziendale",
+          "tipo": "text",
+          "placeolder": "ruolo aziendale"
+        },
+        {
+          "nome": "e-mail",
+          "tipo": "text",
+          "placeolder": "utente@gmail.com"
+        },
+        {
+          "nome": "tel. diretto",
+          "tipo": "text",
+          "placeolder": ""
+        }
+      ]
+    },
+    {
+      "titolo": "Contatto email per la gestione del profilo aziendale",
+      "nota": "attenzione: a questo indirizzo verranno inviate le credenziali per accedere alla piattaforma e le notifiche delle candidature ricevute!) INSERIRE UN SOLO INDIRIZZO E-MAIL",
+      "campi": [
+        {
+          "nome":"e-mail",
+          "tipo":"text",
+          "placeolder":"e-mail"
+        }
+      ]
+    }
+  ]
+}

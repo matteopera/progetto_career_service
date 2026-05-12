@@ -13,6 +13,7 @@ export const selection=z.object({ //viene condiviso dalla selezione e la selezio
 })
 export const selectionField=z.object({
     nome:z.string(),
+    nota:z.string(),
     tipo:z.literal("selezione"),
     selezioni:z.array(selection)   
 })

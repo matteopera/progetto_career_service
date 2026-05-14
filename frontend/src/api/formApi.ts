@@ -5,20 +5,18 @@ export default async function getForm() {
     const url = "http://localhost:3000/api/aziende/form";
     const res = await fetch(url);
 
-    const resJson = await res.json();
-
     if (!res.ok) {
       console.error("Errore HTTP:", res.status);
       return null;
     }
+
+    const resJson = await res.json();
 
     const form = formTypeZod.safeParse(resJson);
     if (!form.success) {
       //errore nel parsing
       console.error(form.error);
 
-      //ritorno di un oggetto vuoto
-      //return [];
       return null;
     }
 

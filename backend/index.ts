@@ -3,20 +3,23 @@ import { db } from "./db/db.js";
 import cors from "cors";
 import { fromNodeHeaders, toNodeHandler } from "better-auth/node";
 import { auth } from "./auth/auth.js";
-import aziendeRouter from "./routes/azienda.routes.js"
+import aziendeRouter from "./routes/azienda.routes.js";
+import pdfRouter from "./routes/pdf.routes.js";
+
 const app = express();
 const port = process.env.PORT;
-
 
 // Elenco di origins permesse per chiamare  API
 // TODO: in futuro da inserire nell'array url effettivo
 const allowedOrigins = ["http://localhost:5173"];
 
 // Gestione CORS
-app.use(cors({
-  origin: allowedOrigins,
-  credentials: true,
-}));
+app.use(
+  cors({
+    origin: allowedOrigins,
+    credentials: true,
+  }),
+);
 
 // Per gestione routes autenticazione. -> splat altrimenti non va (express 5)
 app.all("/api/auth/*splat", toNodeHandler(auth));
@@ -32,21 +35,18 @@ app.get("/api/me", async (req, res) => {
   return res.json(session);
 });
 
-
-
 app.get("/api/test", async (req, res) => {
   res.send("Hello world via GET!");
   console.log("Response sent get");
-  // Creo utente. Nota per Manuel: se tu ora provi a farlo col get, ti dirà utente già esistente. 
+  // Creo utente. Nota per Manuel: se tu ora provi a farlo col get, ti dirà utente già esistente.
   await auth.api.signUpEmail({
     body: {
       email: "mario.rossi04@gmail.com",
       password: "12345678",
       name: "Mario",
     },
-    headers: await fromNodeHeaders(req.headers)
-  })
-
+    headers: await fromNodeHeaders(req.headers),
+  });
 });
 
 app.post("/api/test", (req, res) => {
@@ -54,7 +54,9 @@ app.post("/api/test", (req, res) => {
   console.log("Response sent POST");
 });
 
-app.use("/api/aziende",aziendeRouter)
+app.use("/api/aziende", aziendeRouter);
+
+app.use("/api/pdf", pdfRouter);
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);

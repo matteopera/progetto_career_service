@@ -4,6 +4,8 @@ import {
   FieldDescription,
   FieldGroup,
   FieldLabel,
+  FieldLegend,
+  FieldSet,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -15,34 +17,198 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { useEffect, useState } from "react";
-import type { FAQ } from "@/type/FAQType";
-import { getFAQ } from "@/api/FAQ";
-import getForm from "@/api/formApi";
-import { type textField, type formType,} from "@/type/formType";
-import { Check } from "lucide-react";
+
+import type { form } from "@/type/formType";
 
 export default function Form() {
-  const [FAQ, setFAQ] = useState<FAQ[] | []>([]);
-  const [form, setForm] = useState<formType | null>(null);
+  // const [FAQ, setFAQ] = useState<FAQ[] | []>([]);
+  // const [form, setForm] = useState<formType | null>(null);
 
-  const handleSubmit=()=>{
+  const handleSubmit = () => {
     return null;
-  }
+  };
 
+  const form: form = {
+    formTitle: "MODULO DI ADESIONE A RECRUITING DAY VERONA VICENZA 2025",
+    formSubtitle: "IN PRESENZA (22-23-24 OTTOBRE) e ONLINE DAL 27 OTTOBRE 2025",
+    formNote:
+      "ATTENZIONE: da restituire firmato all’indirizzo eventiplacement@ateneo.univr.it entro il giorno 24 settembre 2025",
+    sections: [
+      {
+        sectionTitle: "Informazioni dell'azienda",
+        sectionNote: "null",
+        fields: [
+          {
+            fieldTitle: "nome/denominazione/ragione sociale dell'AZIENDA",
+            fieldType: "text",
+            fieldNote: "null",
+            textType: "text",
+          },
+          {
+            fieldTitle: "sede legale in",
+            fieldType: "text",
+            fieldNote: "null",
+            textType: "text",
+          },
+          {
+            fieldTitle: "CF",
+            fieldType: "text",
+            fieldNote: "null",
+            textType: "CF",
+          },
+          {
+            fieldTitle: "P.IVA",
+            fieldType: "text",
+            fieldNote: "null",
+            textType: "P.IVA",
+          },
+        ],
+      },
+      {
+        sectionTitle: "Partecipazione",
+        sectionNote: "NOTA SUL DESK",
+        fields: [
+          {
+            fieldTitle: "L'azienda richiede di partecipare",
+            fieldType: "radio",
+            fieldNote: "null",
+            options: [
+              {
+                optionName: "SOLO ONLINE",
+                optionNote: "con profilo aziendale sul portale",
+              },
+              {
+                optionName: "ONLINE+IN PRESENZA CON DESK AZIENDALE",
+                optionNote:
+                  "tavolo 160x80, 3 sedie, personalizzazione a carico dell'azienda",
+              },
+            ],
+          },
+          {
+            fieldTitle: "Giornate di partecipazione",
+            fieldType: "check",
+            fieldNote:
+              "L'evento si svolge presso il Polo Santa Marta il 22, 23, 24 ottobre, l'azienda può candidarsi nelle seguenti date",
+            options: [
+              {
+                optionName: "mercoledì 22 ottobre (ore 9.30 - 16.30)",
+                optionNote: "null",
+              },
+              {
+                optionName: "giovedì 23 ottobre (ore 9.30 - 16.30)",
+                optionNote: "null",
+              },
+              {
+                optionName: "venerdì 24 ottobre (ore 9.30 - 16.30)",
+                optionNote: "null",
+              },
+            ],
+          },
+          {
+            fieldTitle: "n. posizioni da coprire",
+            fieldNote: "selezionare le voci corrispondenti",
+            fieldType: "check",
+            options: [
+              {
+                optionName: "umanistica",
+                optionNote: "null",
+              },
+              {
+                optionName: "economica",
+                optionNote: "null",
+              },
+              {
+                optionName: "giuridica",
+                optionNote: "null",
+              },
+              {
+                optionName: "scientifica",
+                optionNote: "null",
+              },
+            ],
+          },
+          {
+            fieldTitle: "n. posizioni per cat. protette",
+            fieldNote: "selezionare le voci corrispondenti",
+            fieldType: "check",
+            options: [
+              {
+                optionName: "umanistica",
+                optionNote: "null",
+              },
+              {
+                optionName: "economica",
+                optionNote: "null",
+              },
+              {
+                optionName: "giuridica",
+                optionNote: "null",
+              },
+              {
+                optionName: "scientifica",
+                optionNote: "null",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        sectionTitle: "Contatti referente aziendale",
+        sectionNote: "null",
+        fields: [
+          {
+            fieldTitle: "nome e cognome",
+            fieldType: "text",
+            fieldNote: "null",
+            textType: "text",
+          },
+          {
+            fieldTitle: "ruolo aziendale",
+            fieldType: "text",
+            fieldNote: "null",
+            textType: "text",
+          },
+          {
+            fieldTitle: "email",
+            fieldType: "text",
+            fieldNote: "null",
+            textType: "email",
+          },
+          {
+            fieldTitle: "tel. diretto",
+            fieldType: "text",
+            fieldNote: "null",
+            textType: "tel",
+          },
+        ],
+      },
+      {
+        sectionTitle: "Indirizzo email per la gestione del profilo aziendale",
+        sectionNote: "null",
+        fields: [
+          {
+            fieldTitle: "email",
+            fieldType: "text",
+            fieldNote: "Attenzione inserire un solo indirizzo mail",
+            textType: "email",
+          },
+        ],
+      },
+    ],
+    date: "Forse opzionale se aggiunta in automatico alla generazione del PDF",
+  };
+  // useEffect(() => {
+  //   getFAQ().then((res) => {
+  //     setFAQ(res);
+  //   });
+  // }, []);
 
-  useEffect(() => {
-    getFAQ().then((res) => {
-      setFAQ(res);
-    });
-  }, []);
-
-  useEffect(() => {
-    getForm().then((res) => {
-      console.log(res);
-      setForm(res);
-    });
-  }, []);
+  // useEffect(() => {
+  //   getForm().then((res) => {
+  //     console.log(res);
+  //     setForm(res);
+  //   });
+  // }, []);
   return (
     <div className="bg-linear-to-br from-gray-100 via-blue-50 to-gray-100">
       <nav>
@@ -61,189 +227,115 @@ export default function Form() {
               Service e scoprire le opportunità di collaborazione con i nostri
               studenti
             </h2>
-            <div className="bg-white border rounded-2xl pl-3 pr-3 mt-10 p-4">
+            <div className="bg-white border rounded-2xl pl-3 pr-3 mt-10 p-4 ">
               <form onSubmit={handleSubmit}>
                 <FieldGroup>
-                  {form?.sezioni.map((s) => {
+                  <p>{form.formNote}</p>
+                  {form.sections.map((section) => {
                     return (
-                      <div
-                        className="grid grid-cols-1 gap-2.5 sm:grid-cols-2"
-                        key={`${s.titolo}`}
-                      >
-                        <h3 className="col-span-full">{s.titolo}</h3>
-                        {s.nota != "null" ? (
-                          <p className="col-span-full text-gray-400">
-                            {s.nota}
-                          </p>
-                        ) : (
-                          <></>
-                        )}
-                        {s.campi.map((c) => {
-                          if (c.tipo == "text") {
-                            //gestione del campo come textField
-                            return (
-                              <div key={`${c.nome}_${s.titolo}`}>
-                                <Field>
-                                  <FieldLabel htmlFor={`${c.nome}_${s.titolo}`}>
-                                    {`${c.nome}:`}
-                                  </FieldLabel>
-                                  <Input
-                                    id={`${c.nome}_${s.titolo}`}
-                                    placeholder={
-                                      c.placeolder != null ? c.placeolder : ""
-                                    }
-                                  ></Input>
-                                </Field>
-                              </div>
-                            );
-                          }
-                          if (c.tipo == "selezione-multipla") {
-                            return (
-                              <div key={`${s.nota}_${c.nome}`}>
-                                <h4 className="col-span-full mb-2">{`${c.nome}:`}</h4>
-                                {c.nota != "null" ? (
-                                  <Accordion
-                                    type="single"
-                                    collapsible
-                                    className="max-w-lg"
-                                  >
-                                    <AccordionItem value={`${c.nome}`}>
-                                      <AccordionTrigger className="text-gray-400">
-                                        Più dettagli
-                                      </AccordionTrigger>
-                                      <AccordionContent>{`${c.nota}`}</AccordionContent>
-                                    </AccordionItem>
-                                  </Accordion>
-                                ) : (
-                                  <></>
-                                )}
-                                {c.selezioni.map((sel) => {
-                                  return (
-                                    <Field
-                                      orientation="horizontal"
-                                      key={`${s.titolo}_${c.nome}_${sel.nome}`}
-                                    >
-                                      <Checkbox
-                                        id={`${s.titolo}_${c.nome}`}
-                                        name={`${s.titolo}_${c.nome}`}
-                                      />
-                                      <FieldLabel
-                                        htmlFor={`${s.titolo}_${c.nome}`}
-                                      >
-                                        {sel.nome}
-                                      </FieldLabel>
-                                      {sel.nota != "null" ? (
-                                        <Accordion
-                                          type="single"
-                                          collapsible
-                                          className="max-w-lg"
-                                        >
-                                          <AccordionItem value={`${sel.nome}`}>
-                                            <AccordionTrigger className="text-gray-400">
-                                              Più dettagli
-                                            </AccordionTrigger>
-                                            <AccordionContent>{`${sel.nota}`}</AccordionContent>
-                                          </AccordionItem>
-                                        </Accordion>
-                                      ) : (
-                                        <></>
-                                      )}
-                                    </Field>
-                                  );
-                                })}
-                              </div>
-                            );
-                          }
-                          if (c.tipo == "selezione") {
-                            return (
-                              <div key={`${s.titolo}_${c.nome}`}>
-                                <h4 className="col-span-full mb-2">{`${c.nome}:`}</h4>
-                                {c.nota != "null" ? (
-                                  <Accordion
-                                    type="single"
-                                    collapsible
-                                    className="max-w-lg"
-                                  >
-                                    <AccordionItem value={`${c.nome}`}>
-                                      <AccordionTrigger className="text-gray-400">
-                                        Più dettagli
-                                      </AccordionTrigger>
-                                      <AccordionContent>{`${c.nota}`}</AccordionContent>
-                                    </AccordionItem>
-                                  </Accordion>
-                                ) : (
-                                  <></>
-                                )}
-                                <RadioGroup
-                                  defaultValue=""
-                                  className="w-fit sm:col-span-2 "
-                                >
-                                  {c.selezioni.map((sel) => {
-                                    return (
-                                      <div
-                                        key={`${s.nota}_${c.nome}_${sel.nome}`}
-                                      >
+                      <FieldSet>
+                        <FieldLegend>{section.sectionTitle}</FieldLegend>
+                        {section.sectionNote != "null" ? (
+                          <FieldDescription>
+                            {section.sectionNote}
+                          </FieldDescription>
+                        ) : null}
+                        <div className="mb-5 sm:columns-2">
+                          {section.fields.map((field) => {
+                            {
+                              if (field.fieldType == "text") {
+                                return (
+                                  <Field className="break-inside-avoid-column mb-3">
+                                    <FieldLabel htmlFor="field.fieldTitle">
+                                      {field.fieldTitle}
+                                    </FieldLabel>
+                                    <Input
+                                      required
+                                      id={field.fieldTitle}
+                                      name={field.fieldTitle}
+                                       className="border-2 border-indigo-300"
+                                    ></Input>
+                                  </Field>
+                                );
+                              } else if (field.fieldType == "check") {
+                                return (
+                                  <Field className="break-inside-avoid-column mb-3">
+                                    <FieldLabel>{field.fieldTitle}</FieldLabel>
+                                    <FieldDescription>
+                                      {field.fieldNote != "null"
+                                        ? field.fieldNote
+                                        : null}
+                                    </FieldDescription>
+                                    {field.options.map((option) => {
+                                      return (
                                         <Field orientation="horizontal">
-                                          <RadioGroupItem
-                                            value={sel.nome}
-                                            id={sel.nome}
-                                          ></RadioGroupItem>
+                                          <Checkbox
+                                            id={option.optionName}
+                                            name={option.optionName}
+                                            className="border border-indigo-300"
+                                          />
                                           <FieldContent>
-                                            <FieldLabel htmlFor={sel.nome}>
-                                              {sel.nome}
+                                            <FieldLabel
+                                              htmlFor={option.optionName}
+                                            >
+                                              {option.optionName}
                                             </FieldLabel>
-                                            {sel.nota != "null" ? (
-                                              <Accordion
-                                                type="single"
-                                                collapsible
-                                                className="max-w-lg"
-                                              >
-                                                <AccordionItem
-                                                  value={`${sel.nome}`}
-                                                >
-                                                  <AccordionTrigger className="text-gray-400">
-                                                    Più dettagli
-                                                  </AccordionTrigger>
-                                                  <AccordionContent>{`${sel.nota}`}</AccordionContent>
-                                                </AccordionItem>
-                                              </Accordion>
-                                            ) : (
-                                              <></>
-                                            )}
+                                            <FieldDescription>
+                                              {option.optionNote != "null"
+                                                ? option.optionNote
+                                                : null}
+                                            </FieldDescription>
                                           </FieldContent>
                                         </Field>
-                                      </div>
-                                    );
-                                  })}
-                                </RadioGroup>
-                              </div>
-                            );
-                          }
-                        })}
-                      </div>
+                                      );
+                                    })}
+                                  </Field>
+                                );
+                              } else if (field.fieldType == "radio") {
+                                return (
+                                  <Field className="mb-3 break-inside-avoid-column">
+                                    <FieldLabel>{field.fieldTitle}</FieldLabel>
+                                    <FieldDescription>
+                                      {field.fieldNote != "null"
+                                        ? field.fieldNote
+                                        : null}
+                                    </FieldDescription>
+                                    <RadioGroup
+                                      defaultValue={field.options[0].optionName}
+                                      className="w-fit"
+                                    >
+                                      {field.options.map((option) => {
+                                        return (
+                                          <div className="flex gap-3 items-center">
+                                            <RadioGroupItem
+                                              value={option.optionName}
+                                              id={option.optionName}
+                                              className="border border-indigo-300"
+                                            />
+                                            <FieldLabel
+                                              htmlFor={option.optionName}
+                                            >
+                                              {option.optionName}
+                                            </FieldLabel>
+                                            <FieldDescription>
+                                              {option.optionNote}
+                                            </FieldDescription>
+                                          </div>
+                                        );
+                                      })}
+                                    </RadioGroup>
+                                  </Field>
+                                );
+                              } else {
+                                return null;
+                              }
+                            }
+                          })}
+                        </div>
+                      </FieldSet>
                     );
                   })}
                 </FieldGroup>
-
-                <p className="mt-4">
-                  Vi preghiamo di prendere visione dell'informativa{" "}
-                  <a
-                    href="https://www.recruitingverona.it/sites/default/files/privacy/privacy-policy-Recruiting-202204.pdf"
-                    className="underline"
-                  >
-                    privacy
-                  </a>{" "}
-                  e della{" "}
-                  <a
-                    href="https://www.recruitingverona.it/sites/default/files/privacy/cookie-policy-Recruiting.pdf"
-                    className="underline"
-                  >
-                    coockie policy
-                  </a>
-                </p>
-                <div className="col-span-full mt-4 flex justify-end">
-                  <Button type="submit">Invia</Button>
-                </div>
               </form>
             </div>
 
@@ -258,18 +350,7 @@ export default function Form() {
                 type="single"
                 className="mb-10 w-full sm:max-w-3xl"
                 collapsible
-              >
-                {FAQ.map((question, index) => {
-                  return (
-                    <AccordionItem value={`accordioni${index}`} key={index}>
-                      <AccordionTrigger>{question.domanda}</AccordionTrigger>
-                      <AccordionContent className="pb-4">
-                        {question.risposta}
-                      </AccordionContent>
-                    </AccordionItem>
-                  );
-                })}
-              </Accordion>
+              ></Accordion>
             </section>
           </div>
         </div>

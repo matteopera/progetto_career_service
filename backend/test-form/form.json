@@ -1,5 +1,5 @@
 {
-    "fomrTitle":"MODULO DI ADESIONE A RECRUITING DAY VERONA VICENZA 2025",
+    "formTitle":"MODULO DI ADESIONE A RECRUITING DAY VERONA VICENZA 2025",
     "formSubtitle":"IN PRESENZA (22-23-24 OTTOBRE) e ONLINE DAL 27 OTTOBRE 2025",
     "formNote":"ATTENZIONE: da restituire firmato all’indirizzo eventiplacement@ateneo.univr.it entro il giorno 24 settembre 2025",
     "sections":[
@@ -10,25 +10,25 @@
                 {
                     "fieldTitle":"nome/denominazione/ragione sociale dell'AZIENDA",
                     "fieldType":"text",
-                    "field-note":"null",
-                    "type":"text"
+                    "fieldNote":"null",
+                    "textType":"text"
                 },
                 {
                     "fieldTitle":"sede legale in",
                     "fieldType":"text",
-                    "field-note":"null",
-                    "type":"text"
+                    "fieldNote":"null",
+                    "textType":"text"
                 },
                 {
                     "fieldTitle":"CF",
                     "fieldType":"text",
-                    "field-note":"null",
-                    "type":"CF"
+                    "fieldNote":"null",
+                    "textType":"CF"
                 },
                 {
                     "fieldTitle":"P.IVA",
                     "fieldType":"text",
-                    "field-note":"null",
+                    "fieldNote":"null",
                     "textType":"P.IVA"
                 }
             ]

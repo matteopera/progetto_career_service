@@ -1,6 +1,5 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router";
 import "./App.css";
-import Home from "./pages/home";
 import Login from "./pages/admin/login";
 import Form from "./pages/form";
 import { Toaster } from "./components/ui/sonner";
@@ -17,7 +16,7 @@ function App() {
     <TooltipProvider>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<Login />} />
           <Route path="/login" element={<Login />} />
           <Route path="/form" element={<Form />} />
 

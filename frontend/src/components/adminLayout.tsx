@@ -77,7 +77,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
       {menuVisible || !isMobile ? (
         <aside
           className={cn(
-            "w-64 max-md:w-3/5 flex flex-col bg-white border-r shadow",
+            "w-68 max-md:w-3/5 flex flex-col bg-white border-r shadow",
             isMobile &&
               "fixed z-50 top-0 left-0 bottom-0 inset-0 overflow-y-scroll",
           )}
@@ -89,16 +89,22 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             />
           )}
           {/* Titolo e immagine Univr */}
-          <div className="flex flex-col gap-2  pt-2 pb-4 border-b items-center ">
-            <img
-              src="logo_univr_short.png"
-              alt="Logo Università di Verona"
-              className="w-18 h-18"
-            />
-            <div className="px-2 w-full">
-              <h2 className="font-semibold text-2xl ">Career Service</h2>
-              <p className="text-sm text-gray-600">Gestionale Recruiting Day</p>
+          <div className="border-b p-4">
+            <div className="flex  gap-2   items-center ">
+              <img
+                src="logo_univr_short.png"
+                alt="Logo Università di Verona"
+                className="w-18 h-18"
+              />
+              <h2 className="font-semibold text-2xl ">
+                Career
+                <br />
+                service
+              </h2>
             </div>
+            <p className="text-sm text-gray-700 mt-2">
+              Gestionale Recruiting Day
+            </p>
           </div>
           {/* Elementi menù */}
           <div className="flex flex-col gap-2 p-2 mt-4">
@@ -108,7 +114,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                   key={item.id}
                   onClick={() => handleChangePage(item.href)}
                   className={cn(
-                    "cursor-pointer flex gap-3 items-center p-3 rounded transition-all duration-200",
+                    "cursor-pointer flex gap-3 items-center p-3 rounded-3xl transition-all duration-200",
                     location.pathname === item.href
                       ? "bg-stone-800 text-white"
                       : "hover:bg-stone-100 text-stone-700",

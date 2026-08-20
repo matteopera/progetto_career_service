@@ -1,6 +1,6 @@
-import { FiLock, FiMail } from "react-icons/fi";
+import { FiEye, FiEyeOff, FiLock, FiMail } from "react-icons/fi";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { createAuthClient } from "better-auth/react";
@@ -8,6 +8,7 @@ import z from "zod";
 import { loginSchema, type LoginType } from "@/type/Login";
 import { authClient } from "@/lib/auth-client";
 import { useNavigate } from "react-router";
+import { Input } from "@/components/ui/input";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -22,6 +23,8 @@ export default function Login() {
     email: string;
     password: string;
   }>({ email: "", password: "" });
+
+  const [passwordVisible, setPasswordVisible] = useState<boolean>(false);
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
@@ -93,29 +96,54 @@ export default function Login() {
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 min-h-screen  ">
-      <div className="bg-black/60 min-h-screen max-lg:hidden min-w-full relative ">
-        <div className="bg-[url(/sede_univr.jpg)] bg-no-repeat bg-cover min-h-full absolute -z-10 min-w-full bg-"></div>
+    <div className="w-screen h-full flex max-lg:flex-col min-h-screen lg:p-4 bg-gray-50000/10">
+      <div className="lg:w-1/2 bg-black/80 max-lg:h-32 lg:min-h-full hidden lg:block  relative lg:rounded-xl max-lg:rounded-b-xl  overflow-hidden">
+        <div className="bg-[url(/sede_univr.jpg)]  rounded-2xl bg-no-repeat bg-cover min-h-full absolute -z-10 w-full "></div>
+        <div className="text-white relative h-full flex items-center backdrop-blur-xs px-24">
+          <div className=" max-lg:px-8 flex lg:flex-col gap-6 text-start">
+            <img src="logo_univr_short_white.png" className="w-24" />
+            <p className="text-2xl lg:text-4xl font-semibold ">
+              Gestionale Eventi Career Service
+            </p>
+            <p className="max-lg:hidden text-white/70 text-lg">
+              Creazione form, raccolta dati delle aziende con creazione
+              automatica di PDF ed esportazione excel in un'unica piattaform
+            </p>
+          </div>
+        </div>
       </div>
-      <div className="flex items-center justify-center ">
-        <div className="w-100 mx-4 max-lg:border max-lg:p-4 max-lg:shadow max-lg:rounded-xl">
-          <img
-            src="logo_univr.png"
-            alt="Logo Università di Verona"
-            className="w-64 mx-auto mb-4"
-          />
-          <h1 className="font-bold text-3xl text-center">Accedi</h1>
-          <p className="text-gray-600 text-center mt-2 mb-3">
-            Piattaforma gestione career service
+      <div className="lg:w-1/2 flex lg:items-center mx-3 py-8 justify-center ">
+        <div className="lg:w-140 mx-4">
+          <div className="flex items-center lg:hidden lg:justify-center ">
+            <img
+              src="logo_univr_short.png"
+              alt="Logo Università di Verona"
+              className="w-14 mr-4 lg:hidden"
+            />
+            <p className="text-xl font-bold lg:text-center">
+              Gestionale Eventi Career Service
+            </p>
+          </div>
+          <h1 className="max-lg:mt-12 font-semibold text-3xl lg:text-4xl text-center ">
+            Bentornato
+          </h1>
+          <p className="text-gray-500 mt-4  text-center ">
+            Inserisci l'email e la password per accedere alla piattaforma
           </p>
-          <form className="flex flex-col  gap-4" onSubmit={handleSubmit}>
+          <form
+            className="flex flex-col lg:min-h-full mt-8 gap-2 lg:gap-6"
+            onSubmit={handleSubmit}
+          >
             <div className="flex flex-col gap-2">
               <label className=" inline font-semibold" htmlFor="email">
                 Email
               </label>
               <div className="relative ">
-                <FiMail className="absolute top-4 left-2.5 w-4 text-gray-400" />
-                <input
+                <FiMail
+                  size={18}
+                  className="absolute top-4 left-4 text-gray-500"
+                />
+                <Input
                   onFocus={() =>
                     setErrorFormData((prev) => ({ ...prev, email: "" }))
                   }
@@ -128,7 +156,7 @@ export default function Login() {
                   id="email"
                   required
                   type="email"
-                  className={`rounded-lg border w-full pl-8 border-gray-200 px-3 py-3 text-sm ${errorFormData.email !== "" && "border-red-500"}`}
+                  className={`pl-11  ${errorFormData.email !== "" && "border-red-500"}`}
                   placeholder="mario.rossi@gmail.com"
                 />
                 <p className="text-red-500 text-sm mt-2">
@@ -142,9 +170,12 @@ export default function Login() {
                 Password
               </label>
               <div className="relative ">
-                <FiLock className="absolute top-4 left-2.5 w-4 text-gray-400" />
+                <FiLock
+                  size={18}
+                  className="absolute top-4 left-4 text-gray-500"
+                />
 
-                <input
+                <Input
                   onFocus={() =>
                     setErrorFormData((prev) => ({ ...prev, password: "" }))
                   }
@@ -159,10 +190,24 @@ export default function Login() {
                   name="password"
                   id="password"
                   required
-                  type="password"
-                  className={`rounded-lg border w-full pl-8 border-gray-200 px-3 py-3 text-sm ${errorFormData.password !== "" && "border-red-500"}`}
+                  type={passwordVisible ? "text" : "password"}
+                  className={`pl-11 ${errorFormData.password !== "" && "border-red-500"}`}
                   placeholder="●●●●●●●●"
                 />
+                {passwordVisible ? (
+                  <FiEyeOff
+                    size={18}
+                    className="absolute top-4 right-4 text-gray-500 cursor-pointer"
+                    onClick={() => setPasswordVisible(false)}
+                  />
+                ) : (
+                  <FiEye
+                    size={18}
+                    className="absolute top-4 right-4 text-gray-500 cursor-pointer"
+                    onClick={() => setPasswordVisible(true)}
+                  />
+                )}
+
                 <p className="text-red-500 text-sm mt-2">
                   {errorFormData.password}
                 </p>
@@ -174,22 +219,28 @@ export default function Login() {
                 id="rememberMe"
                 disabled={isSubmitting}
                 checked={formData.rememberMe}
-                onCheckedChange={(v) =>
-                  setFormData((prev) => ({ ...prev, rememberMe: v === true }))
+                onCheckedChange={(value: boolean) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    rememberMe: value,
+                  }))
                 }
                 name="rememberMe"
+                className="w-4.5 h-4.5"
               />
-              <label htmlFor="rememberMe">Ricordami</label>
+              <label htmlFor="rememberMe" className="text-gray-800">
+                Ricorda accesso
+              </label>
             </div>
 
             {isSubmitting ? (
-              <div className="border border-black rounded-lg py-3 flex items-center justify-center gap-2">
+              <div className="border border-black rounded-lg py-4 lg:py-3 flex items-center justify-center gap-2">
                 <Loader2 className="animate-spin h-5 w-5" />
                 <span className="font-medium">Accesso in corso</span>
               </div>
             ) : (
               <button
-                className="bg-black text-center w-full py-3 rounded-lg text-white font-medium hover:scale-[102%] duration-200 transition-all cursor-pointer"
+                className="bg-black text-center w-full py-4 lg:py-3 rounded-lg text-white font-medium hover:scale-[102%] duration-200 transition-all cursor-pointer"
                 type="submit"
               >
                 Accedi

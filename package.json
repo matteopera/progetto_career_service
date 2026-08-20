@@ -8,11 +8,11 @@
     "backend"
   ],
   "scripts": {
-    "client-dev": "npm run dev --prefix frontend",
+    "client-dev": "npm run dev --prefix frontend -- --host",
     "server-dev": "npm run dev --prefix backend",
     "client-build": "npm run build --prefix frontend",
     "server-build": "npm run build --prefix backend",
-    "install-all": "npm install && npm install --prefix frontend && npm install --prefix backend",
+    "install-all": "npm install",
     "dev": "concurrently --names  \"Client - React, Server - Express.js node\" --prefix-colors \"blue,magenta\" \"npm run client-dev\" \"npm run server-dev\"",
     "build": "concurrently --names  \"Client - React, Server - Express.js Node\" --prefix-colors \"blue,magenta\" \"npm run client-build\" \"npm run server-build\"",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -27,6 +27,7 @@
     "nodemon": "^3.1.14"
   },
   "dependencies": {
+    "@fontsource/inter": "^5.3.0",
     "@tailwindcss/vite": "^4.2.4",
     "mongodb": "7.2",
     "pdfkit": "^0.19.1",

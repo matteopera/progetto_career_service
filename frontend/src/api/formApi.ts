@@ -1,29 +1,33 @@
-// import { formTypeZod } from "@/type/formType";
-// import * as z from "zod";
-// export default async function getForm() {
-//   try {
-//     const url = "http://localhost:3000/api/aziende/form";
-//     const res = await fetch(url);
 
-//     if (!res.ok) {
-//       console.error("Errore HTTP:", res.status);
-//       return null;
-//     }
+import { zodContentForm } from "@/types/formType"
+import z from "zod"
 
-//     const resJson = await res.json();
+/**
+ * The function makes a validation of the form sent from the server and return it
+ * @returns the form for the companies
+ */
+export default async function fetchForm(){
+    try{
+        const response=await fetch("http://127.0.0.1:8000/form")
 
-//     const form = formTypeZod.safeParse(resJson);
-//     if (!form.success) {
-//       //errore nel parsing
-//       console.error(form.error);
+        if(!response.ok){
+            console.error("Error during the fetching of the form")
+        }
 
-//       return null;
-//     }
+        const formJson=await response.json()
 
-//     //ritorno del form tipato
-//     return form.data;
-//   } catch (error) {
-//     console.log(error);
-//     return null;
-//   }
-// }
+        //parsing of the form
+        const parsedForm=await zodContentForm.parseAsync(formJson)
+
+        return parsedForm
+
+    }catch(error){
+        if(error instanceof z.ZodError){
+            console.error("The form type is not valid")
+        }
+        else{
+            console.error("Error during the acquiring of the form")
+        }
+        return null
+    }
+}

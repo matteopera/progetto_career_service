@@ -1,7 +1,7 @@
 import { BrowserRouter, Route, Routes } from "react-router";
 import "./App.css";
 import Login from "./pages/admin/login";
-import Form from "./pages/form";
+import Form from "./pages/company/formPage";
 import { Toaster } from "./components/ui/sonner";
 import Dashboard from "./pages/admin/dashboard";
 import AdminLayout from "./components/adminLayout";

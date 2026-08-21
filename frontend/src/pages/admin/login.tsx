@@ -5,7 +5,7 @@ import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { createAuthClient } from "better-auth/react";
 import z from "zod";
-import { loginSchema, type LoginType } from "@/type/Login";
+import { loginSchema, type LoginType } from "@/types/Login";
 import { authClient } from "@/lib/auth-client";
 import { useNavigate } from "react-router";
 import { Input } from "@/components/ui/input";

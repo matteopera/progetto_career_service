@@ -1,9 +1,10 @@
-import { FormTemplate } from "../types/form.js";
 import { Response } from "express";
 import PDFDocument from "pdfkit";
+import { contentForm } from "../types/form.js";
+import { contentFormTest } from "../test-form/test.js";
 
 export async function generatePDFPreviewAsync(
-  template: FormTemplate | null,
+  template: contentForm | null,
   res: Response,
 ) {
   // Non gestisco eccezione di generazione, viene gestita dal controller
@@ -17,186 +18,16 @@ export async function generatePDFPreviewAsync(
   doc
     .fontSize(12)
     .font("Helvetica-Bold")
-    .text(dataTest.fomrTitle, { align: "center" });
+    .text(contentFormTest.formTitle, { align: "center" });
   doc
     .fontSize(12)
     .font("Helvetica")
-    .text(dataTest.formSubtitle, { align: "center" });
+    .text(contentFormTest.formSubtitle, { align: "center" });
 
   doc
     .fontSize(12)
     .font("Helvetica-Bold")
-    .text(dataTest.formNote, { align: "center" });
+    .text(contentFormTest.formNote, { align: "center" });
 
   doc.end();
 }
-
-const dataTest = {
-  fomrTitle: "MODULO DI ADESIONE A RECRUITING DAY VERONA VICENZA 2025",
-  formSubtitle: "IN PRESENZA (22-23-24 OTTOBRE) e ONLINE DAL 27 OTTOBRE 2025",
-  formNote:
-    "ATTENZIONE: da restituire firmato all’indirizzo eventiplacement@ateneo.univr.it entro il giorno 24 settembre 2025",
-  sections: [
-    {
-      sectionTitle: "Informazioni dell'azienda",
-      sectionNote: "null",
-      fields: [
-        {
-          fieldTitle: "nome/denominazione/ragione sociale dell'AZIENDA",
-          fieldType: "text",
-          "field-note": "null",
-          type: "text",
-        },
-        {
-          fieldTitle: "sede legale in",
-          fieldType: "text",
-          "field-note": "null",
-          type: "text",
-        },
-        {
-          fieldTitle: "CF",
-          fieldType: "text",
-          "field-note": "null",
-          type: "CF",
-        },
-        {
-          fieldTitle: "P.IVA",
-          fieldType: "text",
-          "field-note": "null",
-          textType: "P.IVA",
-        },
-      ],
-    },
-    {
-      sectionTitle: "Partecipazione",
-      sectionNote: "NOTA SUL DESK",
-      fields: [
-        {
-          fieldTitle: "L'azienda richiede di partecipare",
-          fieldType: "radio",
-          fieldNote: "null",
-          options: [
-            {
-              optionName: "SOLO ONLINE",
-              optionNote: "con profilo aziendale sul portale",
-            },
-            {
-              optionName: "ONLINE+IN PRESENZA CON DESK AZIENDALE",
-              optionNote:
-                "tavolo 160x80, 3 sedie, personalizzazione a carico dell'azienda",
-            },
-          ],
-        },
-        {
-          fieldTitle: "Giornate di partecipazione",
-          fieldType: "check",
-          fieldNote:
-            "L'evento si svolge presso il Polo Santa Marta il 22, 23, 24 ottobre, l'azienda può candidarsi nelle seguenti date",
-          options: [
-            {
-              optionName: "mercoledì 22 ottobre (ore 9.30 - 16.30)",
-              optionNote: "null",
-            },
-            {
-              optionName: "giovedì 23 ottobre (ore 9.30 - 16.30)",
-              optionNote: "null",
-            },
-            {
-              optionName: "venerdì 24 ottobre (ore 9.30 - 16.30)",
-              optionNote: "null",
-            },
-          ],
-        },
-        {
-          fieldTitle: "n. posizioni da coprire",
-          fieldNote: "selezionare le voci corrispondenti",
-          fieldType: "check",
-          options: [
-            {
-              optionName: "umanistica",
-              optionNote: "null",
-            },
-            {
-              optionName: "economica",
-              optionNote: "null",
-            },
-            {
-              optionName: "giuridica",
-              optionNote: "null",
-            },
-            {
-              optionName: "scientifica",
-              optionNote: "null",
-            },
-          ],
-        },
-        {
-          fieldTitle: "n. posizioni per cat. protette",
-          fieldNote: "selezionare le voci corrispondenti",
-          fieldType: "check",
-          options: [
-            {
-              optionName: "umanistica",
-              optionNote: "null",
-            },
-            {
-              optionName: "economica",
-              optionNote: "null",
-            },
-            {
-              optionName: "giuridica",
-              optionNote: "null",
-            },
-            {
-              optionName: "scientifica",
-              optionNote: "null",
-            },
-          ],
-        },
-      ],
-    },
-    {
-      sectionTitle: "Contatti referente aziendale",
-      sectionNote: "null",
-      fields: [
-        {
-          fieldTitle: "nome e cognome",
-          fieldType: "text",
-          fieldNote: "null",
-          textType: "text",
-        },
-        {
-          fieldTitle: "ruolo aziendale",
-          fieldType: "text",
-          fieldNote: "null",
-          textType: "text",
-        },
-        {
-          fieldTitle: "email",
-          fieldType: "text",
-          fieldNote: "null",
-          textType: "email",
-        },
-        {
-          fieldTitle: "tel. diretto",
-          fieldType: "text",
-          fieldNote: "null",
-          textType: "tel",
-        },
-      ],
-    },
-    {
-      sectionTitle: "Indirizzo email per la gestione del profilo aziendale",
-      sectionNote: "null",
-      fields: [
-        {
-          fieldTitle: "email",
-          fieldType: "text",
-          fieldNote: "Attenzione inserire un solo indirizzo mail",
-          textType: "email",
-        },
-      ],
-    },
-  ],
-  date: "Forse opzionale se aggiunta in automatico alla generazione del PDF",
-};

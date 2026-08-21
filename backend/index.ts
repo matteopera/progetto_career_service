@@ -5,6 +5,7 @@ import { fromNodeHeaders, toNodeHandler } from "better-auth/node";
 import { auth } from "./auth/auth.js";
 import aziendeRouter from "./routes/azienda.routes.js";
 import pdfRouter from "./routes/pdf.routes.js";
+import formRouter from "./routes/form.routes.js";
 
 const app = express();
 const port = process.env.PORT;
@@ -53,6 +54,7 @@ app.post("/api/test", (req, res) => {
   res.send("Hello world via POST!");
   console.log("Response sent POST");
 });
+app.use("/api/form", formRouter);
 
 app.use("/api/aziende", aziendeRouter);
 

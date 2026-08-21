@@ -1,15 +1,15 @@
 import { MongoClient, ServerApiVersion } from "mongodb";
 
-// Stringa connessione database
-const connString = process.env.MONGO_URL || "";
+// stringa connessione database
+const connstring = process.env.MONGO_URL || "";
 
-if (!connString)
+if (!connstring)
   throw new Error(
     "MONGO_URL non è stato settato. Controllare variabili d'ambiente!",
   );
 
 // Creazione client per mongoDB
-export const mongoClient = new MongoClient(connString, {
+export const mongoClient = new MongoClient(connstring, {
   serverApi: {
     version: ServerApiVersion.v1,
     strict: true,

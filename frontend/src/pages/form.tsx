@@ -18,7 +18,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 
-import type { form } from "@/type/formType";
+import type { contentForm } from "@/types/formType";
 
 export default function Form() {
   // const [FAQ, setFAQ] = useState<FAQ[] | []>([]);
@@ -28,7 +28,7 @@ export default function Form() {
     return null;
   };
 
-  const form: form = {
+  const form: contentForm = {
     formTitle: "MODULO DI ADESIONE A RECRUITING DAY VERONA VICENZA 2025",
     formSubtitle: "IN PRESENZA (22-23-24 OTTOBRE) e ONLINE DAL 27 OTTOBRE 2025",
     formNote:
@@ -253,7 +253,7 @@ export default function Form() {
                                       required
                                       id={field.fieldTitle}
                                       name={field.fieldTitle}
-                                       className="border-2 border-indigo-300"
+                                      className="border-2 border-indigo-300"
                                     ></Input>
                                   </Field>
                                 );

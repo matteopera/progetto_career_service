@@ -1,4 +1,4 @@
-import { Calendar, Clock, Database, FormIcon, Users } from "lucide-react";
+import { Calendar, Database, FormIcon, Users } from "lucide-react";
 
 export default function Dashboard() {
   const cardDatas = [
@@ -40,7 +40,7 @@ export default function Dashboard() {
         {cardDatas.map((data) => (
           <div
             key={data.id}
-            className="border flex justify-between items-start rounded-xl shadow-xs p-6 w-full"
+            className="border flex justify-between items-start rounded-xl shadow-xs p-4 w-full"
           >
             <div className="">
               {/* titolo */}
@@ -57,12 +57,11 @@ export default function Dashboard() {
       </div>
 
       {/* Tabella ultime aziende */}
-      <div className="border shadow rounded-xl h-80 mt-8 p-8">
+      <div className="border shadow rounded-xl h-80 mt-8 p-4">
         <h1 className="font-medium text-xl">Ultime aziende registrate</h1>
       </div>
       {/* Tabella ultimi form */}
       <div className="border shadow rounded-xl h-80 mt-8 p-8">
-        {" "}
         <h1 className="font-medium text-xl">Ultime form creati</h1>
       </div>
     </div>

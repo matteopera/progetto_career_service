@@ -1,25 +1,23 @@
 import { MongoError } from "mongodb";
 import { findFaq, formRequest } from "../db/company.js";
-import {FAQs, formTypeZod} from "../models/azienda.model.js"
+import { FAQs, formTypeZod } from "../models/azienda.model.js";
 import { DBError } from "../errors/DBError.js";
 
-export async function findAllFaq(){
-        //richiesta al mongoDB
-        const res=await findFaq();
-        //validazione dei dati ottenuti
-        const faq=FAQs.parse(res);
-        //restituzione dei dati ottenuti
-        return faq;
+export async function findAllFaq() {
+  //richiesta al mongoDB
+  const res = await findFaq();
+  //validazione dei dati ottenuti
+  const faq = FAQs.parse(res);
+  //restituzione dei dati ottenuti
+  return faq;
 }
 
+export async function findForm() {
+  const form = await formRequest();
 
+  //controzzo con zod del formato ottenuto dal DB
+  const parsedForm = formTypeZod.parse(form);
 
-export async function findForm(){
-        const form=await formRequest();
-
-        //controzzo con zod del formato ottenuto dal DB
-        const parsedForm=formTypeZod.parse(form);
-
-        //return del form parsato
-        return parsedForm;
+  //return del form parsato
+  return parsedForm;
 }

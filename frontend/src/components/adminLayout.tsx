@@ -9,7 +9,7 @@ import {
   X,
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
-import { useLocation, useNavigate } from "react-router";
+import { Navigate, useLocation, useNavigate } from "react-router";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { Button } from "./ui/button";
@@ -37,13 +37,12 @@ const itemsMenu = [
     title: "Form",
     icon: FormIcon,
     href: "/forms",
-    active: false,
+    active: true,
   },
 ];
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
   // Recupero account
-  const { data: session } = authClient.useSession();
 
   // Gestione navigazione
   const location = useLocation();
@@ -72,11 +71,23 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     }
   };
 
+  const { data: session, isPending } = authClient.useSession();
+  if (isPending) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="animate-spin w-12 h-12" />
+      </div>
+    );
+  }
+  if (!session || !session.user) {
+    return <Navigate to={"/login"} />;
+  }
+
   return (
     <div className="min-h-screen w-full flex max-lg:flex-col relative ">
       <aside
         className={cn(
-          "max-lg:hidden sticky left-0 h-screen top-0 w-68 max-md:w-3/5 flex flex-col bg-white border-r shadow transition-all duration-250",
+          "max-lg:hidden sticky left-0 h-screen top-0 w-80 max-md:w-3/5 flex flex-col bg-white border-r shadow transition-all duration-250",
           isMobile &&
             "fixed z-50 top-0 left-0 bottom-0 inset-0 overflow-y-hidden",
           !menuVisible && isMobile && "-translate-x-100",
@@ -183,7 +194,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
       {/* CONTENUTO PAGINA */}
       <div
         className={cn(
-          "min-h-full p-4 w-full bg-gray-50/10",
+          "min-h-full p-8 w-full bg-gray-50/10",
           menuVisible && isMobile && " bg-black/70 overlay",
         )}
         onClick={
@@ -193,6 +204,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         {children}
       </div>
 
+      {/* Menù navigazione mobile */}
       <div className="lg:hidden bg-white border-t sticky bottom-0 p-4 flex justify-around  shadow w-full">
         {itemsMenu.map((item) =>
           item.active ? (

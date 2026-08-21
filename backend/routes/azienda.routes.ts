@@ -1,8 +1,9 @@
-import {Router} from "express"
-import {getFaq, getForm} from "../controller/companyControllers.js"
-const router=Router()
+import { Router } from "express";
+import { getFaq, getForm } from "../controller/companyControllers.js";
 
-router.get("/FAQ",getFaq);
-router.get("/form",getForm);
+const router = Router();
 
-export default router
+router.get("/FAQ", getFaq);
+router.get("/form", getForm);
+
+export default router;

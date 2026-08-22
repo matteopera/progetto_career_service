@@ -24,12 +24,7 @@ export async function createForm() {
 export async function findFormsAsync() {
   //apertura della collezione
   const collection = db.collection("forms");
-
   const res = await collection.find({}).toArray();
 
-  console.log(res);
-
   return res;
-
-  //restituzione del form
 }

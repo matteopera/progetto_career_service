@@ -22,22 +22,25 @@ const itemsMenu = [
     id: 1,
     title: "Dashboard",
     icon: LayoutDashboard,
-    href: "/dashboard",
+    href: "/admin/dashboard",
     active: true,
+    subPages: [],
   },
   {
     id: 2,
     title: "Aziende",
     icon: Factory,
-    href: "/companies",
+    href: "/admin/companies",
     active: true,
+    subPages: [],
   },
   {
     id: 3,
     title: "Form",
     icon: FormIcon,
-    href: "/forms",
+    href: "/admin/forms",
     active: true,
+    subPages: ["/admin/form"],
   },
 ];
 
@@ -103,7 +106,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         <div className="border-b p-4">
           <div className="flex gap-2 items-center ">
             <img
-              src="logo_univr_short.png"
+              src="/logo_univr_short.png"
               alt="Logo Università di Verona"
               className="w-18 h-18"
             />
@@ -126,7 +129,8 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                 onClick={() => handleChangePage(item.href)}
                 className={cn(
                   "cursor-pointer flex gap-3 items-center px-4 py-1.5 rounded-lg transition-all duration-200 text-black",
-                  location.pathname === item.href
+                  location.pathname === item.href ||
+                    item.subPages.includes(location.pathname)
                     ? "bg-black/10"
                     : "hover:bg-stone-400/10 ",
                 )}
@@ -205,7 +209,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
       </div>
 
       {/* Menù navigazione mobile */}
-      <div className="lg:hidden bg-white border-t sticky bottom-0 p-4 flex justify-around  shadow w-full">
+      <div className="lg:hidden bg-white border-t fixed bottom-0 p-4 flex justify-around  shadow w-full">
         {itemsMenu.map((item) =>
           item.active ? (
             <a

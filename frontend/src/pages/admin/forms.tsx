@@ -8,32 +8,45 @@ import {
   SelectGroup,
   SelectItem,
 } from "@/components/ui/select";
-import {
-  CircleAlert,
-  EllipsisVertical,
-  EllipsisVerticalIcon,
-  Loader2,
-  Plus,
-} from "lucide-react";
+import { CircleAlert, EllipsisVertical, Loader2, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
 import type { form } from "@/types/formType";
+import { authClient } from "@/lib/auth-client";
+import { Navigate, useNavigate } from "react-router";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export default function Forms() {
+  const { data: session, isPending } = authClient.useSession();
+  if (isPending) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="animate-spin w-12 h-12" />
+      </div>
+    );
+  }
+  if (!session || !session.user) {
+    return <Navigate to={"/login"} />;
+  }
+
+  const navigate = useNavigate();
+
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<boolean>(false);
   const [forms, setForms] = useState<form[]>([]);
@@ -89,7 +102,12 @@ export default function Forms() {
             </SelectGroup>
           </SelectContent>
         </Select>
-        <Button className="w-1/4 h-11!">
+        <Button
+          onClick={() => {
+            navigate("/admin/form");
+          }}
+          className="w-1/4 h-11!"
+        >
           <Plus />
           <span className="">Crea nuovo form</span>
         </Button>
@@ -97,7 +115,7 @@ export default function Forms() {
 
       {/* Tabella ultime aziende */}
       <div className="border shadow rounded-xl h-full mt-8 p-4">
-        <h1 className="font-medium text-xl">I miei forms</h1>
+        <h1 className="font-semibold text-xl">I miei forms</h1>
         {loading ? (
           <div className="flex justify-center items-center h-full">
             <Loader2 className="w-12 h-12 animate-spin" />
@@ -135,8 +153,10 @@ export default function Forms() {
               <TableBody>
                 {forms.map((form) => (
                   <TableRow key={form._id} className="">
-                    <TableCell className="font-medium">{form.title}</TableCell>
-                    <TableCell>{form.note}</TableCell>
+                    <TableCell className="font-medium ">{form.title}</TableCell>
+                    <TableCell className="w-64 wrap-break-word whitespace-normal">
+                      {form.note}
+                    </TableCell>
                     <TableCell className="flex">
                       {form.status === "draft" ? (
                         <div className="border px-4 py-1 rounded-xl text-center border-yellow-600 text-yellow-600 bg-yellow-200/50">
@@ -156,14 +176,26 @@ export default function Forms() {
                         ` ${form.lastEdit.getHours()}:${form.lastEdit.getMinutes()}:${form.lastEdit.getSeconds()}`}
                     </TableCell>
                     <TableCell className="text-right">
-                      <Popover>
-                        <PopoverTrigger>
-                          <EllipsisVertical className="w-6 h-6" />
-                        </PopoverTrigger>
-                        <PopoverContent side="top">
-                          In arrivo prossimamente...
-                        </PopoverContent>
-                      </Popover>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost">
+                            <EllipsisVertical />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent side="left">
+                          <DropdownMenuGroup>
+                            <DropdownMenuItem>Copia link</DropdownMenuItem>
+                            <DropdownMenuItem>Mostra preview</DropdownMenuItem>
+                          </DropdownMenuGroup>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuGroup>
+                            <DropdownMenuItem>Modifica form</DropdownMenuItem>
+                            <DropdownMenuItem variant="destructive">
+                              Elimina form
+                            </DropdownMenuItem>
+                          </DropdownMenuGroup>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </TableCell>
                   </TableRow>
                 ))}

@@ -1,6 +1,19 @@
-import { Calendar, Database, FormIcon, Users } from "lucide-react";
+import { authClient } from "@/lib/auth-client";
+import { Calendar, Database, FormIcon, Loader2, Users } from "lucide-react";
+import { Navigate } from "react-router";
 
 export default function Dashboard() {
+  const { data: session, isPending } = authClient.useSession();
+  if (isPending) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="animate-spin w-12 h-12" />
+      </div>
+    );
+  }
+  if (!session || !session.user) {
+    return <Navigate to={"/login"} />;
+  }
   const cardDatas = [
     {
       id: 1,

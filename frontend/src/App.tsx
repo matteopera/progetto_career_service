@@ -8,6 +8,7 @@ import AdminLayout from "./components/adminLayout";
 import { TooltipProvider } from "./components/ui/tooltip";
 import Companies from "./pages/admin/companies";
 import Forms from "./pages/admin/forms";
+import FormEditor from "./pages/admin/formEditor";
 
 function App() {
   return (
@@ -19,7 +20,7 @@ function App() {
           <Route path="/form" element={<Form />} />
 
           <Route
-            path="/dashboard"
+            path="/admin/dashboard"
             element={
               <AdminLayout>
                 <Dashboard />
@@ -27,7 +28,7 @@ function App() {
             }
           />
           <Route
-            path="/companies"
+            path="/admin/companies"
             element={
               <AdminLayout>
                 <Companies />
@@ -35,10 +36,18 @@ function App() {
             }
           />
           <Route
-            path="/forms"
+            path="/admin/forms"
             element={
               <AdminLayout>
                 <Forms />
+              </AdminLayout>
+            }
+          />
+          <Route
+            path="/admin/form"
+            element={
+              <AdminLayout>
+                <FormEditor />
               </AdminLayout>
             }
           />

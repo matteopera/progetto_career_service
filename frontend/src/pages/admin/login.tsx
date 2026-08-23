@@ -55,7 +55,7 @@ export default function Login() {
         email: formData.email,
         password: formData.password,
         rememberMe: formData.rememberMe,
-        callbackURL: "/dashboard",
+        callbackURL: "/admin/dashboard",
       });
 
       // Controllo se login andato a buon fine
@@ -91,8 +91,8 @@ export default function Login() {
   }
 
   if (session && session.user) {
-    navigate("/dashboard");
-    return <></>;
+    navigate("/admin/dashboard");
+    return;
   }
 
   return (

@@ -1,10 +1,32 @@
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { authClient } from "@/lib/auth-client";
-import type { contentForm } from "@/types/formType";
-import { ChevronLeft, ExternalLink, Info, Loader2 } from "lucide-react";
+import type { contentForm, field, option } from "@/types/formType";
+import {
+  ChevronLeft,
+  ExternalLink,
+  Info,
+  Loader2,
+  Plus,
+  Trash,
+} from "lucide-react";
 import { useState } from "react";
 import { Navigate, useNavigate } from "react-router";
 
@@ -32,6 +54,10 @@ export default function FormEditor() {
     sections: [],
   });
 
+  // Stato per eliminazione sezione
+  const [sectionToDelete, setSectionToDelete] = useState(-1);
+  const [fieldToDelete, setFieldToDelete] = useState(""); // Uso la stringa per così faccio associazione indexSection-indexField
+
   const createSection = () => {
     setForm((prev) => ({
       ...prev,
@@ -46,7 +72,84 @@ export default function FormEditor() {
     }));
   };
 
-  const updateSection = () => {};
+  // Funzioni di supporto ai campi
+  const createField = (
+    indexSection: number,
+    type: "check" | "radio" | "text",
+  ) => {
+    const field: field =
+      type === "text"
+        ? {
+            fieldType: "text",
+            fieldNote: "Note campo",
+            fieldTitle: "Titolo campo",
+            textType: "text",
+          }
+        : {
+            fieldType: type,
+            fieldNote: "Note campo",
+            fieldTitle: "Titolo campo",
+            options: [
+              { optionName: "Opzione 1", optionNote: "Note opzione 1" },
+              { optionName: "Opzione 2", optionNote: "Note opzione 2" },
+              { optionName: "Opzione 3", optionNote: "Note opzione 3" },
+            ],
+          };
+
+    console.log(field);
+    setForm((prev) => ({
+      ...prev,
+      sections: prev.sections.map((s, index) =>
+        index === indexSection ? { ...s, fields: [...s.fields, field] } : s,
+      ),
+    }));
+  };
+
+  const updateBaseField = (
+    indexSection: number,
+    indexField: number,
+    attribute: "fieldNote" | "fieldTitle",
+    value: string,
+  ) => {
+    attribute === "fieldTitle"
+      ? setForm((prev) => ({
+          ...prev,
+          sections: prev.sections.map((s, index2) =>
+            indexSection === index2
+              ? {
+                  ...s,
+                  fields: s.fields.map((f, index3) =>
+                    index3 === indexField
+                      ? {
+                          ...f,
+                          fieldTitle: value,
+                        }
+                      : f,
+                  ),
+                }
+              : s,
+          ),
+        }))
+      : setForm((prev) => ({
+          ...prev,
+          sections: prev.sections.map((s, index2) =>
+            indexSection === index2
+              ? {
+                  ...s,
+                  fields: s.fields.map((f, index3) =>
+                    index3 === indexField
+                      ? {
+                          ...f,
+                          fieldNote: value,
+                        }
+                      : f,
+                  ),
+                }
+              : s,
+          ),
+        }));
+  };
+
   return (
     <div className="flex flex-col w-full h-full">
       {/* Header */}
@@ -82,7 +185,7 @@ export default function FormEditor() {
           <div className="col-span-2">
             <h2 className="font-medium text-lg">Dati Base Form</h2>
             <Field className="mt-4">
-              <FieldLabel htmlFor="field.fieldTitle">Nome form</FieldLabel>
+              <FieldLabel htmlFor="field.fieldTitle">TItolo form</FieldLabel>
               <Input required className=""></Input>
             </Field>
             <Field className="mt-4">
@@ -97,7 +200,7 @@ export default function FormEditor() {
             </Field>
 
             {/*  Informazioni form che non andranno pubblicate */}
-            <h2 className="font-medium text-lg mt-4">Dati Base Form</h2>
+            <h2 className="font-medium text-lg mt-4">Dati Interni Form</h2>
             <Field className="mt-4">
               <FieldLabel htmlFor="field.fieldTitle">Nome form</FieldLabel>
               <Input required className=""></Input>
@@ -130,16 +233,314 @@ export default function FormEditor() {
                 </div>
               ) : (
                 <>
-                  {form.sections.map((s) => (
-                    <div className="border shadow rounded-xl mt-4 p-4">
-                      <Input
-                        value={s.sectionTitle}
-                        onChange={(e) => {}}
-                        className="text-lg font-semibold"
-                      ></Input>
-                      <p className="text-gray-500">{s.sectionNote}</p>
+                  {form.sections.map((section, indexSection) => (
+                    <div
+                      className={`${indexSection % 2 === 0 ? "bg-blue-50/20" : "bg-red-50/20"} border shadow rounded-xl mt-4 p-4 flex items-start justify-between w-full`}
+                    >
+                      <div className="w-full">
+                        <Input
+                          value={section.sectionTitle}
+                          onChange={(e) => {
+                            setForm((prev) => ({
+                              ...prev,
+                              sections: prev.sections.map((s, index2) =>
+                                indexSection === index2
+                                  ? { ...s, sectionTitle: e.target.value }
+                                  : s,
+                              ),
+                            }));
+                          }}
+                          className="text-lg font-semibold border-0 ring-0 p-0 focus:ring-0! hover:ring-0! hover:border-0!"
+                        />
+                        <Input
+                          value={section.sectionNote}
+                          onChange={(e) => {
+                            setForm((prev) => ({
+                              ...prev,
+                              sections: prev.sections.map((s, index2) =>
+                                indexSection === index2
+                                  ? { ...s, sectionNote: e.target.value }
+                                  : s,
+                              ),
+                            }));
+                          }}
+                          className="text-gray-500 border-0 ring-0 p-0 focus:ring-0! hover:ring-0! hover:border-0!"
+                        />
+                        {form.sections[indexSection].fields.map(
+                          (field, indexField) => (
+                            <div
+                              className={`border ${indexField % 2 === 0 ? "bg-green-50/20" : "bg-yellow-50/20"} shadow mt-4 p-4 rounded-xl w-full`}
+                            >
+                              <div className="flex items-start">
+                                <Input
+                                  value={field.fieldTitle}
+                                  onChange={(e) => {
+                                    setForm((prev) => ({
+                                      ...prev,
+                                      sections: prev.sections.map(
+                                        (s, index2) =>
+                                          indexSection === index2
+                                            ? {
+                                                ...s,
+                                                fields: s.fields.map(
+                                                  (f, index3) =>
+                                                    index3 === indexField
+                                                      ? {
+                                                          ...f,
+                                                          fieldTitle:
+                                                            e.target.value,
+                                                        }
+                                                      : f,
+                                                ),
+                                              }
+                                            : s,
+                                      ),
+                                    }));
+                                  }}
+                                  className="text-lg font-semibold border-0 ring-0 p-0 focus:ring-0! hover:ring-0! hover:border-0!"
+                                />
+                                {fieldToDelete ===
+                                `${indexSection}-${indexField}` ? (
+                                  <Button
+                                    onClick={() => {
+                                      setForm((prev) => ({
+                                        ...prev,
+                                        sections: prev.sections.map(
+                                          (s, index2) =>
+                                            indexSection === index2
+                                              ? {
+                                                  ...s,
+                                                  fields: s.fields.filter(
+                                                    (f, index3) =>
+                                                      index3 !== indexField,
+                                                  ),
+                                                }
+                                              : s,
+                                        ),
+                                      }));
+                                      setFieldToDelete("");
+                                    }}
+                                    variant={"destructive"}
+                                    className="p-2 h-auto!"
+                                  >
+                                    Confermi eliminazione?
+                                  </Button>
+                                ) : (
+                                  <Button
+                                    onClick={() =>
+                                      setFieldToDelete(
+                                        `${indexSection}-${indexField}`,
+                                      )
+                                    }
+                                    variant={"destructive"}
+                                    className="p-2 h-auto!"
+                                  >
+                                    <Trash className="w-5! h-5! " />
+                                  </Button>
+                                )}
+                              </div>
+                              <Input
+                                value={field.fieldNote}
+                                onChange={(e) =>
+                                  updateBaseField(
+                                    indexSection,
+                                    indexField,
+                                    "fieldNote",
+                                    e.target.value,
+                                  )
+                                }
+                                className="text-gray-500 border-0 ring-0 p-0 focus:ring-0! hover:ring-0! hover:border-0!"
+                              />
+
+                              {field.fieldType === "text" ? (
+                                <div className="flex flex-col gap-2 mt-4">
+                                  <Label>Tipologia input di testo</Label>
+                                  <Select defaultValue="all">
+                                    <SelectTrigger className="w-1/4 h-11!">
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectGroup>
+                                        {/*     textType: "text" | "email" | "tel" | "CF" | "P.IVA"; */}
+                                        <SelectItem value="text">
+                                          Testo
+                                        </SelectItem>
+                                        <SelectItem value="email">
+                                          Email
+                                        </SelectItem>
+                                        <SelectItem value="tel">
+                                          Telefono
+                                        </SelectItem>
+                                        <SelectItem value="CF">
+                                          Codice Fiscale
+                                        </SelectItem>
+                                        <SelectItem value="P.IVA">
+                                          Partita IVA
+                                        </SelectItem>
+                                      </SelectGroup>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                              ) : (
+                                <div className="flex flex-col gap-2 mt-4">
+                                  {form.sections[indexSection].fields[
+                                    indexField
+                                  ].options.map(
+                                    (option: option, indexOption: number) => (
+                                      <div className="flex">
+                                        <Input
+                                          value={option.optionName}
+                                          onChange={(e) => {
+                                            setForm((prev) => ({
+                                              ...prev,
+                                              sections: prev.sections.map(
+                                                (s, index2) =>
+                                                  indexSection === index2
+                                                    ? {
+                                                        ...s,
+                                                        fields: s.fields.map(
+                                                          (f, index3) =>
+                                                            index3 ===
+                                                            indexField
+                                                              ? {
+                                                                  ...f,
+                                                                  options:
+                                                                    f.options.map(
+                                                                      (
+                                                                        o,
+                                                                        index4,
+                                                                      ) =>
+                                                                        index4 ===
+                                                                        indexOption
+                                                                          ? {
+                                                                              ...o,
+                                                                              optionName:
+                                                                                e
+                                                                                  .target
+                                                                                  .value,
+                                                                            }
+                                                                          : f,
+                                                                    ),
+                                                                }
+                                                              : f,
+                                                        ),
+                                                      }
+                                                    : s,
+                                              ),
+                                            }));
+                                          }}
+                                          className="text-lg font-semibold border-0 ring-0 p-0 focus:ring-0! hover:ring-0! hover:border-0!"
+                                        />
+                                        <Input
+                                          value={option.optionNote}
+                                          onChange={(e) => {
+                                            setForm((prev) => ({
+                                              ...prev,
+                                              sections: prev.sections.map(
+                                                (s, index2) =>
+                                                  indexSection === index2
+                                                    ? {
+                                                        ...s,
+                                                        fields: s.fields.map(
+                                                          (f, index3) =>
+                                                            index3 ===
+                                                            indexField
+                                                              ? {
+                                                                  ...f,
+                                                                  options:
+                                                                    f.options.map(
+                                                                      (
+                                                                        o,
+                                                                        index4,
+                                                                      ) =>
+                                                                        index4 ===
+                                                                        indexOption
+                                                                          ? {
+                                                                              ...o,
+                                                                              optionNote:
+                                                                                e
+                                                                                  .target
+                                                                                  .value,
+                                                                            }
+                                                                          : f,
+                                                                    ),
+                                                                }
+                                                              : f,
+                                                        ),
+                                                      }
+                                                    : s,
+                                              ),
+                                            }));
+                                          }}
+                                          className="text-gray-500 border-0 ring-0 p-0 focus:ring-0! hover:ring-0! hover:border-0!"
+                                        />{" "}
+                                      </div>
+                                    ),
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          ),
+                        )}
+                        <DropdownMenu>
+                          <DropdownMenuTrigger>
+                            <Button className="px-8 h-11! mt-4">
+                              <Plus />
+                              <p>Aggiungi nuovo campo</p>
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent>
+                            <DropdownMenuItem
+                              onClick={() => createField(indexSection, "text")}
+                            >
+                              Campo Input testo
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => createField(indexSection, "radio")}
+                            >
+                              Campo Input Radio
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => createField(indexSection, "check")}
+                            >
+                              Campo Input Checkbox
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                      {sectionToDelete === indexSection ? (
+                        <Button
+                          onClick={() => {
+                            setForm((prev) => ({
+                              ...prev,
+                              sections: prev.sections.filter(
+                                (s, index2) => indexSection !== index2,
+                              ),
+                            }));
+                            setSectionToDelete(-1);
+                          }}
+                          variant={"destructive"}
+                          className="p-2 h-auto!"
+                        >
+                          Confermi eliminazione?
+                        </Button>
+                      ) : (
+                        <Button
+                          onClick={() => setSectionToDelete(indexSection)}
+                          variant={"destructive"}
+                          className="p-2 h-auto!"
+                        >
+                          <Trash className="w-5! h-5! " />
+                        </Button>
+                      )}
                     </div>
                   ))}
+                  <div className="flex flex-col justify-center gap-4 items-center">
+                    <Button onClick={createSection} className="px-8 h-11! mt-4">
+                      <Plus />
+                      <p>Aggiungi sezione ora</p>
+                    </Button>
+                  </div>
                 </>
               )}
             </div>

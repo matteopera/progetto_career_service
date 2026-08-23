@@ -1,9 +1,9 @@
 import { Router } from "express";
-import { getFaq, getForm } from "../controller/companyControllers.js";
+import { getOnlineForm } from "../controller/company/formController.js";
 
 const router = Router();
 
-router.get("/FAQ", getFaq);
-router.get("/form", getForm);
+//router.get("/FAQ", getFaq);
+router.get("/form", getOnlineForm);
 
 export default router;

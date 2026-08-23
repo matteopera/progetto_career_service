@@ -28,3 +28,10 @@ export async function findFormsAsync() {
 
   return res;
 }
+
+
+export async function findFormByStatus(state:string){
+  const collection=db.collection("form");
+  const res=await collection.findOne({status:state})
+  return res
+}

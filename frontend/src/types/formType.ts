@@ -43,7 +43,7 @@ export const zodContentForm=z.object({
   formSubtitle:z.string(),
   formNote:z.string(),
   sections:z.array(zodSection),
-  date:z.date()
+  date:z.coerce.date()
 })
 
 export const zodStatusForm=z.enum(["draft","online","offline"])
@@ -53,8 +53,8 @@ export const zodForm=z.object({
   content:zodContentForm,
   title:z.string(),
   note:z.string(),
-  created:z.date(),
-  lastEdit:z.date(),
+  created:z.coerce.date(),
+  lastEdit:z.coerce.date(),
   status: zodStatusForm
 })
 

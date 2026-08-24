@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -8,6 +9,7 @@ import {
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Select,
   SelectContent,
@@ -57,6 +59,9 @@ export default function FormEditor() {
   // Stato per eliminazione sezione
   const [sectionToDelete, setSectionToDelete] = useState(-1);
   const [fieldToDelete, setFieldToDelete] = useState(""); // Uso la stringa per così faccio associazione indexSection-indexField
+  const [optionToDelete, setOptionToDelete] = useState(""); // Uso la stringa per così faccio associazione indexSection-indexField-indexOption
+
+  // Gestione draggable per sistemare campi dentro form
 
   const createSection = () => {
     setForm((prev) => ({
@@ -101,6 +106,28 @@ export default function FormEditor() {
       ...prev,
       sections: prev.sections.map((s, index) =>
         index === indexSection ? { ...s, fields: [...s.fields, field] } : s,
+      ),
+    }));
+  };
+
+  const createOption = (indexSection: number, indexField: number) => {
+    const newOption: option = {
+      optionName: "Nome nuova opzione",
+      optionNote: "Note nuova opzione",
+    };
+    setForm((prev) => ({
+      ...prev,
+      sections: prev.sections.map((s, index) =>
+        index === indexSection
+          ? {
+              ...s,
+              fields: s.fields.map((f, index2) =>
+                indexField === index2
+                  ? { ...f, options: [...f.options, newOption] }
+                  : f,
+              ),
+            }
+          : s,
       ),
     }));
   };
@@ -218,87 +245,84 @@ export default function FormEditor() {
           </div>
           <div className="col-span-6">
             <h2 className="font-medium text-lg">Campi del form</h2>
-            <div className="border shadow rounded-xl mt-8 p-4">
-              {form.sections.length === 0 ? (
-                <div className="flex flex-col justify-center gap-4 items-center">
-                  <div className="flex gap-4 justify-center items-center text-gray-600">
-                    <Info className="w-6 h-6" />
-                    <span className="text-lg">
-                      Crea la tua prima sezione per cominciare
-                    </span>
-                  </div>
-                  <Button onClick={createSection} className="px-8 h-11!">
-                    Crea ora
-                  </Button>
+            {form.sections.length === 0 ? (
+              <div className="flex mt-4 flex-col justify-center gap-4 items-center">
+                <div className="flex gap-4 justify-center items-center text-gray-600">
+                  <Info className="w-6 h-6" />
+                  <span className="text-lg">
+                    Crea la tua prima sezione per cominciare
+                  </span>
                 </div>
-              ) : (
-                <>
-                  {form.sections.map((section, indexSection) => (
-                    <div
-                      className={`${indexSection % 2 === 0 ? "bg-blue-50/20" : "bg-red-50/20"} border shadow rounded-xl mt-4 p-4 flex items-start justify-between w-full`}
-                    >
-                      <div className="w-full">
-                        <Input
-                          value={section.sectionTitle}
-                          onChange={(e) => {
-                            setForm((prev) => ({
-                              ...prev,
-                              sections: prev.sections.map((s, index2) =>
-                                indexSection === index2
-                                  ? { ...s, sectionTitle: e.target.value }
-                                  : s,
-                              ),
-                            }));
-                          }}
-                          className="text-lg font-semibold border-0 ring-0 p-0 focus:ring-0! hover:ring-0! hover:border-0!"
-                        />
-                        <Input
-                          value={section.sectionNote}
-                          onChange={(e) => {
-                            setForm((prev) => ({
-                              ...prev,
-                              sections: prev.sections.map((s, index2) =>
-                                indexSection === index2
-                                  ? { ...s, sectionNote: e.target.value }
-                                  : s,
-                              ),
-                            }));
-                          }}
-                          className="text-gray-500 border-0 ring-0 p-0 focus:ring-0! hover:ring-0! hover:border-0!"
-                        />
-                        {form.sections[indexSection].fields.map(
-                          (field, indexField) => (
-                            <div
-                              className={`border ${indexField % 2 === 0 ? "bg-green-50/20" : "bg-yellow-50/20"} shadow mt-4 p-4 rounded-xl w-full`}
-                            >
-                              <div className="flex items-start">
-                                <Input
-                                  value={field.fieldTitle}
-                                  onChange={(e) => {
-                                    setForm((prev) => ({
-                                      ...prev,
-                                      sections: prev.sections.map(
-                                        (s, index2) =>
-                                          indexSection === index2
-                                            ? {
-                                                ...s,
-                                                fields: s.fields.map(
-                                                  (f, index3) =>
-                                                    index3 === indexField
-                                                      ? {
-                                                          ...f,
-                                                          fieldTitle:
-                                                            e.target.value,
-                                                        }
-                                                      : f,
-                                                ),
-                                              }
-                                            : s,
-                                      ),
-                                    }));
-                                  }}
-                                  className="text-lg font-semibold border-0 ring-0 p-0 focus:ring-0! hover:ring-0! hover:border-0!"
-                                />
+                <Button onClick={createSection} className="px-8 h-11!">
+                  Crea ora
+                </Button>
+              </div>
+            ) : (
+              <>
+                {form.sections.map((section, indexSection) => (
+                  <div
+                    className={`relative ${indexSection % 2 === 0 ? "bg-blue-50/20" : "bg-red-50/20"} border shadow rounded-xl mt-4 p-4 flex items-start justify-between w-full`}
+                  >
+                    <div className="w-full">
+                      <Input
+                        value={section.sectionTitle}
+                        onChange={(e) => {
+                          setForm((prev) => ({
+                            ...prev,
+                            sections: prev.sections.map((s, index2) =>
+                              indexSection === index2
+                                ? { ...s, sectionTitle: e.target.value }
+                                : s,
+                            ),
+                          }));
+                        }}
+                        className="text-lg font-semibold bg-trasparent border-0 focus:bg-white w-[95%]"
+                      />
+                      <Input
+                        value={section.sectionNote}
+                        onChange={(e) => {
+                          setForm((prev) => ({
+                            ...prev,
+                            sections: prev.sections.map((s, index2) =>
+                              indexSection === index2
+                                ? { ...s, sectionNote: e.target.value }
+                                : s,
+                            ),
+                          }));
+                        }}
+                        className="text-gray-500 bg-trasparent border-0 focus:bg-white w-[95%]"
+                      />
+                      {form.sections[indexSection].fields.map(
+                        (field, indexField) => (
+                          <div
+                            className={`relative border ${indexField % 2 === 0 ? "bg-green-50/20" : "bg-yellow-50/20"} shadow mt-4 p-4 rounded-xl w-full`}
+                          >
+                            <div className="flex items-start">
+                              <Input
+                                value={field.fieldTitle}
+                                onChange={(e) => {
+                                  setForm((prev) => ({
+                                    ...prev,
+                                    sections: prev.sections.map((s, index2) =>
+                                      indexSection === index2
+                                        ? {
+                                            ...s,
+                                            fields: s.fields.map((f, index3) =>
+                                              index3 === indexField
+                                                ? {
+                                                    ...f,
+                                                    fieldTitle: e.target.value,
+                                                  }
+                                                : f,
+                                            ),
+                                          }
+                                        : s,
+                                    ),
+                                  }));
+                                }}
+                                className="text-lg font-semibold bg-trasparent border-0 focus:bg-white w-[95%]"
+                              />
+                              <div className="absolute right-5 top-5">
                                 {fieldToDelete ===
                                 `${indexSection}-${indexField}` ? (
                                   <Button
@@ -333,61 +357,82 @@ export default function FormEditor() {
                                       )
                                     }
                                     variant={"destructive"}
-                                    className="p-2 h-auto!"
+                                    className="p-2 mr h-auto!"
                                   >
                                     <Trash className="w-5! h-5! " />
                                   </Button>
                                 )}
                               </div>
-                              <Input
-                                value={field.fieldNote}
-                                onChange={(e) =>
-                                  updateBaseField(
-                                    indexSection,
-                                    indexField,
-                                    "fieldNote",
-                                    e.target.value,
-                                  )
-                                }
-                                className="text-gray-500 border-0 ring-0 p-0 focus:ring-0! hover:ring-0! hover:border-0!"
-                              />
+                            </div>
+                            <Input
+                              value={field.fieldNote}
+                              onChange={(e) =>
+                                updateBaseField(
+                                  indexSection,
+                                  indexField,
+                                  "fieldNote",
+                                  e.target.value,
+                                )
+                              }
+                              className="text-gray-500 bg-trasparent border-0 focus:bg-white w-[95%]"
+                            />
 
-                              {field.fieldType === "text" ? (
-                                <div className="flex flex-col gap-2 mt-4">
-                                  <Label>Tipologia input di testo</Label>
-                                  <Select defaultValue="all">
-                                    <SelectTrigger className="w-1/4 h-11!">
-                                      <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      <SelectGroup>
-                                        {/*     textType: "text" | "email" | "tel" | "CF" | "P.IVA"; */}
-                                        <SelectItem value="text">
-                                          Testo
-                                        </SelectItem>
-                                        <SelectItem value="email">
-                                          Email
-                                        </SelectItem>
-                                        <SelectItem value="tel">
-                                          Telefono
-                                        </SelectItem>
-                                        <SelectItem value="CF">
-                                          Codice Fiscale
-                                        </SelectItem>
-                                        <SelectItem value="P.IVA">
-                                          Partita IVA
-                                        </SelectItem>
-                                      </SelectGroup>
-                                    </SelectContent>
-                                  </Select>
-                                </div>
-                              ) : (
-                                <div className="flex flex-col gap-2 mt-4">
-                                  {form.sections[indexSection].fields[
-                                    indexField
-                                  ].options.map(
-                                    (option: option, indexOption: number) => (
-                                      <div className="flex">
+                            {field.fieldType === "text" ? (
+                              <div className="flex flex-col gap-2 mt-4">
+                                <Label>Tipologia input di testo</Label>
+                                <Select defaultValue="all">
+                                  <SelectTrigger className="w-1/4 h-11!">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectGroup>
+                                      {/*     textType: "text" | "email" | "tel" | "CF" | "P.IVA"; */}
+                                      <SelectItem value="text">
+                                        Testo
+                                      </SelectItem>
+                                      <SelectItem value="email">
+                                        Email
+                                      </SelectItem>
+                                      <SelectItem value="tel">
+                                        Telefono
+                                      </SelectItem>
+                                      <SelectItem value="CF">
+                                        Codice Fiscale
+                                      </SelectItem>
+                                      <SelectItem value="P.IVA">
+                                        Partita IVA
+                                      </SelectItem>
+                                    </SelectGroup>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                            ) : (
+                              <div className="flex flex-col gap-2 mt-4">
+                                {form.sections[indexSection].fields[
+                                  indexField
+                                ].options.map(
+                                  (option: option, indexOption: number) => (
+                                    <div className="flex items-start relative border rounded-xl py-4 px-6">
+                                      {form.sections[indexSection].fields[
+                                        indexField
+                                      ].fieldType === "check" ? (
+                                        <Checkbox
+                                          checked={true}
+                                          className="mr-4 mt-4.5"
+                                        />
+                                      ) : (
+                                        <RadioGroup
+                                          className="w-min mt-4.5 mr-4.5"
+                                          value={""}
+                                        >
+                                          <RadioGroupItem
+                                            value={""}
+                                            id={``}
+                                            className="border  border-indigo-300"
+                                          />
+                                        </RadioGroup>
+                                      )}
+                                      <div className="">
                                         <Input
                                           value={option.optionName}
                                           onChange={(e) => {
@@ -472,42 +517,107 @@ export default function FormEditor() {
                                               ),
                                             }));
                                           }}
-                                          className="text-gray-500 border-0 ring-0 p-0 focus:ring-0! hover:ring-0! hover:border-0!"
-                                        />{" "}
+                                          className="text-gray-500 text-sm border-0 ring-0 p-0 focus:ring-0! hover:ring-0! hover:border-0!"
+                                        />
                                       </div>
-                                    ),
-                                  )}
-                                </div>
-                              )}
-                            </div>
-                          ),
-                        )}
-                        <DropdownMenu>
-                          <DropdownMenuTrigger>
-                            <Button className="px-8 h-11! mt-4">
-                              <Plus />
-                              <p>Aggiungi nuovo campo</p>
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent>
-                            <DropdownMenuItem
-                              onClick={() => createField(indexSection, "text")}
-                            >
-                              Campo Input testo
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => createField(indexSection, "radio")}
-                            >
-                              Campo Input Radio
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => createField(indexSection, "check")}
-                            >
-                              Campo Input Checkbox
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
+                                      <div className="absolute top-5 right-5">
+                                        {optionToDelete ===
+                                        `${indexSection}-${indexField}-${indexOption}` ? (
+                                          <Button
+                                            onClick={() => {
+                                              setForm((prev) => ({
+                                                ...prev,
+                                                sections: prev.sections.map(
+                                                  (s, index2) =>
+                                                    indexSection === index2
+                                                      ? {
+                                                          ...s,
+                                                          fields: s.fields.map(
+                                                            (f, index3) =>
+                                                              index3 ===
+                                                              indexField
+                                                                ? {
+                                                                    ...f,
+                                                                    options:
+                                                                      f.options.filter(
+                                                                        (
+                                                                          _,
+                                                                          index4,
+                                                                        ) =>
+                                                                          index4 !==
+                                                                          indexOption,
+                                                                      ),
+                                                                  }
+                                                                : f,
+                                                          ),
+                                                        }
+                                                      : s,
+                                                ),
+                                              }));
+                                              setOptionToDelete(-1);
+                                            }}
+                                            variant={"destructive"}
+                                            className="p-2 h-auto!"
+                                          >
+                                            Confermi eliminazione?
+                                          </Button>
+                                        ) : (
+                                          <Button
+                                            onClick={() =>
+                                              setOptionToDelete(
+                                                `${indexSection}-${indexField}-${indexOption}`,
+                                              )
+                                            }
+                                            variant={"destructive"}
+                                            className="p-2 h-auto!"
+                                          >
+                                            <Trash className="w-5! h-5! " />
+                                          </Button>
+                                        )}
+                                      </div>
+                                    </div>
+                                  ),
+                                )}
+                                <Button
+                                  onClick={() =>
+                                    createOption(indexSection, indexField)
+                                  }
+                                >
+                                  <Plus />
+                                  <p>Aggiungi opzione ora</p>
+                                </Button>
+                              </div>
+                            )}
+                          </div>
+                        ),
+                      )}
+                      <DropdownMenu>
+                        <DropdownMenuTrigger>
+                          <Button className="px-8 h-11! mt-4">
+                            <Plus />
+                            <p>Aggiungi nuovo campo</p>
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent>
+                          <DropdownMenuItem
+                            onClick={() => createField(indexSection, "text")}
+                          >
+                            Campo Input testo
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => createField(indexSection, "radio")}
+                          >
+                            Campo Input Radio
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => createField(indexSection, "check")}
+                          >
+                            Campo Input Checkbox
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                    <div className="absolute right-4 top-4">
                       {sectionToDelete === indexSection ? (
                         <Button
                           onClick={() => {
@@ -534,16 +644,16 @@ export default function FormEditor() {
                         </Button>
                       )}
                     </div>
-                  ))}
-                  <div className="flex flex-col justify-center gap-4 items-center">
-                    <Button onClick={createSection} className="px-8 h-11! mt-4">
-                      <Plus />
-                      <p>Aggiungi sezione ora</p>
-                    </Button>
                   </div>
-                </>
-              )}
-            </div>
+                ))}
+                <div className="flex flex-col justify-center gap-4 items-center">
+                  <Button onClick={createSection} className="px-8 h-11! mt-4">
+                    <Plus />
+                    <p>Aggiungi sezione ora</p>
+                  </Button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>

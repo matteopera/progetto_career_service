@@ -464,7 +464,7 @@ export default function FormEditor() {
                                                                                   .target
                                                                                   .value,
                                                                             }
-                                                                          : f,
+                                                                          : o,
                                                                     ),
                                                                 }
                                                               : f,

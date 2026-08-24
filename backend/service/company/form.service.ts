@@ -13,3 +13,7 @@ export async function findOnlineForm(){
 
     return contentForm
 }
+
+export async function insertForm(){
+    
+}

@@ -8,27 +8,42 @@ import {
 import type { contentForm } from "@/types/formType";
 import Form from "@/components/form";
 import { useEffect, useState } from "react";
-import useFetchForm from "@/hooks/useFetchForm";
+import useFetchForm, { useValue } from "@/hooks/useFetchForm";
 import { Spinner } from "@/components/ui/spinner";
+import type { faqListType } from "@/types/FAQType";
+import faqApi from "@/api/faqApi";
 export default function formPage() {
   const { form, isLoading, error } = useFetchForm();
+
+  const [faqList,setFaqList]=useState<faqListType|null>(null)
+
+  useEffect(()=>{
+    faqApi().then((data)=>{
+      setFaqList(data)
+    }).catch((error)=>{
+      console.error(`Errore nel caricamento delle Faq:${error}`)
+    })
+  },[])
   if (isLoading) {
     return (
-      <div className="min-h-screen w-full flex flex-col items-center justify-center bg-linear-to-br from-gray-100 via-blue-50 to-gray-100">
+      <div className="min-h-screen w-full flex flex-col items-center justify-center bg-linear-to-r from-orange-400 via-red-500 to-pink-500">
         <Spinner className="h-7 w-7" />
         <p>Caricamento del form in corso</p>
       </div>
     );
   }
   if (error != null) {
-    return <></>;
+    return <div className="min-h-screen w-full flex flex-col items-center justify-center bg-linear-to-br from-gray-100 via-blue-50 to-gray-100">
+        <p>Si è verificato un errore. Si consiglia di riprovare</p>
+      </div>;
   }
   if (form == null) {
-    return <></>;
+    return <div className="min-h-screen w-full flex flex-col items-center justify-center bg-linear-to-br from-gray-100 via-blue-50 to-gray-100">
+        <p>Si è verificato un errore. Si consiglia di riprovare</p>
+      </div>;
   }
-
   return (
-    <div className="bg-linear-to-br from-gray-100 via-blue-50 to-gray-100">
+    <div className=" bg-linear-to-br from-green-400 to-cyan-500">
       <nav>
         <img
           src="logo_univr.png"
@@ -53,14 +68,23 @@ export default function formPage() {
               id="faq"
               className=" flex flex-col items-center mt-10 w-full"
             >
-              <h2 className="text-xl sm:text-3xl">
+              <h2 className="text-xl sm:text-3xl mb-3">
                 Frequently Asked Questions
               </h2>
-              <Accordion
-                type="single"
-                className="mb-10 w-full sm:max-w-3xl"
-                collapsible
-              ></Accordion>
+              <Accordion type="single" collapsible className="pl-3 pr-3 min-h-20 mb-7 max-w-7xl">
+                  {faqList!=null? (faqList.map((faq,i)=>{
+                    return(
+                    <AccordionItem value={`${i}`} className="border-b px-4 last:border-b-0" key={`faq-${i}`}>
+                      <AccordionTrigger>
+                        {faq.question}
+                      </AccordionTrigger>
+                      <AccordionContent>
+                        {faq.answer}
+                      </AccordionContent>
+                    </AccordionItem>
+                  )
+                  })):<></>}
+              </Accordion>
             </section>
           </div>
         </div>

@@ -1,11 +1,12 @@
-import * as z from "zod";
+import z from "zod"
 
-export const FAQZod=z.object({
-    _id:z.string(),
-    domanda:z.string(),
-    risposta:z.string()
-});
+export const zodFaq=z.object({
+    question:z.string(),
+    answer:z.string()
+})
 
-export const FAQArrayZod=z.array(FAQZod);
+export const zodFaqList=z.array(zodFaq)
 
-export type FAQ=z.infer<typeof FAQZod>;
+export type faqType=z.infer<typeof zodFaq>
+
+export type faqListType=z.infer<typeof zodFaqList>

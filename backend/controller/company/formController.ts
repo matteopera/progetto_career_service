@@ -1,5 +1,5 @@
 import { MongoError } from "mongodb";
-import { findOnlineForm } from "../../service/company/form.service.js";
+import { findOnlineForm, insertForm } from "../../service/company/form.service.js";
 import { Request, Response } from "express";
 import { DBError, handleDBError } from "../../errors/DBError.js";
 
@@ -19,4 +19,14 @@ export async function getOnlineForm(req:Request, res:Response){
         
         return res.status(500).json({ message: "Impossibile recuperare il form" });
         }
+}
+
+export async  function uploadForm(req:Request,res:Response){
+    try{
+        const uploadedData=req.body
+        console.log(uploadedData)
+        await insertForm()
+    }catch(error){
+        //handling errors
+    }
 }

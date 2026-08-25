@@ -8,7 +8,8 @@ import AdminLayout from "./components/adminLayout";
 import { TooltipProvider } from "./components/ui/tooltip";
 import Companies from "./pages/admin/companies";
 import Forms from "./pages/admin/forms";
-import FormEditor from "./pages/admin/formEditor";
+import FormEditor from "./pages/admin/form/formEditor";
+import FormAdminPage from "./pages/admin/form/form";
 
 function App() {
   return (
@@ -48,7 +49,7 @@ function App() {
             path="/admin/form"
             element={
               <AdminLayout>
-                <FormEditor />
+                <FormAdminPage />
               </AdminLayout>
             }
           />

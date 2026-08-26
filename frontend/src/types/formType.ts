@@ -83,70 +83,26 @@ export type form=z.infer<typeof zodForm>
 
 
 
+//Regex
+const phoneRegex = /^(\+39\s?)?3\d{2}\s?\d{6,7}$/;
+const codiceFiscaleRegex = /^[A-Z]{6}\d{2}[A-EHLMPR-T]\d{2}([A-Z]\d{3})[A-Z]$/i;
+const partitaIvaRegex = /^\d{11}$/;
+
+//zod types for textField validation
+export const zodEmail=z.email()
+export const zodTel=z.string().regex(phoneRegex)
+export const zodPIVA=z.string().regex(partitaIvaRegex)
+export const zodCodiceFiscale=z.string().regex(codiceFiscaleRegex)
+
+export type emailType=z.infer<typeof zodEmail>
+export type telType=z.infer<typeof zodTel>
+export type pivaType=z.infer<typeof zodPIVA>
+export type CF=z.infer<typeof zodCodiceFiscale>
 
 
 
 
 
 
-// export type form = {
-//   //form
-//   _id: string;
-//   content: contentForm;
-//   title: string;
-//   note: string;
-//   created: Date;
-//   lastEdit: Date;
-//   status: statusForm;
-// };
 
 
-// export type statusForm = "draft" | "online" | "offline";
-
-// export type checkboxField = {
-//   fieldTitle: string;
-//   fieldType: "check";
-//   fieldNote: string;
-//   options: option[];
-// };
-
-// export type radioField = {
-//   fieldTitle: string;
-//   fieldType: "radio";
-//   fieldNote: string;
-//   options: option[];
-// };
-
-// export type contentForm = {
-//   //form
-//   formTitle: string;
-//   formSubtitle: string;
-//   formNote: string;
-//   sections: section[];
-//   date: string; //sostituibile dalla generazione automatica nel pdf
-// };
-
-// export type section = {
-//   sectionTitle: string;
-//   sectionNote: string;
-//   fields: field[];
-// };
-
-// export type textField = {
-//   fieldTitle: string;
-//   fieldType: "text";
-//   fieldNote: string;
-//   textType: textType;
-// };
-
-
-// export type option = {
-//   optionName: string;
-//   optionNote: string;
-// };
-
-
-// export type field = textField | checkboxField | radioField;
-
-
-// export type textType = "text" | "email" | "tel" | "CF" | "P.IVA";

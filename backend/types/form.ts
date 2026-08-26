@@ -83,8 +83,9 @@ export type form=z.infer<typeof zodForm>
 
 
 
+export const zodCompiledForm=z.record(z.string(),z.record(z.string(),z.union([z.string(),z.array(z.string())])))
 
-
+export type compiledForm=z.infer<typeof zodCompiledForm>
 
 // export type form = {
 //   //form

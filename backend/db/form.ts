@@ -1,5 +1,5 @@
 import { contentFormTest } from "../test-form/test.js";
-import { form } from "../types/form.js";
+import { compiledForm, form } from "../types/form.js";
 import { db } from "./db.js";
 
 // TODO: sarà da passare il form
@@ -34,4 +34,10 @@ export async function findFormByStatus(state:string){
   const collection=db.collection("form");
   const res=await collection.findOne({status:state})
   return res
+}
+
+
+export async function insertForm(compileForm:compiledForm){
+  const collection=db.collection("compiledForm")
+  const res=await collection.insertOne(compileForm)
 }

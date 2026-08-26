@@ -28,8 +28,11 @@ export async function uploadCompiledForm(compiledForm:value){
         body: JSON.stringify(compiledForm)
     })
 
-    //da migliorare la gestione degli errori
-    if(!response.ok){
-        console.error("Errore nel caricamento del form")
+    if (response.ok){
+        console.log("Form salvato correttamente")
+    }
+    else{
+        console.error("Errore nel salvataggio del form")
+        //Seguirà una gestione migliore
     }
 }

@@ -10,8 +10,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { zodForm, zodStatusForm } from "@/types/formType";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import type { Dispatch, SetStateAction } from "react";
+import { useState, type Dispatch, type SetStateAction } from "react";
+import z from "zod";
 
 export default function formBase({
   baseForm,
@@ -38,6 +40,65 @@ export default function formBase({
   >;
   goToStep: (index: number) => void;
 }) {
+  const [errorBaseForm, setErrorBaseForm] = useState<{
+    formTitle: string;
+    formNote: string;
+    formSubtitle: string;
+    title: string;
+    note: string;
+    status: string;
+  }>({
+    formTitle: "",
+    formNote: "",
+    formSubtitle: "",
+    title: "",
+    note: "",
+    status: "",
+  });
+
+  // Schema zod per campi
+  const formBaseZod = z.object({
+    formTitle: z
+      .string()
+      .min(1, { error: "Il titolo del form è obbligatorio" }),
+    formSubtitle: z
+      .string()
+      .min(1, { error: "Il sottotitolo del form è obbligatorio" }),
+    formNote: z.string().optional(),
+    title: z
+      .string()
+      .min(1, { error: "Il titolo interno del form è obbligatorio" }),
+    note: z.string().optional(),
+    status: zodStatusForm,
+  });
+
+  const checkGoNext = () => {
+    // controllo validazione
+    const result = formBaseZod.safeParse({
+      formTitle: baseForm.formTitle,
+      formSubtitle: baseForm.formSubtitle,
+      formNote: baseForm.formNote,
+      title: baseForm.title,
+      note: baseForm.note,
+      status: baseForm.status,
+    });
+
+    if (!result.success) {
+      const flattened = z.flattenError(result.error);
+      setErrorBaseForm({
+        formTitle: flattened.fieldErrors.formTitle?.join(" ") || "",
+        formSubtitle: flattened.fieldErrors.formSubtitle?.join(" ") || "",
+        formNote: flattened.fieldErrors.formNote?.join(" ") || "",
+        title: flattened.fieldErrors.title?.join(" ") || "",
+        note: flattened.fieldErrors.note?.join(" ") || "",
+        status: flattened.fieldErrors.status?.join(" ") || "",
+      });
+      return;
+    }
+
+    goToStep(1);
+  };
+
   return (
     <div className="border shadow rounded-xl mt-8 p-4">
       <div className="flex justify-between mb-4">
@@ -46,7 +107,7 @@ export default function formBase({
           <span>Vai allo step precedente</span>
         </Button>
         <h1 className="font-semibold text-2xl">Dettagli base del form</h1>
-        <Button onClick={() => goToStep(1)} className="px-4 h-10!">
+        <Button onClick={() => checkGoNext()} className="px-4 h-10!">
           <span>Vai al prossimo step</span>
           <ChevronRight />
         </Button>
@@ -57,27 +118,40 @@ export default function formBase({
         <Field className="mt-4">
           <FieldLabel htmlFor="field.fieldTitle" className="">
             Titolo form
+            <p className="text-red-500 text-sm ">{errorBaseForm.formTitle}</p>
           </FieldLabel>
           <Input
             value={baseForm.formTitle}
+            onFocus={() =>
+              setErrorBaseForm((prev) => ({ ...prev, formTitle: "" }))
+            }
             onChange={(e) =>
               setBaseForm((prev) => ({ ...prev, formTitle: e.target.value }))
             }
             required
-            className=""
+            className={`${errorBaseForm.formTitle !== "" && "border-red-500"}`}
           />
           <span className="text-gray-500 text-sm">
             Il titolo verrò mostrato in alto all'interno del form
           </span>
         </Field>
         <Field className="mt-4">
-          <FieldLabel htmlFor="field.fieldTitle">Sottotitolo form</FieldLabel>
+          <FieldLabel htmlFor="field.fieldTitle">
+            Sottotitolo form
+            <p className="text-red-500 text-sm ">
+              {errorBaseForm.formSubtitle}
+            </p>
+          </FieldLabel>
           <Input
             required
+            onFocus={() =>
+              setErrorBaseForm((prev) => ({ ...prev, formSubtitle: "" }))
+            }
             value={baseForm.formSubtitle}
             onChange={(e) =>
               setBaseForm((prev) => ({ ...prev, formSubtitle: e.target.value }))
             }
+            className={`${errorBaseForm.formSubtitle !== "" && "border-red-500"}`}
           />
           <span className="text-gray-500 text-sm">
             Il sottotitolo verrà mostrato dopo il titolo all'interno del form
@@ -111,12 +185,17 @@ export default function formBase({
         <Field className="mt-4">
           <FieldLabel htmlFor="field.fieldTitle" className="">
             Titolo form interno
+            <p className="text-red-500 text-sm ">{errorBaseForm.title}</p>
           </FieldLabel>
           <Input
             value={baseForm.title}
+            onFocus={() => {
+              setErrorBaseForm((prev) => ({ ...prev, title: "" }));
+            }}
             onChange={(e) =>
               setBaseForm((prev) => ({ ...prev, title: e.target.value }))
             }
+            className={`${errorBaseForm.title !== "" && "border-red-500"}`}
           />
         </Field>
         <Field className="mt-4">

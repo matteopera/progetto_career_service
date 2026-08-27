@@ -369,6 +369,7 @@ export function useValue(form: contentForm) {
     setValue(firstValue);
     setFieldTypeMap(fieldTypeMap);
     setCheckboxListMap(checkboxListMap);
+    setSendable(false)
   }
 
 

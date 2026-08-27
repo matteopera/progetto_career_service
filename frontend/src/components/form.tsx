@@ -22,20 +22,34 @@ export default function Form({ contentForm }: formProps) {
     useValue(contentForm);
 
   function toAriaInvalid(key: string) {
-    return isNotValid.includes(key) &&
-      sendable;
+    return isNotValid.includes(key) && sendable;
   }
   return (
-    <div>
+    <div className="ml-3 mt-7 mr-3 md:ml-7 md:mr-7">
       <form>
         <FieldGroup>
-          <p>{contentForm.formNote}</p>
-          {contentForm.sections.map((section) => {
+          <p className="border-gray-400 border p-3 font-normal border-l-3 border-l-gray-400">
+            {contentForm.formNote}
+          </p>
+          {contentForm.sections.map((section, index) => {
             return (
-              <FieldSet key={section.sectionTitle}>
-                <FieldLegend>{section.sectionTitle}</FieldLegend>
+              <div
+                id={section.sectionTitle}
+                key={section.sectionTitle}
+                className="border border-gray-400 p-4 border-l-2"
+              >
+                <div className="flex flex-row items-center mb-2">
+                  <FieldLegend className="rounded-full w-8 h-8 bg-blue-300 p-2 flex items-center justify-center ">
+                    {index + 1}
+                  </FieldLegend>
+                  <FieldLegend className="pl-3 pr-3 font-semibold text-black">
+                    {section.sectionTitle}
+                  </FieldLegend>
+                </div>
                 {section.sectionNote != "null" ? (
-                  <FieldDescription>{section.sectionNote}</FieldDescription>
+                  <FieldDescription className="p-3 border border-l-2 border-gray-400 border-l-blue-500 mb-2">
+                    {section.sectionNote}
+                  </FieldDescription>
                 ) : null}
                 <div className="mb-5 sm:columns-2">
                   {section.fields.map((field) => {
@@ -46,11 +60,16 @@ export default function Form({ contentForm }: formProps) {
                             className="break-inside-avoid-column mb-3"
                             key={`${section.sectionTitle}-${field.fieldTitle}`}
                           >
-                            <FieldLabel htmlFor="field.fieldTitle">
+                            <FieldLabel
+                              htmlFor="field.fieldTitle"
+                              className="font-medium"
+                            >
                               {field.fieldTitle}
                             </FieldLabel>
                             <Input
-                              aria-invalid={toAriaInvalid(`${section.sectionTitle}-${field.fieldTitle}`)}
+                              aria-invalid={toAriaInvalid(
+                                `${section.sectionTitle}-${field.fieldTitle}`,
+                              )}
                               required
                               id={field.fieldTitle}
                               name={field.fieldTitle}
@@ -59,7 +78,7 @@ export default function Form({ contentForm }: formProps) {
                                   field.fieldTitle
                                 ] as string) ?? ""
                               }
-                              className="border-2 border-indigo-300"
+                              className="rounded-sm border-gray-400 font-normal text-sm"
                               onChange={(e) => {
                                 handleChange(
                                   section.sectionTitle,
@@ -77,7 +96,9 @@ export default function Form({ contentForm }: formProps) {
                             className="break-inside-avoid-column mb-3"
                             key={`${section.sectionTitle}-${field.fieldTitle}`}
                           >
-                            <FieldLabel>{field.fieldTitle}</FieldLabel>
+                            <FieldLabel className="font-medium">
+                              {field.fieldTitle}
+                            </FieldLabel>
                             <FieldDescription>
                               {field.fieldNote != "null"
                                 ? field.fieldNote
@@ -90,9 +111,9 @@ export default function Form({ contentForm }: formProps) {
                                   key={`${field.fieldTitle}-${option.optionName}`}
                                 >
                                   <Checkbox
-                                    aria-invalid={
-                                      toAriaInvalid(`${section.sectionTitle}-${field.fieldTitle}`)
-                                    }
+                                    aria-invalid={toAriaInvalid(
+                                      `${section.sectionTitle}-${field.fieldTitle}`,
+                                    )}
                                     id={`${field.fieldTitle}-${option.optionName}`}
                                     name={option.optionName}
                                     checked={
@@ -100,7 +121,7 @@ export default function Form({ contentForm }: formProps) {
                                         field.fieldTitle
                                       ].includes(option.optionName) ?? false
                                     }
-                                    className="border border-indigo-300"
+                                    className="border border-gray-400"
                                     onCheckedChange={(check) => {
                                       handleChange(
                                         section.sectionTitle,
@@ -133,7 +154,9 @@ export default function Form({ contentForm }: formProps) {
                             className="mb-3 break-inside-avoid-column"
                             key={`${section.sectionTitle}-${field.fieldTitle}`}
                           >
-                            <FieldLabel>{field.fieldTitle}</FieldLabel>
+                            <FieldLabel className="font-medium">
+                              {field.fieldTitle}
+                            </FieldLabel>
                             <FieldDescription>
                               {field.fieldNote != "null"
                                 ? field.fieldNote
@@ -158,7 +181,7 @@ export default function Form({ contentForm }: formProps) {
                               {field.options.map((option) => {
                                 return (
                                   <div
-                                    className="flex gap-3 items-center"
+                                    className=" flex justify-start gap-5 rounded-sm items-center border-gray-400 border p-2"
                                     key={`${field.fieldTitle}-${option.optionName}`}
                                   >
                                     <RadioGroupItem
@@ -166,14 +189,16 @@ export default function Form({ contentForm }: formProps) {
                                       id={`${field.fieldTitle}-${option.optionName}`}
                                       className="border border-indigo-300"
                                     />
-                                    <FieldLabel
-                                      htmlFor={`${field.fieldTitle}-${option.optionName}`}
-                                    >
-                                      {option.optionName}
-                                    </FieldLabel>
-                                    <FieldDescription>
-                                      {option.optionNote}
-                                    </FieldDescription>
+                                      <FieldLabel
+                                        htmlFor={`${field.fieldTitle}-${option.optionName}`}
+                                        className="flex flex-col w-full items-start gap-0"
+                                      >
+                                        {option.optionName}
+                                        <FieldDescription>
+                                          {option.optionNote}
+                                        </FieldDescription>
+                                      </FieldLabel>
+                                    
                                   </div>
                                 );
                               })}
@@ -186,12 +211,12 @@ export default function Form({ contentForm }: formProps) {
                     }
                   })}
                 </div>
-              </FieldSet>
+              </div>
             );
           })}
         </FieldGroup>
-        <div className="flex justify-end mb-5">
-          <p>
+        <div className="flex justify-end mb-5 mt-5">
+          <p className="font-normal text-sm">
             Vi preghiamo di prendere visione dell’informativa{" "}
             <a
               className="underline"
@@ -217,11 +242,11 @@ export default function Form({ contentForm }: formProps) {
           Si prega di riempire correttamente tutti i campi
         </p>
       ) : null}
-      <div className="gap-3 flex justify-end">
+      <div className="gap-3 flex justify-end mb-7">
         <Button variant="destructive" size="lg" onClick={cleanForm}>
           Svuota
         </Button>
-        <Button className="bg-indigo-300" size="lg" onClick={sendForm}>
+        <Button className="bg-blue-500" size="lg" onClick={sendForm}>
           Invia
         </Button>
       </div>

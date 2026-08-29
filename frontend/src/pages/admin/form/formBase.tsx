@@ -113,7 +113,11 @@ export default function formBase({
         </Button>
       </div>
 
-      <h2 className="font-medium text-lg text-gray-600">Dati Base Form</h2>
+      <h2 className="font-medium text-lg ">Dati Base Form</h2>
+      <p className="text-sm text-gray-700">
+        In questa sezione sono presenti informazioni che verranno visualizzate
+        sia nel form che nella generazione del PDF finale
+      </p>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Field className="mt-4">
           <FieldLabel htmlFor="field.fieldTitle" className="">
@@ -176,8 +180,8 @@ export default function formBase({
 
       <hr className="my-8" />
       {/*  Informazioni form che non andranno pubblicate */}
-      <h2 className="font-medium text-lg text-gray-600 ">Dati Interni Form</h2>
-      <p className="text-sm">
+      <h2 className="font-medium text-lg  ">Dati Interni Form</h2>
+      <p className="text-sm text-gray-700">
         In questa sezione si possono aggiungere altre informazioni utili che
         rimarranno a disposizione solamente nella dashboard
       </p>

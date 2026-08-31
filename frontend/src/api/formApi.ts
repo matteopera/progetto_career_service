@@ -27,12 +27,5 @@ export async function uploadCompiledForm(compiledForm:value){
         headers:{"Content-Type":"application/json"},
         body: JSON.stringify(compiledForm)
     })
-
-    if (response.ok){
-        console.log("Form salvato correttamente")
-    }
-    else{
-        console.error("Errore nel salvataggio del form")
-        //Seguirà una gestione migliore
-    }
+    return response
 }

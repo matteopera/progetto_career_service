@@ -34,7 +34,7 @@ export async  function uploadForm(req:Request,res:Response){
         await insertCompiledForm(checkedCompiledForm)
 
         //creating the response
-        return res.status(201)
+        return res.status(201).json({"message":"Iscrizione salvata con successo"})
     }catch(error){
         console.error(`Errore durante il salvataggio del form compilato: ${error}`)
         //MongoDB Errors

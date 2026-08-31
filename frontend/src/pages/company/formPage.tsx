@@ -67,7 +67,7 @@ export default function formPage() {
         />
       </nav>
       <div className="flex flex-row w-screen bg-slate-50">
-        <div
+        {/* <div
           id="sidebar"
           className="hidden h-screen md:block w-xs bg-indigo-100  pl-3 pt-3 pr-3"
         >
@@ -86,7 +86,7 @@ export default function formPage() {
               );
             })}
           </div>
-        </div>
+        </div> */}
         <div id="form" className="w-full font-semibold">
           <h1 className="text-4xl mb-3 mt-4 ml-3 mr-3 md:ml-7 md:mr-7 ">
             Registra la tua azienda

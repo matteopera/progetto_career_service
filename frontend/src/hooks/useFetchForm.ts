@@ -14,6 +14,7 @@ import { use, useEffect, useState } from "react";
 import type { textField } from "@/types/formType";
 import type { ZodAny } from "zod";
 import z from "zod";
+import { useNavigate } from "react-router";
 
 type useFetchFormType = {
   form: contentForm | null;
@@ -102,6 +103,7 @@ export function useValue(form: contentForm) {
   const [isNotValid, setIsNotValid] = useState<string[]>([]);
   const [textType, setTextType] = useState<Record<string, string>>({});
   const [sendable, setSendable] = useState<boolean>(false);
+  const navigate=useNavigate()
   //generazione del prima value
 
   useEffect(() => {
@@ -379,9 +381,20 @@ export function useValue(form: contentForm) {
    * @description The function check the validity of the data used to fill the form (for example CF, email, tel ecc. structer). After the correct validation the compiled form is sent to the server
    */
   function sendForm() {
-     (`All'invio la lista è ${isNotValid}`)
     if (formValidityCheck()) {
-      uploadCompiledForm(value);
+      uploadCompiledForm(value).then((res)=>{
+        console.log(res)
+        if(res.ok){
+        navigate("/company/pdf",{ replace: true })
+      }
+      else{
+        setSendable(true)
+      }
+      }).catch((error)=>{
+        //display pagina di errore
+        console.error(`Errore:${error}`)
+      })
+      
     }
     setSendable(true);
   }

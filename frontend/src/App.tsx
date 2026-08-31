@@ -10,6 +10,7 @@ import Companies from "./pages/admin/companies";
 import Forms from "./pages/admin/forms";
 import FormEditor from "./pages/admin/form/formEditor";
 import FormAdminPage from "./pages/admin/form/form";
+import PdfPage from "./pages/company/pdfPage";
 
 function App() {
   return (
@@ -19,7 +20,7 @@ function App() {
           <Route path="/" element={<Login />} />
           <Route path="/login" element={<Login />} />
           <Route path="/form" element={<Form />} />
-
+          <Route path="/company/pdf" element={<PdfPage/>} />
           {/* Rotte admin */}
           <Route
             path="/admin/dashboard"

@@ -8,5 +8,5 @@ const router = Router();
 router.get("/faq", getFaq);
 router.get("/form", getOnlineForm);
 router.post("/uploadForm",uploadForm);
-router.get("/pdf",getPdf);
+router.get("/pdf/:formId",getPdf);
 export default router;

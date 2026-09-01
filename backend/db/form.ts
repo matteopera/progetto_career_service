@@ -1,3 +1,4 @@
+import { ObjectId } from "mongodb";
 import { contentFormTest } from "../test-form/test.js";
 import { compiledForm, form } from "../types/form.js";
 import { db } from "./db.js";
@@ -40,4 +41,13 @@ export async function findFormByStatus(state:string){
 export async function insertForm(compileForm:compiledForm){
   const collection=db.collection("compiledForm")
   const res=await collection.insertOne(compileForm)
+}
+
+
+
+export async function findCompiledFormById(id:string){
+  const collection=db.collection("compiledForm")
+  const res=await collection.findOne({_id:new ObjectId(id)})
+
+  return res
 }

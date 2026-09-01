@@ -1,6 +1,6 @@
-import { findFormByStatus, insertForm } from "../../db/form.js";
+import { findCompiledFormById, findFormByStatus, insertForm } from "../../db/form.js";
 import z from "zod";
-import { compiledForm, zodForm } from "../../types/form.js";
+import { compiledForm, zodCompiledForm, zodForm } from "../../types/form.js";
 import { error } from "node:console";
 export async function findOnlineForm() {
   //db query
@@ -33,4 +33,15 @@ export async function insertCompiledForm(compiledForm: compiledForm) {
     throw new Error("given form is not valid")
     
   }
+}
+
+
+export async function findCompiledForm(id:string){
+  const compiledFormWithId=await findCompiledFormById(id)
+  //removing id from the compiled form
+  const {_id,...compiledForm}=compiledFormWithId
+
+  //compiled form parsing
+  const parsedCompiledForm=zodCompiledForm.parse(compiledForm)
+  return parsedCompiledForm
 }

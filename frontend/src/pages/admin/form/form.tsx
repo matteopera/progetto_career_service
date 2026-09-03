@@ -10,11 +10,21 @@ import {
   LucideGlasses,
   Plus,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Navigate, useNavigate } from "react-router";
 import FormEditor from "./formEditor";
 import { Button } from "@/components/ui/button";
 import FormBase from "./formBase";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import FormReview from "./formReview";
 
 export default function FormAdminPage() {
   // Controllo sessione default
@@ -91,8 +101,43 @@ export default function FormAdminPage() {
         i < index ? { ...s, completed: true } : { ...s, completed: false },
       );
       setSteps(updatedSteps);
+      localStorage.setItem("formInCostruzioneBase", JSON.stringify(baseForm));
+      localStorage.setItem(
+        "formInCostruzioneContent",
+        JSON.stringify(contentForm),
+      );
     }
   };
+
+  // Gestione form non salvato
+  const [draftFormDialogOpen, setDraftFormDialogOpen] = useState(false);
+
+  useEffect(() => {
+    const draftFormBase = localStorage.getItem("formInCostruzioneBase");
+    const draftFormContent = localStorage.getItem("formInCostruzioneContent");
+    if (draftFormBase || draftFormContent) {
+      setDraftFormDialogOpen(true);
+    }
+  }, []);
+
+  const recoveryForm = () => {
+    const draftFormBase = localStorage.getItem("formInCostruzioneBase");
+    const draftFormContent = localStorage.getItem("formInCostruzioneContent");
+    if (draftFormBase) {
+      setBaseForm(JSON.parse(draftFormBase));
+    }
+    if (draftFormContent) {
+      setContentForm(JSON.parse(draftFormContent));
+    }
+    setDraftFormDialogOpen(false);
+  };
+
+  const deleteCachedForm = () => {
+    localStorage.setItem("formInCostruzioneBase", "");
+    localStorage.setItem("formInCostruzioneContent", "");
+    setDraftFormDialogOpen(false);
+  };
+
   return (
     <div className="flex flex-col w-full h-full">
       {/* Header */}
@@ -149,12 +194,36 @@ export default function FormAdminPage() {
           goToStep={goToStep}
         />
       ) : steps[presentStepIndex].id === 3 ? (
-        <></>
+        <FormReview
+          sectionsForm={contentForm}
+          baseForm={baseForm}
+          goToStep={goToStep}
+        />
       ) : steps[presentStepIndex].id === 4 ? (
         <></>
       ) : (
         <Navigate to="/admin/dashboard" />
       )}
+
+      <Dialog onOpenChange={setDraftFormDialogOpen} open={draftFormDialogOpen}>
+        <DialogContent onInteractOutside={() => null}>
+          <DialogHeader>
+            <DialogTitle>Rilevato form non salvato</DialogTitle>
+          </DialogHeader>
+          <p>
+            Stavi costruendo un form e non è stato completato e portato al
+            salvataggio finale. Vuoi recuperare i dati?
+          </p>
+          <DialogFooter>
+            <Button variant="outline" onClick={deleteCachedForm}>
+              Elimina vecchio form
+            </Button>
+            <Button type="submit" onClick={recoveryForm}>
+              Save changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

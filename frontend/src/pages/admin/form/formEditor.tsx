@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/select";
 import type { contentForm, field, option } from "@/types/formType";
 import {
+  Check,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
@@ -35,7 +36,7 @@ import {
   Plus,
   Trash,
 } from "lucide-react";
-import { useState, type Dispatch, type SetStateAction } from "react";
+import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
 
 export default function FormEditor({
   sectionsForm,
@@ -53,6 +54,18 @@ export default function FormEditor({
 
   const [sectionToEdit, setSectionToEdit] = useState(-1);
   const [fieldToEdit, setFieldToEdit] = useState(""); // Uso la stringa per così faccio associazione indexSection-indexField
+
+  useEffect(() => {
+    const saveTimeout = setTimeout(() => {
+      localStorage.setItem(
+        "formInCostruzioneContent",
+        JSON.stringify(sectionsForm),
+      );
+    }, 5000);
+
+    return () => clearTimeout(saveTimeout);
+  }, [sectionsForm]);
+  // Ogni trenta secondi salvo
 
   // Gestione sezioni (Creazioni, spostamento, modifica, elimina)
   const createSection = () => {
@@ -74,9 +87,26 @@ export default function FormEditor({
       ...prev,
       sections: prev.sections.filter((s, index2) => sectionToDelete !== index2),
     }));
+    setFieldToEdit("");
+    setSectionToEdit(-1);
+
     setSectionToDelete(-1);
   };
 
+  const updateSection = (
+    indexSection: number,
+    attribute: "sectionTitle" | "sectionNote",
+    value: string,
+  ) => {
+    setSectionForm((prev) => ({
+      ...prev,
+      sections: prev.sections.map((s, index2) =>
+        indexSection === index2 ? { ...s, [attribute]: value } : s,
+      ),
+    }));
+  };
+
+  // Gestione posizione sezione
   const moveUpSection = (e: any, indexSection: number) => {
     e.preventDefault();
     if (indexSection === 0 || sectionsForm.sections.length == 1) {
@@ -111,19 +141,6 @@ export default function FormEditor({
     setSectionForm((prev) => ({ ...prev, sections: sections }));
   };
 
-  const updateSection = (
-    indexSection: number,
-    attribute: "sectionTitle" | "sectionNote",
-    value: string,
-  ) => {
-    setSectionForm((prev) => ({
-      ...prev,
-      sections: prev.sections.map((s, index2) =>
-        indexSection === index2 ? { ...s, [attribute]: value } : s,
-      ),
-    }));
-  };
-
   // Funzioni di supporto ai campi
   const createField = (
     indexSection: number,
@@ -148,7 +165,6 @@ export default function FormEditor({
             ],
           };
 
-    console.log(field);
     setSectionForm((prev) => ({
       ...prev,
       sections: prev.sections.map((s, index) =>
@@ -157,33 +173,10 @@ export default function FormEditor({
     }));
   };
 
-  const createOption = (indexSection: number, indexField: number) => {
-    const newOption: option = {
-      optionName: "Nome nuova opzione",
-      optionNote: "Note nuova opzione",
-    };
-    setSectionForm((prev) => ({
-      ...prev,
-      sections: prev.sections.map((s, index) =>
-        index === indexSection
-          ? {
-              ...s,
-              fields: s.fields.map((f, index2) =>
-                indexField === index2 &&
-                (f.fieldType === "check" || f.fieldType === "radio")
-                  ? { ...f, options: [...f.options, newOption] }
-                  : f,
-              ),
-            }
-          : s,
-      ),
-    }));
-  };
-
   const updateField = (
     indexSection: number,
     indexField: number,
-    attribute: "fieldTitle" | "fieldNote",
+    attribute: "fieldTitle" | "fieldNote" | "textType",
     value: string,
   ) => {
     setSectionForm((prev) => ({
@@ -215,10 +208,34 @@ export default function FormEditor({
           : s,
       ),
     }));
+
     setFieldToDelete("");
   };
 
   // Gestione opzioni
+  const createOption = (indexSection: number, indexField: number) => {
+    const newOption: option = {
+      optionName: "Nome nuova opzione",
+      optionNote: "Note nuova opzione",
+    };
+    setSectionForm((prev) => ({
+      ...prev,
+      sections: prev.sections.map((s, index) =>
+        index === indexSection
+          ? {
+              ...s,
+              fields: s.fields.map((f, index2) =>
+                indexField === index2 &&
+                (f.fieldType === "check" || f.fieldType === "radio")
+                  ? { ...f, options: [...f.options, newOption] }
+                  : f,
+              ),
+            }
+          : s,
+      ),
+    }));
+  };
+
   const updateOption = (
     indexSection: number,
     indexField: number,
@@ -255,17 +272,17 @@ export default function FormEditor({
     setSectionForm((prev) => ({
       ...prev,
       sections: prev.sections.map((s, index2) =>
-        Number(fieldToDelete.split("-")[0]) === index2
+        Number(optionToDelete.split("-")[0]) === index2
           ? {
               ...s,
               fields: s.fields.map((f, index3) =>
-                index3 === Number(fieldToDelete.split("-")[1]) &&
+                index3 === Number(optionToDelete.split("-")[1]) &&
                 (f.fieldType === "check" || f.fieldType === "radio")
                   ? {
                       ...f,
                       options: f.options.filter(
                         (_, index4) =>
-                          index4 !== Number(fieldToDelete.split("-")[2]),
+                          index4 !== Number(optionToDelete.split("-")[2]),
                       ),
                     }
                   : f,
@@ -274,6 +291,7 @@ export default function FormEditor({
           : s,
       ),
     }));
+
     setOptionToDelete("");
   };
 
@@ -346,6 +364,7 @@ export default function FormEditor({
                             onClick={(e) => {
                               e.preventDefault();
                               setSectionToEdit(indexSection);
+                              setFieldToEdit("");
                             }}
                             className="rounded-xl bg-white border w-8 h-8 flex items-center justify-center"
                           >
@@ -382,7 +401,7 @@ export default function FormEditor({
                       </AccordionTrigger>
                       <AccordionContent>
                         <div
-                          className={`relative border p-2 flex items-start rounded-b-xl justify-between w-full ${sectionToEdit === indexSection ? "border-black" : "border-gray-200"}`}
+                          className={`cursor-pointer relative border p-2 flex items-start rounded-b-xl justify-between w-full ${sectionToEdit === indexSection ? "border-black " : "border-gray-200"}`}
                         >
                           <div className="w-full">
                             {sectionsForm.sections[indexSection].fields.map(
@@ -390,6 +409,7 @@ export default function FormEditor({
                                 <div
                                   className={`relative border bg-white shadow mt-4 p-4 rounded-xl w-full`}
                                   onClick={(e) => {
+                                    setFieldToDelete("");
                                     setSectionToEdit(-1);
                                     setFieldToEdit(
                                       `${indexSection}-${indexField}`,
@@ -414,13 +434,20 @@ export default function FormEditor({
                                         Number(fieldToEdit.split("-")[1]) ===
                                           indexField
                                           ? "Modifica in corso"
-                                          : field.fieldType}
+                                          : field.fieldType === "text"
+                                            ? "Tipologia: Testo"
+                                            : field.fieldType == "radio"
+                                              ? "Tipologia: Radio"
+                                              : "Tipologia: Checkbox"}
                                       </div>
                                       <div>
                                         {fieldToDelete ===
                                         `${indexSection}-${indexField}` ? (
                                           <Button
-                                            onClick={deleteField}
+                                            onClick={(e: any) => {
+                                              e.stopPropagation();
+                                              deleteField();
+                                            }}
                                             variant={"destructive"}
                                             className="p-2 h-auto!"
                                           >
@@ -428,11 +455,14 @@ export default function FormEditor({
                                           </Button>
                                         ) : (
                                           <Button
-                                            onClick={() =>
+                                            onClick={(e: any) => {
+                                              e.stopPropagation();
+
+                                              setFieldToEdit("");
                                               setFieldToDelete(
                                                 `${indexSection}-${indexField}`,
-                                              )
-                                            }
+                                              );
+                                            }}
                                             variant={"destructive"}
                                             className="p-2 mr h-auto!"
                                           >
@@ -446,11 +476,13 @@ export default function FormEditor({
                               ),
                             )}
                             <DropdownMenu>
-                              <DropdownMenuTrigger>
-                                <Button className="px-8 h-11! mt-4">
+                              <DropdownMenuTrigger className="w-full">
+                                <div className="flex mt-4 py-4 rounded-xl cursor-pointer border-dashed transition-color duration-150 hover:bg-green-100/20 text-green-700 justify-center gap-4 items-center border border-green-700">
                                   <Plus />
-                                  <p>Aggiungi nuovo campo</p>
-                                </Button>
+                                  <span className="">
+                                    Aggiungi un nuovo campo
+                                  </span>
+                                </div>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent>
                                 <DropdownMenuItem
@@ -495,7 +527,7 @@ export default function FormEditor({
 
           <div className="col-span-2">
             <h2 className="font-medium text-lg">
-              {sectionToEdit !== -1 ? "Proprietà Sezione" : "Proprietà campo"}
+              Proprietà {sectionToEdit !== -1 ? "Sezione" : "Campo"}
             </h2>
             {sectionToEdit !== -1 ? (
               <>
@@ -521,6 +553,7 @@ export default function FormEditor({
                   </FieldLabel>
                   <Input
                     value={sectionsForm.sections[sectionToEdit].sectionNote}
+                    placeholder="Note della sezione..."
                     onChange={(e) => {
                       updateSection(
                         sectionToEdit,
@@ -533,43 +566,66 @@ export default function FormEditor({
               </>
             ) : fieldToEdit !== "" ? (
               <>
-                <Input
-                  value={
-                    sectionsForm.sections[Number(fieldToEdit.split("-")[0])]
-                      .fields[Number(fieldToEdit.split("-")[1])].fieldTitle
-                  }
-                  onChange={(e) => {
-                    updateField(
-                      Number(fieldToEdit.split("-")[0]),
-                      Number(fieldToEdit.split("-")[1]),
-                      "fieldTitle",
-                      e.target.value,
-                    );
-                  }}
-                  className="text-lg font-semibold bg-trasparent border-0 focus:bg-white w-[95%]"
-                />{" "}
-                <Input
-                  value={
-                    sectionsForm.sections[Number(fieldToEdit.split("-")[0])]
-                      .fields[Number(fieldToEdit.split("-")[1])].fieldNote
-                  }
-                  onChange={(e) =>
-                    updateField(
-                      Number(fieldToEdit.split("-")[0]),
-                      Number(fieldToEdit.split("-")[1]),
-                      "fieldNote",
-                      e.target.value,
-                    )
-                  }
-                  className="text-gray-500 bg-trasparent border-0 focus:bg-white w-[95%]"
-                />
+                <Field className="mt-8">
+                  <FieldLabel htmlFor="field.fieldTitle">
+                    Titolo campo
+                  </FieldLabel>
+                  <Input
+                    value={
+                      sectionsForm.sections[Number(fieldToEdit.split("-")[0])]
+                        .fields[Number(fieldToEdit.split("-")[1])].fieldTitle
+                    }
+                    placeholder="Titolo della sezione..."
+                    onChange={(e) => {
+                      updateField(
+                        Number(fieldToEdit.split("-")[0]),
+                        Number(fieldToEdit.split("-")[1]),
+                        "fieldTitle",
+                        e.target.value,
+                      );
+                    }}
+                  />
+                </Field>
+                <Field className="mt-4">
+                  <FieldLabel htmlFor="field.fieldTitle">Note campo</FieldLabel>
+                  <Input
+                    value={
+                      sectionsForm.sections[Number(fieldToEdit.split("-")[0])]
+                        .fields[Number(fieldToEdit.split("-")[1])].fieldNote
+                    }
+                    placeholder="Note della sezione..."
+                    onChange={(e) =>
+                      updateField(
+                        Number(fieldToEdit.split("-")[0]),
+                        Number(fieldToEdit.split("-")[1]),
+                        "fieldNote",
+                        e.target.value,
+                      )
+                    }
+                  />
+                </Field>
+
                 {sectionsForm.sections[Number(fieldToEdit.split("-")[0])]
                   .fields[Number(fieldToEdit.split("-")[1])].fieldType ===
                 "text" ? (
                   <div className="flex flex-col gap-2 mt-4">
                     <Label>Tipologia input di testo</Label>
-                    <Select defaultValue="all">
-                      <SelectTrigger className="w-1/4 h-11!">
+                    <Select
+                      defaultValue="text"
+                      value={
+                        sectionsForm.sections[Number(fieldToEdit.split("-")[0])]
+                          .fields[Number(fieldToEdit.split("-")[1])].textType
+                      }
+                      onValueChange={(newType) =>
+                        updateField(
+                          Number(fieldToEdit.split("-")[0]),
+                          Number(fieldToEdit.split("-")[1]),
+                          "textType",
+                          newType,
+                        )
+                      }
+                    >
+                      <SelectTrigger className="w-full h-11!">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -584,17 +640,26 @@ export default function FormEditor({
                       </SelectContent>
                     </Select>
                   </div>
-                ) : (
+                ) : sectionsForm.sections[Number(fieldToEdit.split("-")[0])]
+                    .fields[Number(fieldToEdit.split("-")[1])].fieldType ===
+                    "radio" ||
+                  sectionsForm.sections[Number(fieldToEdit.split("-")[0])]
+                    .fields[Number(fieldToEdit.split("-")[1])].fieldType ===
+                    "check" ? (
                   <div className="flex flex-col gap-2 mt-4">
-                    {/* {sectionsForm.sections[Number(fieldToEdit.split("-")[0])]
-                      .fields[Number(fieldToEdit.split("-")[1])].options?.map(
+                    {sectionsForm.sections[
+                      Number(fieldToEdit.split("-")[0])
+                    ].fields[Number(fieldToEdit.split("-")[1])].options?.map(
                       (option: option, indexOption: number) => (
-                        <div className="flex items-start relative border rounded-xl py-4 px-6">
-                          {field.fieldType === "check" ? (
+                        <div className=" items-start relative border rounded-xl py-4 px-6">
+                          {sectionsForm.sections[
+                            Number(fieldToEdit.split("-")[0])
+                          ].fields[Number(fieldToEdit.split("-")[1])]
+                            .fieldType === "check" ? (
                             <Checkbox checked={true} className="mr-4 mt-4.5" />
                           ) : (
                             <RadioGroup
-                              className="w-min mt-4.5 mr-4.5"
+                              className="w-min mt-4 mr-4.5 flex items-center font-semibold"
                               value={""}
                             >
                               <RadioGroupItem
@@ -602,51 +667,65 @@ export default function FormEditor({
                                 id={``}
                                 className="border  border-indigo-300"
                               />
+                              Radio
                             </RadioGroup>
                           )}
                           <div className="">
-                            <Input
-                              value={option.optionName}
-                              onChange={(e) => {
-                                updateOption(
-                                  indexSection,
-                                  indexField,
-                                  indexOption,
-                                  "optionName",
-                                  e.target.value,
-                                );
-                              }}
-                              className="text-lg font-semibold border-0 ring-0 p-0 focus:ring-0! hover:ring-0! hover:border-0!"
-                            />
-                            <Input
-                              value={option.optionNote}
-                              onChange={(e) => {
-                                updateOption(
-                                  indexSection,
-                                  indexField,
-                                  indexOption,
-                                  "optionNote",
-                                  e.target.value,
-                                );
-                              }}
-                              className="text-gray-500 text-sm border-0 ring-0 p-0 focus:ring-0! hover:ring-0! hover:border-0!"
-                            />
+                            <Field className="mt-4">
+                              <FieldLabel htmlFor="field.fieldTitle">
+                                Nome opzione
+                              </FieldLabel>
+                              <Input
+                                value={option.optionName}
+                                placeholder="Titolo della opzione..."
+                                onChange={(e) => {
+                                  updateOption(
+                                    Number(fieldToEdit.split("-")[0]),
+                                    Number(fieldToEdit.split("-")[1]),
+                                    indexOption,
+                                    "optionName",
+                                    e.target.value,
+                                  );
+                                }}
+                              />
+                            </Field>
+
+                            <Field className="mt-4">
+                              <FieldLabel htmlFor="field.fieldTitle">
+                                Note opzione
+                              </FieldLabel>
+                              <Input
+                                value={option.optionNote}
+                                placeholder="Note della opzione..."
+                                onChange={(e) => {
+                                  updateOption(
+                                    Number(fieldToEdit.split("-")[0]),
+                                    Number(fieldToEdit.split("-")[1]),
+                                    indexOption,
+                                    "optionNote",
+                                    e.target.value,
+                                  );
+                                }}
+                              />
+                            </Field>
                           </div>
                           <div className="absolute top-5 right-5">
                             {optionToDelete ===
-                            `${indexSection}-${indexField}-${indexOption}` ? (
+                            `${Number(fieldToEdit.split("-")[0])}-${Number(fieldToEdit.split("-")[1])}-${indexOption}` ? (
                               <Button
-                                onClick={deleteOption}
+                                onClick={() => {
+                                  deleteOption();
+                                }}
                                 variant={"destructive"}
                                 className="p-2 h-auto!"
                               >
-                                Confermi eliminazione?
+                                <Check className="w-5! h-5! " />
                               </Button>
                             ) : (
                               <Button
                                 onClick={() =>
                                   setOptionToDelete(
-                                    `${indexSection}-${indexField}-${indexOption}`,
+                                    `${Number(fieldToEdit.split("-")[0])}-${Number(fieldToEdit.split("-")[1])}-${indexOption}`,
                                   )
                                 }
                                 variant={"destructive"}
@@ -658,7 +737,7 @@ export default function FormEditor({
                           </div>
                         </div>
                       ),
-                    )} */}
+                    )}
                     <Button
                       onClick={() =>
                         createOption(
@@ -671,6 +750,8 @@ export default function FormEditor({
                       <p>Aggiungi opzione ora</p>
                     </Button>
                   </div>
+                ) : (
+                  <></>
                 )}
               </>
             ) : (

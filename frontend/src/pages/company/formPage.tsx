@@ -5,22 +5,12 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 
-import type { contentForm } from "@/types/formType";
 import Form from "@/components/form";
 import { useEffect, useState } from "react";
-import useFetchForm, { useValue } from "@/hooks/useFetchForm";
+import useFetchForm  from "@/hooks/useFetchForm";
 import { Spinner } from "@/components/ui/spinner";
 import type { faqListType } from "@/types/FAQType";
 import faqApi from "@/api/faqApi";
-import { Ghost, Sidebar } from "lucide-react";
-import {
-  SidebarContent,
-  SidebarGroup,
-  SidebarHeader,
-  SidebarProvider,
-} from "@/components/ui/sidebar";
-import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
 export default function formPage() {
   const { form, isLoading, error } = useFetchForm();
 

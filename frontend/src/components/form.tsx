@@ -18,7 +18,7 @@ type formProps = {
   contentForm: contentForm;
 };
 export default function Form({ contentForm }: formProps) {
-  const { value, handleChange, cleanForm, sendForm, isNotValid, sendable } =
+  const { value, handleChange, cleanForm, sendForm, isNotValid, sendable,error } =
     useValue(contentForm);
 
   function toAriaInvalid(key: string) {
@@ -240,6 +240,11 @@ export default function Form({ contentForm }: formProps) {
       {sendable && isNotValid.length > 0 ? (
         <p className="text-red-400">
           Si prega di riempire correttamente tutti i campi
+        </p>
+      ) : null}
+      {error!==null? (
+        <p className="text-red-400">
+          Errore nel salvataggio del form si prega di riprovare
         </p>
       ) : null}
       <div className="gap-3 flex justify-end mb-7">

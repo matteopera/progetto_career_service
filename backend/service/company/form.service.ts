@@ -1,4 +1,4 @@
-import { findCompiledFormById, findFormByStatus, insertForm } from "../../db/form.js";
+import { findCompiledFormById, findFormByStatus, insertForm, insertNewCompiledForm } from "../../db/form.js";
 import z from "zod";
 import { compiledForm, zodCompiledForm, zodForm } from "../../types/form.js";
 import { error } from "node:console";
@@ -27,7 +27,8 @@ export async function insertCompiledForm(compiledForm: compiledForm) {
 
   if (checked) {
     //upload into db
-    const res = await insertForm(compiledForm);
+    const res = await insertNewCompiledForm(compiledForm);
+    return res
   } else {
     //error handling
     throw new Error("given form is not valid")

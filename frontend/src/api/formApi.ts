@@ -27,5 +27,12 @@ export async function uploadCompiledForm(compiledForm:value){
         headers:{"Content-Type":"application/json"},
         body: JSON.stringify(compiledForm)
     })
-    return response
+    const isOk=response.ok
+    const result=await response.json()
+
+    const id=result._id
+
+    return {isOk,id}
+    
+    
 }

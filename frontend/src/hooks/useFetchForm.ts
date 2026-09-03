@@ -96,6 +96,7 @@ function initialValue(form: contentForm) {
  */
 export function useValue(form: contentForm) {
   const [value, setValue] = useState<value>({});
+  const [error, setError]=useState<Error |null>(null)
   const [fieldTypeMap, setFieldTypeMap] = useState<Record<string, string>>({});
   const [checkboxListMap, setCheckboxListMap] = useState<
     Record<string, string[]>
@@ -134,6 +135,7 @@ export function useValue(form: contentForm) {
     if (sendable) {
       setSendable(false);
     }
+    setError(null)
     const key=`${sectionTitle}-${fieldTitle}`;
     if (fieldTypeMap[key] == "text") {
       if (textType[key] === "CF") {
@@ -367,6 +369,7 @@ export function useValue(form: contentForm) {
    * @description The function starts by calling the initialValue function, used to clean the value state and all the data structure with dependency from it. After that it assings again the value to the reletive states
    */
   function cleanForm() {
+    setError(null)
     const { firstValue, fieldTypeMap, checkboxListMap } = initialValue(form);
     setValue(firstValue);
     setFieldTypeMap(fieldTypeMap);
@@ -381,22 +384,25 @@ export function useValue(form: contentForm) {
    * @description The function check the validity of the data used to fill the form (for example CF, email, tel ecc. structer). After the correct validation the compiled form is sent to the server
    */
   function sendForm() {
+    setError(null)
     if (formValidityCheck()) {
       uploadCompiledForm(value).then((res)=>{
-        console.log(res)
-        if(res.ok){
-        navigate("/company/pdf",{ replace: true })
+        const {isOk, id}=res
+        if(isOk){
+          //passing the id to the new page
+          
+        navigate("/company/pdf",{ replace: true ,state:{id:id}},)
       }
       else{
         setSendable(true)
+        setError(new Error("Salvataggio non avvenuto correttamente"))
       }
-      }).catch((error)=>{
-        //display pagina di errore
-        console.error(`Errore:${error}`)
+      }).catch((e)=>{
+        setError(e)
       })
       
     }
     setSendable(true);
   }
-  return { value, handleChange, cleanForm, sendForm, isNotValid, sendable };
+  return { value, handleChange, cleanForm, sendForm, isNotValid, sendable ,error};
 }

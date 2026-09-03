@@ -38,9 +38,10 @@ export async function findFormByStatus(state:string){
 }
 
 
-export async function insertForm(compileForm:compiledForm){
+export async function insertNewCompiledForm(compileForm:compiledForm){
   const collection=db.collection("compiledForm")
   const res=await collection.insertOne(compileForm)
+  return res.insertedId
 }
 
 

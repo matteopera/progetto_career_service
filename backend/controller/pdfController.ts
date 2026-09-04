@@ -7,7 +7,7 @@ export async function getPreviewPdfAsync(req: Request, res: Response) {
 
     // Impostazioni header di risposta
     res.setHeader("Content-Type", "application/pdf");
-    res.setHeader("Content-Disposition", "inline; file=TEST_MATTEO.pdf");
+    res.setHeader("Content-Disposition", "inline; filename=TEST_MATTEO.pdf");
 
     await generatePDFPreviewAsync(null, res);
 

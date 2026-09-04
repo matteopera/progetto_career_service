@@ -391,7 +391,7 @@ export function useValue(form: contentForm) {
         if(isOk){
           //passing the id to the new page
           
-        navigate("/company/pdf",{ replace: true ,state:{id:id}},)
+        navigate("/company/pdf",{ replace: true ,state:{id:id,value:value,form:form}})
       }
       else{
         setSendable(true)

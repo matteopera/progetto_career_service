@@ -8,8 +8,11 @@ export default async function getPdf(req: Request, res: Response) {
   try {
     const {formId}=req.params;
 
-    generateInscriptionPdf(res, formId as string);
+    
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", "attachment; filename=PDF_Iscrizione.pdf")
 
+    generateInscriptionPdf(res, formId as string);
     return res.status(200);
   } catch (error) {
     console.error(`Errore durante la generazione del PDF: ${error}`);

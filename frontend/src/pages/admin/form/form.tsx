@@ -219,7 +219,7 @@ export default function FormAdminPage() {
               Elimina vecchio form
             </Button>
             <Button type="submit" onClick={recoveryForm}>
-              Save changes
+              Recupera form
             </Button>
           </DialogFooter>
         </DialogContent>

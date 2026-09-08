@@ -33,10 +33,12 @@ import {
   ChevronUp,
   Copy,
   Edit,
+  Grip,
   Plus,
   Trash,
 } from "lucide-react";
 import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
+import { ReactSortable } from "react-sortablejs";
 
 export default function FormEditor({
   sectionsForm,
@@ -403,12 +405,30 @@ export default function FormEditor({
                         <div
                           className={`cursor-pointer relative border p-2 flex items-start rounded-b-xl justify-between w-full ${sectionToEdit === indexSection ? "border-black " : "border-gray-200"}`}
                         >
-                          <div className="w-full">
+                          <ReactSortable
+                            list={sectionsForm.sections[indexSection].fields}
+                            setList={(reorderedFields) => {
+                              setFieldToDelete("");
+                              setSectionToEdit(-1);
+                              setFieldToEdit(``);
+
+                              setSectionForm((prev) => ({
+                                ...prev,
+                                sections: prev.sections.map((s, idx) =>
+                                  idx === indexSection
+                                    ? { ...s, fields: reorderedFields }
+                                    : s,
+                                ),
+                              }));
+                            }}
+                            handle=".handle"
+                            className="w-full"
+                          >
                             {sectionsForm.sections[indexSection].fields.map(
                               (field, indexField) => (
                                 <div
-                                  className={`relative border bg-white shadow mt-4 p-4 rounded-xl w-full`}
-                                  onClick={(e) => {
+                                  className={`relative border bg-white shadow mt-4 p-4 rounded-xl w-full group `}
+                                  onClick={() => {
                                     setFieldToDelete("");
                                     setSectionToEdit(-1);
                                     setFieldToEdit(
@@ -416,16 +436,18 @@ export default function FormEditor({
                                     );
                                   }}
                                 >
-                                  <div className="flex items-start justify-between">
-                                    <div className="flex flex-col gap-2">
-                                      <p className="text-xl">
+                                  <div className="flex items-start ">
+                                    <Grip className="handle w-5 h-5 mt-4 text-gray-500" />
+
+                                    <div className="flex flex-col gap-2 border-l pl-2 ml-2">
+                                      <p className="text-xl group-hover:underline">
                                         {field.fieldTitle}
                                       </p>
-                                      <p className="text-gray-600 font-light">
+                                      <p className="text-gray-600 font-light group-hover:underline">
                                         {field.fieldNote}
                                       </p>
                                     </div>
-                                    <div className="flex items-center gap-4">
+                                    <div className="flex items-center gap-4 ml-auto">
                                       <div
                                         className={`${Number(fieldToEdit.split("-")[0]) === indexSection && Number(fieldToEdit.split("-")[1]) === indexField ? "bg-black text-white" : "bg-gray-50 text-black"} rounded-full text-sm px-3 py-0.5`}
                                       >
@@ -508,7 +530,7 @@ export default function FormEditor({
                                 </DropdownMenuItem>
                               </DropdownMenuContent>
                             </DropdownMenu>
-                          </div>
+                          </ReactSortable>
                         </div>
                       </AccordionContent>
                     </AccordionItem>
@@ -647,97 +669,134 @@ export default function FormEditor({
                     .fields[Number(fieldToEdit.split("-")[1])].fieldType ===
                     "check" ? (
                   <div className="flex flex-col gap-2 mt-4">
-                    {sectionsForm.sections[
-                      Number(fieldToEdit.split("-")[0])
-                    ].fields[Number(fieldToEdit.split("-")[1])].options?.map(
-                      (option: option, indexOption: number) => (
-                        <div className=" items-start relative border rounded-xl py-4 px-6">
-                          {sectionsForm.sections[
-                            Number(fieldToEdit.split("-")[0])
-                          ].fields[Number(fieldToEdit.split("-")[1])]
-                            .fieldType === "check" ? (
-                            <Checkbox checked={true} className="mr-4 mt-4.5" />
-                          ) : (
-                            <RadioGroup
-                              className="w-min mt-4 mr-4.5 flex items-center font-semibold"
-                              value={""}
-                            >
-                              <RadioGroupItem
-                                value={""}
-                                id={``}
-                                className="border  border-indigo-300"
-                              />
-                              Radio
-                            </RadioGroup>
-                          )}
-                          <div className="">
-                            <Field className="mt-4">
-                              <FieldLabel htmlFor="field.fieldTitle">
-                                Nome opzione
-                              </FieldLabel>
-                              <Input
-                                value={option.optionName}
-                                placeholder="Titolo della opzione..."
-                                onChange={(e) => {
-                                  updateOption(
-                                    Number(fieldToEdit.split("-")[0]),
-                                    Number(fieldToEdit.split("-")[1]),
-                                    indexOption,
-                                    "optionName",
-                                    e.target.value,
-                                  );
-                                }}
-                              />
-                            </Field>
-
-                            <Field className="mt-4">
-                              <FieldLabel htmlFor="field.fieldTitle">
-                                Note opzione
-                              </FieldLabel>
-                              <Input
-                                value={option.optionNote}
-                                placeholder="Note della opzione..."
-                                onChange={(e) => {
-                                  updateOption(
-                                    Number(fieldToEdit.split("-")[0]),
-                                    Number(fieldToEdit.split("-")[1]),
-                                    indexOption,
-                                    "optionNote",
-                                    e.target.value,
-                                  );
-                                }}
-                              />
-                            </Field>
-                          </div>
-                          <div className="absolute top-5 right-5">
-                            {optionToDelete ===
-                            `${Number(fieldToEdit.split("-")[0])}-${Number(fieldToEdit.split("-")[1])}-${indexOption}` ? (
-                              <Button
-                                onClick={() => {
-                                  deleteOption();
-                                }}
-                                variant={"destructive"}
-                                className="p-2 h-auto!"
-                              >
-                                <Check className="w-5! h-5! " />
-                              </Button>
-                            ) : (
-                              <Button
-                                onClick={() =>
-                                  setOptionToDelete(
-                                    `${Number(fieldToEdit.split("-")[0])}-${Number(fieldToEdit.split("-")[1])}-${indexOption}`,
-                                  )
+                    <ReactSortable
+                      className="flex flex-col gap-4"
+                      list={
+                        sectionsForm.sections[Number(fieldToEdit.split("-")[0])]
+                          .fields[Number(fieldToEdit.split("-")[1])].options
+                      }
+                      setList={(reorderedOptions) => {
+                        setSectionForm((prev) => ({
+                          ...prev,
+                          sections: prev.sections.map((s, index) =>
+                            index === sectionToEdit
+                              ? {
+                                  ...s,
+                                  fields: s.fields.map((f, index2) =>
+                                    indexField === index2 &&
+                                    (f.fieldType === "check" ||
+                                      f.fieldType === "radio")
+                                      ? {
+                                          ...f,
+                                          options: reorderedOptions,
+                                        }
+                                      : f,
+                                  ),
                                 }
-                                variant={"destructive"}
-                                className="p-2 h-auto!"
-                              >
-                                <Trash className="w-5! h-5! " />
-                              </Button>
-                            )}
+                              : s,
+                          ),
+                        }));
+                      }}
+                      handle=".handle-option"
+                    >
+                      {sectionsForm.sections[
+                        Number(fieldToEdit.split("-")[0])
+                      ].fields[Number(fieldToEdit.split("-")[1])].options?.map(
+                        (option: option, indexOption: number) => (
+                          <div className=" items-start relative border rounded-xl py-4 px-6">
+                            <>
+                              <Grip className="w-5 h-5 handle-option cursor-pointer" />
+                              {sectionsForm.sections[
+                                Number(fieldToEdit.split("-")[0])
+                              ].fields[Number(fieldToEdit.split("-")[1])]
+                                .fieldType === "check" ? (
+                                <Checkbox
+                                  checked={true}
+                                  className="mr-4 mt-4.5"
+                                />
+                              ) : (
+                                <RadioGroup
+                                  className="w-min mt-4 mr-4.5 flex items-center font-semibold"
+                                  value={""}
+                                >
+                                  <RadioGroupItem
+                                    value={""}
+                                    id={``}
+                                    className="border  border-indigo-300"
+                                  />
+                                  Radio
+                                </RadioGroup>
+                              )}
+                            </>
+                            <div className="">
+                              <Field className="mt-4">
+                                <FieldLabel htmlFor="field.fieldTitle">
+                                  Nome opzione
+                                </FieldLabel>
+                                <Input
+                                  value={option.optionName}
+                                  placeholder="Titolo della opzione..."
+                                  onChange={(e) => {
+                                    updateOption(
+                                      Number(fieldToEdit.split("-")[0]),
+                                      Number(fieldToEdit.split("-")[1]),
+                                      indexOption,
+                                      "optionName",
+                                      e.target.value,
+                                    );
+                                  }}
+                                />
+                              </Field>
+
+                              <Field className="mt-4">
+                                <FieldLabel htmlFor="field.fieldTitle">
+                                  Note opzione
+                                </FieldLabel>
+                                <Input
+                                  value={option.optionNote}
+                                  placeholder="Note della opzione..."
+                                  onChange={(e) => {
+                                    updateOption(
+                                      Number(fieldToEdit.split("-")[0]),
+                                      Number(fieldToEdit.split("-")[1]),
+                                      indexOption,
+                                      "optionNote",
+                                      e.target.value,
+                                    );
+                                  }}
+                                />
+                              </Field>
+                            </div>
+                            <div className="absolute top-5 right-5">
+                              {optionToDelete ===
+                              `${Number(fieldToEdit.split("-")[0])}-${Number(fieldToEdit.split("-")[1])}-${indexOption}` ? (
+                                <Button
+                                  onClick={() => {
+                                    deleteOption();
+                                  }}
+                                  variant={"destructive"}
+                                  className="p-2 h-auto!"
+                                >
+                                  <Check className="w-5! h-5! " />
+                                </Button>
+                              ) : (
+                                <Button
+                                  onClick={() =>
+                                    setOptionToDelete(
+                                      `${Number(fieldToEdit.split("-")[0])}-${Number(fieldToEdit.split("-")[1])}-${indexOption}`,
+                                    )
+                                  }
+                                  variant={"destructive"}
+                                  className="p-2 h-auto!"
+                                >
+                                  <Trash className="w-5! h-5! " />
+                                </Button>
+                              )}
+                            </div>
                           </div>
-                        </div>
-                      ),
-                    )}
+                        ),
+                      )}
+                    </ReactSortable>
                     <Button
                       onClick={() =>
                         createOption(

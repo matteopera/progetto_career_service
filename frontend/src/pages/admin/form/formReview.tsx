@@ -12,7 +12,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import type { contentForm } from "@/types/formType";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight } from "lucide-react";
+import { toast } from "sonner";
 
 export default function FormReview({
   sectionsForm,
@@ -35,6 +36,26 @@ export default function FormReview({
     sections: sectionsForm.sections,
     date: new Date(),
   };
+
+  const saveForm = async () => {
+    const response = await fetch("/api/form/insert-form", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ form: form }),
+    });
+
+    if (!response.ok) {
+      const json = await response.json();
+      toast.error(json);
+      return;
+    }
+
+    toast.success("Form creato con successo!");
+    localStorage.setItem("formInCostruzioneBase", "");
+    localStorage.setItem("formInCostruzioneContent", "");
+
+    goToStep(3);
+  };
   return (
     <div className="border shadow rounded-xl mt-8 p-4">
       <div className="flex justify-between mb-4">
@@ -43,18 +64,16 @@ export default function FormReview({
           <span>Vai allo step precedente</span>
         </Button>
         <h1 className="font-semibold text-2xl">Preview del tuo form</h1>
-        <Button onClick={() => goToStep(3)} className="px-4 h-10!">
-          <span>Vai al prossimo step</span>
-          <ChevronRight />
+        <Button onClick={saveForm} className="px-4 h-10!">
+          <span>Conferma creazione form</span>
+          <Check />
         </Button>
       </div>
 
-      <h2 className="font-medium text-lg ">Dati Base Form</h2>
-      <p className="text-sm text-gray-700">
-        In questa sezione sono presenti informazioni che verranno visualizzate
-        sia nel form che nella generazione del PDF finale
-      </p>
       <FieldGroup>
+        <p className="border-gray-400 border p-3 font-normal border-l-3 border-l-gray-400">
+          {form.formTitle}
+        </p>
         <p className="border-gray-400 border p-3 font-normal border-l-3 border-l-gray-400">
           {form.formNote}
         </p>
@@ -73,7 +92,7 @@ export default function FormReview({
                   {section.sectionTitle}
                 </FieldLegend>
               </div>
-              {section.sectionNote != "null" ? (
+              {section.sectionNote != "" ? (
                 <FieldDescription className="p-3 border border-l-2 border-gray-400 border-l-blue-500 mb-2">
                   {section.sectionNote}
                 </FieldDescription>
@@ -111,7 +130,7 @@ export default function FormReview({
                             {field.fieldTitle}
                           </FieldLabel>
                           <FieldDescription>
-                            {field.fieldNote != "null" ? field.fieldNote : null}
+                            {field.fieldNote != "" ? field.fieldNote : null}
                           </FieldDescription>
                           {field.options.map((option) => {
                             return (
@@ -131,7 +150,7 @@ export default function FormReview({
                                     {option.optionName}
                                   </FieldLabel>
                                   <FieldDescription>
-                                    {option.optionNote != "null"
+                                    {option.optionNote != ""
                                       ? option.optionNote
                                       : null}
                                   </FieldDescription>
@@ -151,7 +170,7 @@ export default function FormReview({
                             {field.fieldTitle}
                           </FieldLabel>
                           <FieldDescription>
-                            {field.fieldNote != "null" ? field.fieldNote : null}
+                            {field.fieldNote != "" ? field.fieldNote : null}
                           </FieldDescription>
                           <RadioGroup className="w-fit">
                             {field.options.map((option) => {

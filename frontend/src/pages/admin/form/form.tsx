@@ -161,7 +161,10 @@ export default function FormAdminPage() {
       <div className="border shadow rounded-xl mt-8 p-4">
         <div className="w-[75%] mx-auto flex items-center justify-between">
           {steps.map((step, index) => (
-            <div className="flex flex-col items-center flex-1 relative">
+            <div
+              key={step.id}
+              className="flex flex-col items-center flex-1 relative"
+            >
               <div className="border rounded-full p-4 bg-white ">
                 <step.icon
                   className={`w-5 h-5 ${step.completed ? "text-black" : "text-gray-500"}`}

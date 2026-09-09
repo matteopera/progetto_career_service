@@ -39,6 +39,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
 import { ReactSortable } from "react-sortablejs";
+import { toast } from "sonner";
 
 export default function FormEditor({
   sectionsForm,
@@ -111,6 +112,7 @@ export default function FormEditor({
   // Gestione posizione sezione
   const moveUpSection = (e: any, indexSection: number) => {
     e.preventDefault();
+    setSectionToEdit(-1);
     if (indexSection === 0 || sectionsForm.sections.length == 1) {
       return;
     }
@@ -297,6 +299,43 @@ export default function FormEditor({
     setOptionToDelete("");
   };
 
+  const nextStep = () => {
+    // Controllo che ci sia almeno una sezione e un field
+    if (
+      sectionsForm.sections.length == 0 ||
+      sectionsForm.sections.some((s) => s.fields.length == 0)
+    ) {
+      toast.error(
+        "Creare almeno una sezione e un campo. Ogni sezione deve avere almeno un campo",
+      );
+      return;
+    }
+    if (sectionsForm.sections.some((s) => s.sectionTitle === "")) {
+      toast.error("Le sezioni devono avere un titolo obbligatorio");
+      return;
+    }
+    if (
+      sectionsForm.sections
+        .flatMap((s) => s.fields)
+        .some((f) => f.fieldTitle === "")
+    ) {
+      toast.error("I campi devono avere un titolo obbligatorio");
+      return;
+    }
+    if (
+      sectionsForm.sections
+        .flatMap((s) => s.fields)
+        .filter((f) => f.fieldType === "check" || f.fieldType === "radio")
+        .flatMap((f) => f.options)
+        .some((o) => o.optionName === "")
+    ) {
+      toast.error(
+        "Le opzioni dei campi radio o checkbox devono avere un titolo obbligatorio",
+      );
+      return;
+    }
+    goToStep(2);
+  };
   return (
     <div className="flex flex-col w-full h-full">
       {/* Gestione form */}
@@ -307,7 +346,7 @@ export default function FormEditor({
             <span>Vai allo step precedente</span>
           </Button>
           <h1 className="font-semibold text-2xl">Creazione nuovo form</h1>
-          <Button onClick={() => goToStep(2)} className="px-4 h-10!">
+          <Button onClick={nextStep} className="px-4 h-10!">
             <span>Vai al prossimo step</span>
             <ChevronRight />
           </Button>
@@ -342,13 +381,30 @@ export default function FormEditor({
                 >
                   {sectionsForm.sections.map((section, indexSection) => (
                     <AccordionItem
-                      key={section.sectionNote}
                       value={`item-${indexSection}`}
                       className="border-b-red-50/0"
                     >
-                      <AccordionTrigger
-                        className={`border ${sectionToEdit === indexSection ? "border-black" : "border-gray-200"} bg-gray-100/50 rounded-b-none px-5`}
-                      >
+                      <div className="relative">
+                        <AccordionTrigger
+                          className={`border ${sectionToEdit === indexSection ? "border-black" : "border-gray-200"} bg-gray-100/50 rounded-b-none px-5`}
+                        >
+                          <div className="flex flex-col gap-2">
+                            <p
+                              className={`${section.sectionTitle === "" && "text-gray-500"} text-xl`}
+                            >
+                              {section.sectionTitle === ""
+                                ? "Nessun titolo fornito"
+                                : section.sectionTitle}
+                            </p>
+                            <p
+                              className={`${section.sectionNote === "" ? "text-gray-400" : "text-gray-600"} font-light`}
+                            >
+                              {section.sectionNote === ""
+                                ? "Nessun titolo fornito"
+                                : section.sectionNote}
+                            </p>
+                          </div>
+                        </AccordionTrigger>
                         <div className="absolute gap-4 flex right-10 -top-4 z-20 ">
                           <div
                             className="rounded-xl bg-white border w-8 h-8 flex items-center justify-center hover:bg-gray-100 cursor-pointer"
@@ -393,17 +449,10 @@ export default function FormEditor({
                             </Button>
                           )}
                         </div>
-
-                        <div className="flex flex-col gap-2">
-                          <p className="text-xl">{section.sectionTitle}</p>
-                          <p className="text-gray-600 font-light">
-                            {section.sectionNote}
-                          </p>
-                        </div>
-                      </AccordionTrigger>
+                      </div>
                       <AccordionContent>
                         <div
-                          className={`cursor-pointer relative border p-2 flex items-start rounded-b-xl justify-between w-full ${sectionToEdit === indexSection ? "border-black " : "border-gray-200"}`}
+                          className={`flex-col cursor-pointer relative border p-2 flex items-start rounded-b-xl justify-between w-full ${sectionToEdit === indexSection ? "border-black " : "border-gray-200"}`}
                         >
                           <ReactSortable
                             list={sectionsForm.sections[indexSection].fields}
@@ -440,11 +489,19 @@ export default function FormEditor({
                                     <Grip className="handle w-5 h-5 mt-4 text-gray-500" />
 
                                     <div className="flex flex-col gap-2 border-l pl-2 ml-2">
-                                      <p className="text-xl group-hover:underline">
-                                        {field.fieldTitle}
+                                      <p
+                                        className={`${field.fieldTitle === "" && "text-gray-400"} text-xl group-hover:underline`}
+                                      >
+                                        {field.fieldTitle === ""
+                                          ? "Nessun titolo fornito"
+                                          : field.fieldTitle}
                                       </p>
-                                      <p className="text-gray-600 font-light group-hover:underline">
-                                        {field.fieldNote}
+                                      <p
+                                        className={`${field.fieldNote === "" ? "text-gray-400" : "text-gray-600"}  font-light group-hover:underline`}
+                                      >
+                                        {field.fieldNote === ""
+                                          ? "Nessun titolo fornito"
+                                          : field.fieldNote}
                                       </p>
                                     </div>
                                     <div className="flex items-center gap-4 ml-auto">
@@ -497,40 +554,40 @@ export default function FormEditor({
                                 </div>
                               ),
                             )}
-                            <DropdownMenu>
-                              <DropdownMenuTrigger className="w-full">
-                                <div className="flex mt-4 py-4 rounded-xl cursor-pointer border-dashed transition-color duration-150 hover:bg-green-100/20 text-green-700 justify-center gap-4 items-center border border-green-700">
-                                  <Plus />
-                                  <span className="">
-                                    Aggiungi un nuovo campo
-                                  </span>
-                                </div>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent>
-                                <DropdownMenuItem
-                                  onClick={() =>
-                                    createField(indexSection, "text")
-                                  }
-                                >
-                                  Campo Input testo
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                  onClick={() =>
-                                    createField(indexSection, "radio")
-                                  }
-                                >
-                                  Campo Input Radio
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                  onClick={() =>
-                                    createField(indexSection, "check")
-                                  }
-                                >
-                                  Campo Input Checkbox
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
                           </ReactSortable>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger className="w-full">
+                              <div className="flex mt-4 py-4 rounded-xl cursor-pointer border-dashed transition-color duration-150 hover:bg-green-100/20 text-green-700 justify-center gap-4 items-center border border-green-700">
+                                <Plus />
+                                <span className="">
+                                  Aggiungi un nuovo campo
+                                </span>
+                              </div>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent>
+                              <DropdownMenuItem
+                                onClick={() =>
+                                  createField(indexSection, "text")
+                                }
+                              >
+                                Campo Input testo
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() =>
+                                  createField(indexSection, "radio")
+                                }
+                              >
+                                Campo Input Radio
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() =>
+                                  createField(indexSection, "check")
+                                }
+                              >
+                                Campo Input Checkbox
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </div>
                       </AccordionContent>
                     </AccordionItem>

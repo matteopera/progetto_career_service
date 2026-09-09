@@ -28,7 +28,6 @@ export async function getOnlineForm(req: Request, res: Response) {
 export async function uploadForm(req: Request, res: Response) {
   try {
     const uploadedData = req.body;
-    console.log(uploadedData);
 
     //check with zod
     const checkedCompiledForm = zodCompiledForm.parse(uploadedData);

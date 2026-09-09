@@ -14,20 +14,36 @@ import { useLocation } from "react-router";
 
 import { useDropzone } from "react-dropzone";
 import { useEffect, useState } from "react";
-import getPDF from "@/api/pdfApi";
+import getPDF, { saveCompiledPDF } from "@/api/pdfApi";
+import { error } from "better-auth/api";
 export default function pdfPage() {
   const maxSizeInMB = 2;
   const [files, setFiles] = useState<File[] | null>();
   const [fileError, setFileError] = useState<string | null>(null);
+  const [fetchingFileError, setFetchingFileError] = useState<Error | null>(
+    null,
+  );
   const location = useLocation();
   const { id, value, form } = location.state || {};
-
-  useEffect(()=>{
-    if ("scrollRestoration" in window.history) {
-    window.history.scrollRestoration = "manual";
-    requestAnimationFrame(() => window.scrollTo(0, 0));
+  async function downloadPdf(id: string) {
+    try {
+      const res = await getPDF(id);
+      if (!res.ok) {
+        setFetchingFileError(new Error("Errore nel downlaod del file"));
+      } else {
+        setFetchingFileError(null);
+      }
+    } catch (e) {
+      console.log("Cathco l'errore");
+      setFetchingFileError(new Error("Errore nel download del file"));
+    }
   }
-  },[])
+  useEffect(() => {
+    if ("scrollRestoration" in window.history) {
+      window.history.scrollRestoration = "manual";
+      requestAnimationFrame(() => window.scrollTo(0, 0));
+    }
+  }, []);
   const { getRootProps, getInputProps } = useDropzone({
     noKeyboard: true,
     accept: { "application/pdf": [".pdf"] },
@@ -105,20 +121,28 @@ export default function pdfPage() {
         })}
 
         <div className="border-2 border-gray-100 p-5 rounded-2xl mb-3">
-          <div className=" flex flex-col items-center justify-center gap-3 border-2  border-gray-100 rounded-2xl md:flex md:flex-row md:items-center md:justify-between p-3 mb-5">
-            <div className="flex items-center gap-4 justify-start w-full">
-              <File className="bg-blue-100 w-10 h-10 p-2.5 rounded-lg text-blue-500"></File>
-              <div className="flex flex-col">
-                <p className="font-semibold">Modulo da stampare e firmare</p>
-                <p className="text-gray-400">PDF non compilato</p>
+          <div className="border-2  border-gray-100 rounded-2xl">
+            <div className=" flex flex-col items-center justify-center gap-3  md:flex md:flex-row md:items-center md:justify-between p-3">
+              <div className="flex items-center gap-4 justify-start w-full">
+                <File className="bg-blue-100 w-10 h-10 p-2.5 rounded-lg text-blue-500"></File>
+                <div className="flex flex-col">
+                  <p className="font-semibold">Modulo da stampare e firmare</p>
+                  <p className="text-gray-400">PDF non compilato</p>
+                </div>
               </div>
+              <Button onClick={() => downloadPdf(id)}>
+                <DownloadIcon /> Scarica PDF
+              </Button>
             </div>
-
-            <Button onClick={()=>getPDF(id)}>
-              <DownloadIcon /> Scarica PDF
-            </Button>
+            {fetchingFileError === null ? null : (
+              <div className="pl-5 pb-3">
+                <p className="text-red-400">
+                Impossibile scaricare il file desiderato
+              </p>
+              </div>
+            )}
           </div>
-          <p className="font-semibold"> Documento firmato</p>
+          <p className="font-semibold mt-5"> Documento firmato</p>
           <p className="text-gray-400">
             {" "}
             Stampa il PDF sopra, firmalo e ricaricalo qui.
@@ -135,8 +159,12 @@ export default function pdfPage() {
               <p className="font-semibold">
                 Trascina qui il PDF firmato o clicca per sfogliare i file
               </p>
-              <p className="text-gray-400">PDF · max {maxSizeInMB} MB · Un solo file caricabile</p>
-              <p className="text-red-400">{fileError !== null ? fileError : null}</p>
+              <p className="text-gray-400">
+                PDF · max {maxSizeInMB} MB · Un solo file caricabile
+              </p>
+              <p className="text-red-400">
+                {fileError !== null ? fileError : null}
+              </p>
             </div>
           </div>
           {files?.map((f) => {
@@ -157,7 +185,7 @@ export default function pdfPage() {
                   <X />
                   Cancella
                 </Button>
-                <Button>Invia</Button>
+                <Button onClick={()=>saveCompiledPDF(f)}>Invia</Button>
               </div>
             );
           })}

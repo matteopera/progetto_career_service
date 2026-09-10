@@ -24,7 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { contentForm, field, option } from "@/types/formType";
+import type { contentForm, field, form, option } from "@/types/formType";
 import {
   Check,
   ChevronDown,
@@ -42,12 +42,12 @@ import { ReactSortable } from "react-sortablejs";
 import { toast } from "sonner";
 
 export default function FormEditor({
-  sectionsForm,
-  setSectionForm,
+  form,
+  setForm,
   goToStep,
 }: {
-  sectionsForm: Pick<contentForm, "sections">;
-  setSectionForm: Dispatch<SetStateAction<Pick<contentForm, "sections">>>;
+  form: Omit<form, "_id" | "lastEdit" | "created">;
+  setForm: Dispatch<SetStateAction<Omit<form, "_id" | "lastEdit" | "created">>>;
   goToStep: (index: number) => void;
 }) {
   // Stato per eliminazione sezione
@@ -60,35 +60,40 @@ export default function FormEditor({
 
   useEffect(() => {
     const saveTimeout = setTimeout(() => {
-      localStorage.setItem(
-        "formInCostruzioneContent",
-        JSON.stringify(sectionsForm),
-      );
-    }, 5000);
+      localStorage.setItem("formInCostruzione", JSON.stringify(form));
+    }, 10000);
 
     return () => clearTimeout(saveTimeout);
-  }, [sectionsForm]);
-  // Ogni trenta secondi salvo
+  }, [form]);
+  // Ogni dieci secondi salvo
 
   // Gestione sezioni (Creazioni, spostamento, modifica, elimina)
   const createSection = () => {
-    setSectionForm((prev) => ({
+    setForm((prev) => ({
       ...prev,
-      sections: [
-        ...prev.sections,
-        {
-          sectionTitle: `Nuova sezione ${prev.sections.length + 1}`,
-          sectionNote: "Note nuova sezione",
-          fields: [],
-        },
-      ],
+      content: {
+        ...prev.content,
+        sections: [
+          ...prev.content.sections,
+          {
+            sectionTitle: `Nuova sezione ${prev.content.sections.length + 1}`,
+            sectionNote: "Note nuova sezione",
+            fields: [],
+          },
+        ],
+      },
     }));
   };
 
   const deleteSection = () => {
-    setSectionForm((prev) => ({
+    setForm((prev) => ({
       ...prev,
-      sections: prev.sections.filter((s, index2) => sectionToDelete !== index2),
+      content: {
+        ...prev.content,
+        sections: prev.content.sections.filter(
+          (s, index2) => sectionToDelete !== index2,
+        ),
+      },
     }));
     setFieldToEdit("");
     setSectionToEdit(-1);
@@ -101,11 +106,14 @@ export default function FormEditor({
     attribute: "sectionTitle" | "sectionNote",
     value: string,
   ) => {
-    setSectionForm((prev) => ({
+    setForm((prev) => ({
       ...prev,
-      sections: prev.sections.map((s, index2) =>
-        indexSection === index2 ? { ...s, [attribute]: value } : s,
-      ),
+      content: {
+        ...prev.content,
+        sections: prev.content.sections.map((s, index2) =>
+          indexSection === index2 ? { ...s, [attribute]: value } : s,
+        ),
+      },
     }));
   };
 
@@ -113,36 +121,42 @@ export default function FormEditor({
   const moveUpSection = (e: any, indexSection: number) => {
     e.preventDefault();
     setSectionToEdit(-1);
-    if (indexSection === 0 || sectionsForm.sections.length == 1) {
+    if (indexSection === 0 || form.content.sections.length == 1) {
       return;
     }
 
-    const sections = [...sectionsForm.sections];
+    const sections = [...form.content.sections];
     // Swap sessioni
     const tempSection = sections[indexSection];
     sections[indexSection] = sections[indexSection - 1];
     sections[indexSection - 1] = tempSection;
 
-    setSectionForm((prev) => ({ ...prev, sections: sections }));
+    setForm((prev) => ({
+      ...prev,
+      content: { ...prev.content, sections: sections },
+    }));
   };
 
   const moveDownSection = (e: any, indexSection: number) => {
     e.preventDefault();
 
     if (
-      indexSection === sectionsForm.sections.length - 1 ||
-      sectionsForm.sections.length == 1
+      indexSection === form.content.sections.length - 1 ||
+      form.content.sections.length == 1
     ) {
       return;
     }
 
-    const sections = [...sectionsForm.sections];
+    const sections = [...form.content.sections];
     // Swap sessioni
     const tempSection = sections[indexSection];
     sections[indexSection] = sections[indexSection + 1];
     sections[indexSection + 1] = tempSection;
 
-    setSectionForm((prev) => ({ ...prev, sections: sections }));
+    setForm((prev) => ({
+      ...prev,
+      content: { ...prev.content, sections: sections },
+    }));
   };
 
   // Funzioni di supporto ai campi
@@ -169,11 +183,14 @@ export default function FormEditor({
             ],
           };
 
-    setSectionForm((prev) => ({
+    setForm((prev) => ({
       ...prev,
-      sections: prev.sections.map((s, index) =>
-        index === indexSection ? { ...s, fields: [...s.fields, field] } : s,
-      ),
+      content: {
+        ...prev.content,
+        sections: prev.content.sections.map((s, index) =>
+          index === indexSection ? { ...s, fields: [...s.fields, field] } : s,
+        ),
+      },
     }));
   };
 
@@ -183,34 +200,40 @@ export default function FormEditor({
     attribute: "fieldTitle" | "fieldNote" | "textType",
     value: string,
   ) => {
-    setSectionForm((prev) => ({
+    setForm((prev) => ({
       ...prev,
-      sections: prev.sections.map((s, index2) =>
-        indexSection === index2
-          ? {
-              ...s,
-              fields: s.fields.map((f, index3) =>
-                indexField === index3 ? { ...f, [attribute]: value } : f,
-              ),
-            }
-          : s,
-      ),
+      content: {
+        ...prev.content,
+        sections: prev.content.sections.map((s, index2) =>
+          indexSection === index2
+            ? {
+                ...s,
+                fields: s.fields.map((f, index3) =>
+                  indexField === index3 ? { ...f, [attribute]: value } : f,
+                ),
+              }
+            : s,
+        ),
+      },
     }));
   };
 
   const deleteField = () => {
-    setSectionForm((prev) => ({
+    setForm((prev) => ({
       ...prev,
-      sections: prev.sections.map((s, index2) =>
-        Number(fieldToDelete.split("-")[0]) === index2
-          ? {
-              ...s,
-              fields: s.fields.filter(
-                (f, index3) => index3 !== Number(fieldToDelete.split("-")[1]),
-              ),
-            }
-          : s,
-      ),
+      content: {
+        ...prev.content,
+        sections: prev.content.sections.map((s, index2) =>
+          Number(fieldToDelete.split("-")[0]) === index2
+            ? {
+                ...s,
+                fields: s.fields.filter(
+                  (f, index3) => index3 !== Number(fieldToDelete.split("-")[1]),
+                ),
+              }
+            : s,
+        ),
+      },
     }));
 
     setFieldToDelete("");
@@ -222,21 +245,24 @@ export default function FormEditor({
       optionName: "Nome nuova opzione",
       optionNote: "Note nuova opzione",
     };
-    setSectionForm((prev) => ({
+    setForm((prev) => ({
       ...prev,
-      sections: prev.sections.map((s, index) =>
-        index === indexSection
-          ? {
-              ...s,
-              fields: s.fields.map((f, index2) =>
-                indexField === index2 &&
-                (f.fieldType === "check" || f.fieldType === "radio")
-                  ? { ...f, options: [...f.options, newOption] }
-                  : f,
-              ),
-            }
-          : s,
-      ),
+      content: {
+        ...prev.content,
+        sections: prev.content.sections.map((s, index) =>
+          index === indexSection
+            ? {
+                ...s,
+                fields: s.fields.map((f, index2) =>
+                  indexField === index2 &&
+                  (f.fieldType === "check" || f.fieldType === "radio")
+                    ? { ...f, options: [...f.options, newOption] }
+                    : f,
+                ),
+              }
+            : s,
+        ),
+      },
     }));
   };
 
@@ -247,53 +273,59 @@ export default function FormEditor({
     attribute: "optionName" | "optionNote",
     value: string,
   ) => {
-    setSectionForm((prev) => ({
+    setForm((prev) => ({
       ...prev,
-      sections: prev.sections.map((s, index2) =>
-        indexSection === index2
-          ? {
-              ...s,
-              fields: s.fields.map((f, index3) =>
-                indexField === index3 &&
-                (f.fieldType === "radio" || f.fieldType === "check")
-                  ? {
-                      ...f,
-                      options: f.options.map((o, index4) =>
-                        index4 === indexOption
-                          ? { ...o, [attribute]: value }
-                          : o,
-                      ),
-                    }
-                  : f,
-              ),
-            }
-          : s,
-      ),
+      content: {
+        ...prev.content,
+        sections: prev.content.sections.map((s, index2) =>
+          indexSection === index2
+            ? {
+                ...s,
+                fields: s.fields.map((f, index3) =>
+                  indexField === index3 &&
+                  (f.fieldType === "radio" || f.fieldType === "check")
+                    ? {
+                        ...f,
+                        options: f.options.map((o, index4) =>
+                          index4 === indexOption
+                            ? { ...o, [attribute]: value }
+                            : o,
+                        ),
+                      }
+                    : f,
+                ),
+              }
+            : s,
+        ),
+      },
     }));
   };
 
   const deleteOption = () => {
-    setSectionForm((prev) => ({
+    setForm((prev) => ({
       ...prev,
-      sections: prev.sections.map((s, index2) =>
-        Number(optionToDelete.split("-")[0]) === index2
-          ? {
-              ...s,
-              fields: s.fields.map((f, index3) =>
-                index3 === Number(optionToDelete.split("-")[1]) &&
-                (f.fieldType === "check" || f.fieldType === "radio")
-                  ? {
-                      ...f,
-                      options: f.options.filter(
-                        (_, index4) =>
-                          index4 !== Number(optionToDelete.split("-")[2]),
-                      ),
-                    }
-                  : f,
-              ),
-            }
-          : s,
-      ),
+      content: {
+        ...prev.content,
+        sections: prev.content.sections.map((s, index2) =>
+          Number(optionToDelete.split("-")[0]) === index2
+            ? {
+                ...s,
+                fields: s.fields.map((f, index3) =>
+                  index3 === Number(optionToDelete.split("-")[1]) &&
+                  (f.fieldType === "check" || f.fieldType === "radio")
+                    ? {
+                        ...f,
+                        options: f.options.filter(
+                          (_, index4) =>
+                            index4 !== Number(optionToDelete.split("-")[2]),
+                        ),
+                      }
+                    : f,
+                ),
+              }
+            : s,
+        ),
+      },
     }));
 
     setOptionToDelete("");
@@ -302,20 +334,20 @@ export default function FormEditor({
   const nextStep = () => {
     // Controllo che ci sia almeno una sezione e un field
     if (
-      sectionsForm.sections.length == 0 ||
-      sectionsForm.sections.some((s) => s.fields.length == 0)
+      form.content.sections.length == 0 ||
+      form.content.sections.some((s) => s.fields.length == 0)
     ) {
       toast.error(
         "Creare almeno una sezione e un campo. Ogni sezione deve avere almeno un campo",
       );
       return;
     }
-    if (sectionsForm.sections.some((s) => s.sectionTitle === "")) {
+    if (form.content.sections.some((s) => s.sectionTitle === "")) {
       toast.error("Le sezioni devono avere un titolo obbligatorio");
       return;
     }
     if (
-      sectionsForm.sections
+      form.content.sections
         .flatMap((s) => s.fields)
         .some((f) => f.fieldTitle === "")
     ) {
@@ -323,7 +355,7 @@ export default function FormEditor({
       return;
     }
     if (
-      sectionsForm.sections
+      form.content.sections
         .flatMap((s) => s.fields)
         .filter((f) => f.fieldType === "check" || f.fieldType === "radio")
         .flatMap((f) => f.options)
@@ -358,13 +390,13 @@ export default function FormEditor({
             <div className="flex items-center justify-between mb-8">
               <h2 className="font-medium text-lg ">Campi del form</h2>
               <p className="text-sm bg-gray-50 rounded-full px-2 py-1">
-                {sectionsForm.sections.length}{" "}
-                {sectionsForm.sections.length === 1 ? "Sezione" : "Sezioni"}-
-                {sectionsForm.sections.flatMap((s) => s.fields).length}{" "}
-                {sectionsForm.sections.length === 1 ? "Campo" : "Campi"}
+                {form.content.sections.length}{" "}
+                {form.content.sections.length === 1 ? "Sezione" : "Sezioni"}-
+                {form.content.sections.flatMap((s) => s.fields).length}{" "}
+                {form.content.sections.length === 1 ? "Campo" : "Campi"}
               </p>
             </div>
-            {sectionsForm.sections.length === 0 ? (
+            {form.content.sections.length === 0 ? (
               <div
                 onClick={createSection}
                 className="flex mt-4 py-4 rounded-xl cursor-pointer border-dashed transition-color duration-150 hover:bg-blue-100/20 text-blue-700 justify-center gap-4 items-center border border-blue-700"
@@ -379,7 +411,7 @@ export default function FormEditor({
                   className="gap-6"
                   defaultValue={["item-0"]}
                 >
-                  {sectionsForm.sections.map((section, indexSection) => (
+                  {form.content.sections.map((section, indexSection) => (
                     <AccordionItem
                       value={`item-${indexSection}`}
                       className="border-b-red-50/0"
@@ -454,26 +486,30 @@ export default function FormEditor({
                         <div
                           className={`flex-col cursor-pointer relative border p-2 flex items-start rounded-b-xl justify-between w-full ${sectionToEdit === indexSection ? "border-black " : "border-gray-200"}`}
                         >
-                          <ReactSortable
-                            list={sectionsForm.sections[indexSection].fields}
+                          <ReactSortable<any>
+                            list={form.content.sections[indexSection].fields}
                             setList={(reorderedFields) => {
                               setFieldToDelete("");
                               setSectionToEdit(-1);
                               setFieldToEdit(``);
 
-                              setSectionForm((prev) => ({
+                              setForm((prev) => ({
                                 ...prev,
-                                sections: prev.sections.map((s, idx) =>
-                                  idx === indexSection
-                                    ? { ...s, fields: reorderedFields }
-                                    : s,
-                                ),
+                                content: {
+                                  ...prev.content,
+                                  sections: prev.content.sections.map(
+                                    (s, idx) =>
+                                      idx === indexSection
+                                        ? { ...s, fields: reorderedFields }
+                                        : s,
+                                  ),
+                                },
                               }));
                             }}
                             handle=".handle"
                             className="w-full"
                           >
-                            {sectionsForm.sections[indexSection].fields.map(
+                            {form.content.sections[indexSection].fields.map(
                               (field, indexField) => (
                                 <div
                                   className={`relative border bg-white shadow mt-4 p-4 rounded-xl w-full group `}
@@ -615,7 +651,7 @@ export default function FormEditor({
                     Titolo sezione
                   </FieldLabel>
                   <Input
-                    value={sectionsForm.sections[sectionToEdit].sectionTitle}
+                    value={form.content.sections[sectionToEdit].sectionTitle}
                     placeholder="Titolo della sezione..."
                     onChange={(e) => {
                       updateSection(
@@ -631,7 +667,7 @@ export default function FormEditor({
                     Note sezione
                   </FieldLabel>
                   <Input
-                    value={sectionsForm.sections[sectionToEdit].sectionNote}
+                    value={form.content.sections[sectionToEdit].sectionNote}
                     placeholder="Note della sezione..."
                     onChange={(e) => {
                       updateSection(
@@ -651,7 +687,7 @@ export default function FormEditor({
                   </FieldLabel>
                   <Input
                     value={
-                      sectionsForm.sections[Number(fieldToEdit.split("-")[0])]
+                      form.content.sections[Number(fieldToEdit.split("-")[0])]
                         .fields[Number(fieldToEdit.split("-")[1])].fieldTitle
                     }
                     placeholder="Titolo della sezione..."
@@ -669,7 +705,7 @@ export default function FormEditor({
                   <FieldLabel htmlFor="field.fieldTitle">Note campo</FieldLabel>
                   <Input
                     value={
-                      sectionsForm.sections[Number(fieldToEdit.split("-")[0])]
+                      form.content.sections[Number(fieldToEdit.split("-")[0])]
                         .fields[Number(fieldToEdit.split("-")[1])].fieldNote
                     }
                     placeholder="Note della sezione..."
@@ -684,7 +720,7 @@ export default function FormEditor({
                   />
                 </Field>
 
-                {sectionsForm.sections[Number(fieldToEdit.split("-")[0])]
+                {form.content.sections[Number(fieldToEdit.split("-")[0])]
                   .fields[Number(fieldToEdit.split("-")[1])].fieldType ===
                 "text" ? (
                   <div className="flex flex-col gap-2 mt-4">
@@ -692,7 +728,7 @@ export default function FormEditor({
                     <Select
                       defaultValue="text"
                       value={
-                        sectionsForm.sections[Number(fieldToEdit.split("-")[0])]
+                        form.content.sections[Number(fieldToEdit.split("-")[0])]
                           .fields[Number(fieldToEdit.split("-")[1])].textType
                       }
                       onValueChange={(newType) =>
@@ -719,51 +755,55 @@ export default function FormEditor({
                       </SelectContent>
                     </Select>
                   </div>
-                ) : sectionsForm.sections[Number(fieldToEdit.split("-")[0])]
+                ) : form.content.sections[Number(fieldToEdit.split("-")[0])]
                     .fields[Number(fieldToEdit.split("-")[1])].fieldType ===
                     "radio" ||
-                  sectionsForm.sections[Number(fieldToEdit.split("-")[0])]
+                  form.content.sections[Number(fieldToEdit.split("-")[0])]
                     .fields[Number(fieldToEdit.split("-")[1])].fieldType ===
                     "check" ? (
                   <div className="flex flex-col gap-2 mt-4">
-                    <ReactSortable
+                    <ReactSortable<any>
                       className="flex flex-col gap-4"
                       list={
-                        sectionsForm.sections[Number(fieldToEdit.split("-")[0])]
+                        form.content.sections[Number(fieldToEdit.split("-")[0])]
                           .fields[Number(fieldToEdit.split("-")[1])].options
                       }
                       setList={(reorderedOptions) => {
-                        setSectionForm((prev) => ({
+                        setForm((prev) => ({
                           ...prev,
-                          sections: prev.sections.map((s, index) =>
-                            index === sectionToEdit
-                              ? {
-                                  ...s,
-                                  fields: s.fields.map((f, index2) =>
-                                    indexField === index2 &&
-                                    (f.fieldType === "check" ||
-                                      f.fieldType === "radio")
-                                      ? {
-                                          ...f,
-                                          options: reorderedOptions,
-                                        }
-                                      : f,
-                                  ),
-                                }
-                              : s,
-                          ),
+                          content: {
+                            ...prev.content,
+                            sections: prev.content.sections.map((s, index) =>
+                              index === Number(fieldToEdit.split("-")[0])
+                                ? {
+                                    ...s,
+                                    fields: s.fields.map((f, index2) =>
+                                      Number(fieldToEdit.split("-")[1]) ===
+                                        index2 &&
+                                      (f.fieldType === "check" ||
+                                        f.fieldType === "radio")
+                                        ? {
+                                            ...f,
+                                            options: reorderedOptions,
+                                          }
+                                        : f,
+                                    ),
+                                  }
+                                : s,
+                            ),
+                          },
                         }));
                       }}
                       handle=".handle-option"
                     >
-                      {sectionsForm.sections[
+                      {form.content.sections[
                         Number(fieldToEdit.split("-")[0])
                       ].fields[Number(fieldToEdit.split("-")[1])].options?.map(
                         (option: option, indexOption: number) => (
                           <div className=" items-start relative border rounded-xl py-4 px-6">
                             <>
                               <Grip className="w-5 h-5 handle-option cursor-pointer" />
-                              {sectionsForm.sections[
+                              {form.content.sections[
                                 Number(fieldToEdit.split("-")[0])
                               ].fields[Number(fieldToEdit.split("-")[1])]
                                 .fieldType === "check" ? (

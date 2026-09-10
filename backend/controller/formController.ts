@@ -2,7 +2,7 @@ import { MongoError } from "mongodb";
 import { findFormsAsync, insertNewForm } from "../db/form.js";
 import { Request, Response } from "express";
 import { DBError, handleDBError } from "../errors/DBError.js";
-import { contentForm } from "../types/form.js";
+import { contentForm, form } from "../types/form.js";
 
 export async function getFormsAsync(req: Request, res: Response) {
   try {
@@ -23,32 +23,37 @@ export async function getFormsAsync(req: Request, res: Response) {
 export async function saveFormsAsync(req: Request, res: Response) {
   try {
     // Controllo dati form obbligatori se presenti
-    const { form }: { form: contentForm } = req.body;
+    const { form }: { form: form } = req.body;
+
+    if (form.title === "")
+      return res.status(400).json("Il titolo del form interno è obbligatorio");
     if (
-      form.sections.length == 0 ||
-      form.sections.some((s) => s.fields.length == 0)
+      form.content.sections.length == 0 ||
+      form.content.sections.some((s) => s.fields.length == 0)
     ) {
-      // TODO: status
+      // Controllo dati base del form se sono OK
       return res
         .status(400)
         .json(
           "Creare almeno una sezione e un campo. Ogni sezione deve avere almeno un campo",
         );
     }
-    if (form.sections.some((s) => s.sectionTitle === "")) {
+    if (form.content.sections.some((s) => s.sectionTitle === "")) {
       return res
         .status(400)
         .json("Le sezioni devono avere un titolo obbligatorio");
     }
     if (
-      form.sections.flatMap((s) => s.fields).some((f) => f.fieldTitle === "")
+      form.content.sections
+        .flatMap((s) => s.fields)
+        .some((f) => f.fieldTitle === "")
     ) {
       return res
         .status(400)
         .json("I campi devono avere un titolo obbligatorio");
     }
     if (
-      form.sections
+      form.content.sections
         .flatMap((s) => s.fields)
         .filter((f) => f.fieldType === "check" || f.fieldType === "radio")
         .flatMap((f) => f.options)
@@ -62,24 +67,30 @@ export async function saveFormsAsync(req: Request, res: Response) {
     }
 
     // Imposto la string "null" dove non era presente niente
-    let finalForm = { ...form };
-    finalForm = {
-      ...finalForm,
+    let checkedContentForm = { ...form.content };
+    checkedContentForm = {
+      ...checkedContentForm,
       formSubtitle:
-        finalForm.formSubtitle === "" ? "null" : finalForm.formSubtitle,
+        checkedContentForm.formSubtitle === ""
+          ? "null"
+          : checkedContentForm.formSubtitle,
+      formNote:
+        checkedContentForm.formNote === ""
+          ? "null"
+          : checkedContentForm.formNote,
     };
     // Fix note
-    finalForm = {
-      ...finalForm,
-      sections: finalForm.sections.map((s) => ({
+    checkedContentForm = {
+      ...checkedContentForm,
+      sections: checkedContentForm.sections.map((s) => ({
         ...s,
         sectionNote: s.sectionNote === "" ? "null" : s.sectionNote,
       })),
     };
 
-    finalForm = {
-      ...finalForm,
-      sections: finalForm.sections.map((s) => ({
+    checkedContentForm = {
+      ...checkedContentForm,
+      sections: checkedContentForm.sections.map((s) => ({
         ...s,
         fields: s.fields.map((f) => ({
           ...f,
@@ -88,9 +99,9 @@ export async function saveFormsAsync(req: Request, res: Response) {
       })),
     };
 
-    finalForm = {
-      ...finalForm,
-      sections: finalForm.sections.map((s) => ({
+    checkedContentForm = {
+      ...checkedContentForm,
+      sections: checkedContentForm.sections.map((s) => ({
         ...s,
         fields: s.fields.map((f) => {
           if (f.fieldType === "text") return f;
@@ -99,15 +110,29 @@ export async function saveFormsAsync(req: Request, res: Response) {
             ...f,
             options: f.options.map((o) => ({
               ...o,
-              optionNote: o.optionNote === "" ? "null" : "",
+              optionNote: o.optionNote === "" ? "null" : o.optionNote,
             })),
           };
         }),
       })),
     };
+    const finalForm: Omit<form, "_id"> = {
+      created: new Date(),
+      lastEdit: new Date(),
+      note: form.note,
+      title: form.title,
+      status: form.status,
+      content: {
+        formNote: checkedContentForm.formNote,
+        formTitle: checkedContentForm.formTitle,
+        formSubtitle: checkedContentForm.formSubtitle,
+        sections: checkedContentForm.sections,
+      },
+    };
 
     // Procedo con il salvataggio del form
     const id = await insertNewForm(finalForm);
+
     if (!id) {
       return res.status(500).json("Errore durante inserimento del form");
     }

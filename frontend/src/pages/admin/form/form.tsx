@@ -43,27 +43,17 @@ export default function FormAdminPage() {
   // Gestione navigazione
   const navigate = useNavigate();
 
-  const [baseForm, setBaseForm] = useState<{
-    formTitle: string;
-    formNote: string;
-    formSubtitle: string;
-    title: string;
-    note: string;
-    status: "draft" | "online" | "offline";
-  }>({
-    formTitle: "",
-    formNote: "",
-    formSubtitle: "",
+  const [form, setForm] = useState<Omit<form, "_id" | "lastEdit" | "created">>({
     title: "",
     note: "",
-    status: "draft",
-  });
-
-  const [contentForm, setContentForm] = useState<Pick<contentForm, "sections">>(
-    {
+    content: {
+      formTitle: "",
+      formNote: "",
+      formSubtitle: "",
       sections: [],
     },
-  );
+    status: "draft",
+  });
 
   // Gestione steps
   const [steps, setSteps] = useState([
@@ -101,11 +91,7 @@ export default function FormAdminPage() {
         i < index ? { ...s, completed: true } : { ...s, completed: false },
       );
       setSteps(updatedSteps);
-      localStorage.setItem("formInCostruzioneBase", JSON.stringify(baseForm));
-      localStorage.setItem(
-        "formInCostruzioneContent",
-        JSON.stringify(contentForm),
-      );
+      localStorage.setItem("formInCostruzione", JSON.stringify(form));
     }
   };
 
@@ -113,28 +99,22 @@ export default function FormAdminPage() {
   const [draftFormDialogOpen, setDraftFormDialogOpen] = useState(false);
 
   useEffect(() => {
-    const draftFormBase = localStorage.getItem("formInCostruzioneBase");
-    const draftFormContent = localStorage.getItem("formInCostruzioneContent");
-    if (draftFormBase || draftFormContent) {
+    const draftForm = localStorage.getItem("formInCostruzione");
+    if (draftForm) {
       setDraftFormDialogOpen(true);
     }
   }, []);
 
   const recoveryForm = () => {
-    const draftFormBase = localStorage.getItem("formInCostruzioneBase");
-    const draftFormContent = localStorage.getItem("formInCostruzioneContent");
-    if (draftFormBase) {
-      setBaseForm(JSON.parse(draftFormBase));
-    }
-    if (draftFormContent) {
-      setContentForm(JSON.parse(draftFormContent));
+    const draftForm = localStorage.getItem("formInCostruzione");
+    if (draftForm) {
+      setForm(JSON.parse(draftForm));
     }
     setDraftFormDialogOpen(false);
   };
 
   const deleteCachedForm = () => {
-    localStorage.setItem("formInCostruzioneBase", "");
-    localStorage.setItem("formInCostruzioneContent", "");
+    localStorage.setItem("formInCostruzione", "");
     setDraftFormDialogOpen(false);
   };
 
@@ -185,23 +165,11 @@ export default function FormAdminPage() {
         </div>
       </div>
       {steps[presentStepIndex].id === 1 ? (
-        <FormBase
-          baseForm={baseForm}
-          setBaseForm={setBaseForm}
-          goToStep={goToStep}
-        />
+        <FormBase form={form} setForm={setForm} goToStep={goToStep} />
       ) : steps[presentStepIndex].id === 2 ? (
-        <FormEditor
-          sectionsForm={contentForm}
-          setSectionForm={setContentForm}
-          goToStep={goToStep}
-        />
+        <FormEditor form={form} setForm={setForm} goToStep={goToStep} />
       ) : steps[presentStepIndex].id === 3 ? (
-        <FormReview
-          sectionsForm={contentForm}
-          baseForm={baseForm}
-          goToStep={goToStep}
-        />
+        <FormReview form={form} setForm={setForm} goToStep={goToStep} />
       ) : steps[presentStepIndex].id === 4 ? (
         <></>
       ) : (

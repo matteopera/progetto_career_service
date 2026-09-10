@@ -5,7 +5,7 @@ import { db } from "./db.js";
 
 export async function findFormsAsync() {
   //apertura della collezione
-  const collection = db.collection("forms");
+  const collection = db.collection("form");
   const res = await collection.find({}).toArray();
 
   return res;
@@ -27,11 +27,11 @@ export async function findCompiledFormById(id: string) {
   const collection = db.collection("compiledForm");
   const res = await collection.findOne({ _id: new ObjectId(id) });
 
-  return res
+  return res;
 }
 
 // Funzione richiamata da admin per creazione nuovo form
-export async function insertNewForm(form: contentForm) {
+export async function insertNewForm(form: Omit<form, "_id">) {
   const collection = db.collection("form");
   const res = await collection.insertOne(form);
   return res.insertedId;

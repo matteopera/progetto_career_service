@@ -11,32 +11,20 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import type { contentForm } from "@/types/formType";
-import { Check, ChevronLeft, ChevronRight } from "lucide-react";
+import type { contentForm, form } from "@/types/formType";
+import { Check, ChevronLeft, ChevronRight, ExternalLink } from "lucide-react";
+import type { Dispatch, SetStateAction } from "react";
 import { toast } from "sonner";
 
 export default function FormReview({
-  sectionsForm,
-  baseForm,
+  form,
+  setForm,
   goToStep,
 }: {
-  sectionsForm: Pick<contentForm, "sections">;
-  baseForm: {
-    formTitle: string;
-    formNote: string;
-    formSubtitle: string;
-    title: string;
-    note: string;
-    status: "draft" | "online" | "offline";
-  };
+  form: Omit<form, "_id" | "lastEdit" | "created">;
+  setForm: Dispatch<SetStateAction<Omit<form, "_id" | "lastEdit" | "created">>>;
   goToStep: (index: number) => void;
 }) {
-  const form: contentForm = {
-    ...baseForm,
-    sections: sectionsForm.sections,
-    date: new Date(),
-  };
-
   const saveForm = async () => {
     const response = await fetch("/api/form/insert-form", {
       method: "POST",
@@ -56,6 +44,7 @@ export default function FormReview({
 
     goToStep(3);
   };
+
   return (
     <div className="border shadow rounded-xl mt-8 p-4">
       <div className="flex justify-between mb-4">
@@ -63,7 +52,7 @@ export default function FormReview({
           <ChevronLeft />
           <span>Vai allo step precedente</span>
         </Button>
-        <h1 className="font-semibold text-2xl">Preview del tuo form</h1>
+        <h1 className="font-semibold text-2xl">Revisione finale form</h1>
         <Button onClick={saveForm} className="px-4 h-10!">
           <span>Conferma creazione form</span>
           <Check />
@@ -72,12 +61,12 @@ export default function FormReview({
 
       <FieldGroup>
         <p className="border-gray-400 border p-3 font-normal border-l-3 border-l-gray-400">
-          {form.formTitle}
+          {form.content.formTitle}
         </p>
         <p className="border-gray-400 border p-3 font-normal border-l-3 border-l-gray-400">
-          {form.formNote}
+          {form.content.formNote}
         </p>
-        {form.sections.map((section, index) => {
+        {form.content.sections.map((section, index) => {
           return (
             <div
               id={section.sectionTitle}

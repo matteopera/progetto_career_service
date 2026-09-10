@@ -10,34 +10,18 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { zodForm, zodStatusForm } from "@/types/formType";
+import { zodForm, zodStatusForm, type form } from "@/types/formType";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useState, type Dispatch, type SetStateAction } from "react";
 import z from "zod";
 
 export default function formBase({
-  baseForm,
-  setBaseForm,
+  form,
+  setForm,
   goToStep,
 }: {
-  baseForm: {
-    formTitle: string;
-    formNote: string;
-    formSubtitle: string;
-    title: string;
-    note: string;
-    status: "draft" | "online" | "offline";
-  };
-  setBaseForm: Dispatch<
-    SetStateAction<{
-      formTitle: string;
-      formNote: string;
-      formSubtitle: string;
-      title: string;
-      note: string;
-      status: "draft" | "online" | "offline";
-    }>
-  >;
+  form: Omit<form, "_id" | "lastEdit" | "created">;
+  setForm: Dispatch<SetStateAction<Omit<form, "_id" | "lastEdit" | "created">>>;
   goToStep: (index: number) => void;
 }) {
   const [errorBaseForm, setErrorBaseForm] = useState<{
@@ -75,12 +59,12 @@ export default function formBase({
   const checkGoNext = () => {
     // controllo validazione
     const result = formBaseZod.safeParse({
-      formTitle: baseForm.formTitle,
-      formSubtitle: baseForm.formSubtitle,
-      formNote: baseForm.formNote,
-      title: baseForm.title,
-      note: baseForm.note,
-      status: baseForm.status,
+      formTitle: form.content.formTitle,
+      formSubtitle: form.content.formSubtitle,
+      formNote: form.content.formNote,
+      title: form.title,
+      note: form.note,
+      status: form.status,
     });
 
     if (!result.success) {
@@ -125,12 +109,15 @@ export default function formBase({
             <p className="text-red-500 text-sm ">{errorBaseForm.formTitle}</p>
           </FieldLabel>
           <Input
-            value={baseForm.formTitle}
+            value={form.content.formTitle}
             onFocus={() =>
               setErrorBaseForm((prev) => ({ ...prev, formTitle: "" }))
             }
             onChange={(e) =>
-              setBaseForm((prev) => ({ ...prev, formTitle: e.target.value }))
+              setForm((prev) => ({
+                ...prev,
+                content: { ...prev.content, formTitle: e.target.value },
+              }))
             }
             required
             className={`${errorBaseForm.formTitle !== "" && "border-red-500"}`}
@@ -151,9 +138,12 @@ export default function formBase({
             onFocus={() =>
               setErrorBaseForm((prev) => ({ ...prev, formSubtitle: "" }))
             }
-            value={baseForm.formSubtitle}
+            value={form.content.formSubtitle}
             onChange={(e) =>
-              setBaseForm((prev) => ({ ...prev, formSubtitle: e.target.value }))
+              setForm((prev) => ({
+                ...prev,
+                content: { ...prev.content, formSubtitle: e.target.value },
+              }))
             }
             className={`${errorBaseForm.formSubtitle !== "" && "border-red-500"}`}
           />
@@ -167,9 +157,12 @@ export default function formBase({
         <Textarea
           required
           className=""
-          value={baseForm.formNote}
+          value={form.content.formNote}
           onChange={(e) =>
-            setBaseForm((prev) => ({ ...prev, formNote: e.target.value }))
+            setForm((prev) => ({
+              ...prev,
+              content: { ...prev.content, formNote: e.target.value },
+            }))
           }
         ></Textarea>
         <span className="text-gray-500 text-sm">
@@ -192,12 +185,12 @@ export default function formBase({
             <p className="text-red-500 text-sm ">{errorBaseForm.title}</p>
           </FieldLabel>
           <Input
-            value={baseForm.title}
+            value={form.title}
             onFocus={() => {
               setErrorBaseForm((prev) => ({ ...prev, title: "" }));
             }}
             onChange={(e) =>
-              setBaseForm((prev) => ({ ...prev, title: e.target.value }))
+              setForm((prev) => ({ ...prev, title: e.target.value }))
             }
             className={`${errorBaseForm.title !== "" && "border-red-500"}`}
           />
@@ -206,9 +199,9 @@ export default function formBase({
           <FieldLabel htmlFor="field.fieldTitle">Status form</FieldLabel>
           <Select
             defaultValue="draft"
-            value={baseForm.status}
+            value={form.status}
             onValueChange={(status: "draft" | "online" | "offline") =>
-              setBaseForm((prev) => ({ ...prev, status: status }))
+              setForm((prev) => ({ ...prev, status: status }))
             }
           >
             <SelectTrigger className="w-1/4 h-11!">
@@ -227,9 +220,9 @@ export default function formBase({
       <Field className="mt-4">
         <FieldLabel htmlFor="field.fieldTitle">Note form</FieldLabel>
         <Textarea
-          value={baseForm.note}
+          value={form.note}
           onChange={(e) =>
-            setBaseForm((prev) => ({ ...prev, note: e.target.value }))
+            setForm((prev) => ({ ...prev, note: e.target.value }))
           }
           className=""
         ></Textarea>

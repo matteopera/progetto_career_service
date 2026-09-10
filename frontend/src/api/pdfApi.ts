@@ -26,17 +26,15 @@ export default async function getPDF(id:string){
 }
 
 
-export async function saveCompiledPDF(file:File){
+export async function saveCompiledPDF(file:File,id:string){
     const formData=new FormData()
-
     formData.append("file",file)
-
-    await fetch("/api/aziende/upload/pdf", {
+    formData.append("fileName",id)
+    const res=await fetch("/api/aziende/upload/pdf", {
         method:"POST",
-        headers:{
-            "Content-Type":"application/pdf"
-        },
-        body:file
+        body:formData
     })
+
+    return res
 
 }

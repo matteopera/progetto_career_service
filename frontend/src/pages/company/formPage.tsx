@@ -77,24 +77,24 @@ export default function formPage() {
             })}
           </div>
         </div> */}
-        <div id="form" className="w-full font-semibold">
-          <h1 className="text-4xl mb-3 mt-4 ml-3 mr-3 md:ml-7 md:mr-7 ">
+        <div id="form" className="font-semibold md:ml-32 md:mr-32 ml-7 mr-7 mt-4 w-full">
+          <div className="border border-gray-300 rounded-2xl p-5 gap-3 flex flex-col">
+          <h1 className="text-4xl">
             Registra la tua azienda
           </h1>
-          <h2 className=" font-normal text-xl mb-4 ml-3 mr-3 md:ml-7 md:mr-7">
+          <h2 className=" font-normal text-xl text-gray-400">
             Compila il modulo per iscriverti al nostro evento di Career Service
             e scoprire le opportunità di collaborazione con i nostri studenti
           </h2>
-          <hr className="border-gray-300" />
+          </div>
             <Form contentForm={form}></Form>
-          <hr className="border-gray-300 mb-4" />
-          <h2 className=" font-normal text-xl mb-4 ml-3 mr-3 md:ml-7 md:mr-7">
+          <h2 className=" font-normal text-xl bg-gray-100 rounded-tl-2xl rounded-tr-2xl p-3 pl-5">
             Frequently Asked Questions
           </h2>
           <Accordion
             type="single"
             collapsible
-            className="pl-7 pr-7 min-h-20 mb-7 "
+            className=" pl-3 pr-3 min-h-20 mb-7 border-2 rounded-bl-2xl rounded-br-2xl border-gray-100 pt-4 "
           >
             {faqList != null ? (
               faqList.map((faq, i) => {

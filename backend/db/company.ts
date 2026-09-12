@@ -26,3 +26,13 @@ export async function formRequest() {
   //restituzione del form
   return { ...form, _id: form?._id.toString() };
 }
+
+
+
+export async function findRegisteredCompanies(){
+  const collection=db.collection("compiledForm")
+
+  const companies=collection.find({}).toArray()
+
+  return companies
+}

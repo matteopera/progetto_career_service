@@ -19,7 +19,8 @@
     "better-auth": "^1.6.9",
     "cors": "^2.8.6",
     "express": "^5.2.1",
-    "multer": "^2.3.0"
+    "multer": "^2.3.0",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
   },
   "devDependencies": {
     "@tsconfig/node22": "^22.0.5",

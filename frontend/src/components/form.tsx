@@ -25,10 +25,10 @@ export default function Form({ contentForm }: formProps) {
     return isNotValid.includes(key) && sendable;
   }
   return (
-    <div className="ml-3 mt-7 mr-3 md:ml-7 md:mr-7">
+    <div className="mt-7">
       <form>
         <FieldGroup>
-          <p className="border-gray-400 border p-3 font-normal border-l-3 border-l-gray-400">
+          <p className="border rounded-2xl border-gray-100 p-3 bg-gray-100 font-semibold ">
             {contentForm.formNote}
           </p>
           {contentForm.sections.map((section, index) => {
@@ -36,22 +36,17 @@ export default function Form({ contentForm }: formProps) {
               <div
                 id={section.sectionTitle}
                 key={section.sectionTitle}
-                className="border border-gray-400 p-4 border-l-2"
+                className=""
               >
-                <div className="flex flex-row items-center mb-2">
-                  <FieldLegend className="rounded-full w-8 h-8 bg-blue-300 p-2 flex items-center justify-center ">
-                    {index + 1}
-                  </FieldLegend>
-                  <FieldLegend className="pl-3 pr-3 font-semibold text-black">
-                    {section.sectionTitle}
-                  </FieldLegend>
+                <div className="flex flex-row items-center p-3 pl-5 rounded-tl-2xl rounded-tr-2xl bg-gray-100">
+                  <p className="font-bold">{`Sezione ${index+1} · ${section.sectionTitle}`}</p>
                 </div>
                 {section.sectionNote != "null" ? (
-                  <FieldDescription className="p-3 border border-l-2 border-gray-400 border-l-blue-500 mb-2">
+                  <FieldDescription className=" pl-5 pr-5 pt-3  border-2 border-b-0 border-gray-100">
                     {section.sectionNote}
                   </FieldDescription>
                 ) : null}
-                <div className="mb-5 sm:columns-2">
+                <div className="mb-5 sm:columns-2 p-3 pl-5 pr-5 border-l-2 border-r-2 border-b-2 rounded-bl-2xl rounded-br-2xl border-gray-100">
                   {section.fields.map((field) => {
                     {
                       if (field.fieldType == "text") {
@@ -78,7 +73,7 @@ export default function Form({ contentForm }: formProps) {
                                   field.fieldTitle
                                 ] as string) ?? ""
                               }
-                              className="rounded-sm border-gray-400 font-normal text-sm"
+                              className="rounded-sm border-gray-100 border-2 font-normal text-sm"
                               onChange={(e) => {
                                 handleChange(
                                   section.sectionTitle,
@@ -187,7 +182,7 @@ export default function Form({ contentForm }: formProps) {
                                     <RadioGroupItem
                                       value={option.optionName}
                                       id={`${field.fieldTitle}-${option.optionName}`}
-                                      className="border border-indigo-300"
+                                      className="border border-gray-300"
                                     />
                                       <FieldLabel
                                         htmlFor={`${field.fieldTitle}-${option.optionName}`}

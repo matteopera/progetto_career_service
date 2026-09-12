@@ -10,13 +10,14 @@ import {
   Upload,
   X,
 } from "lucide-react";
-import { useLocation } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 
 import { useDropzone } from "react-dropzone";
 import { useEffect, useState } from "react";
 import getPDF, { saveCompiledPDF } from "@/api/pdfApi";
 import { error } from "better-auth/api";
 export default function pdfPage() {
+  const navigate=useNavigate()
   const maxSizeInMB = 2;
   const [files, setFiles] = useState<File[] | null>();
   const [fileError, setFileError] = useState<string | null>(null);
@@ -49,6 +50,8 @@ export default function pdfPage() {
         throw new Error("Errore nel salvataggio del file");
       } else {
         setSavingFileError(null);
+        //navigazione pagina finale
+        navigate("/company/iscrizione-effettuata",{"replace":true})
       }
     } catch (error) {
       setSavingFileError(new Error("Errore nel salvataggio del file"));
@@ -105,21 +108,21 @@ export default function pdfPage() {
               Inviata il 3/09/2026 alle ore che vuoi
             </p>
           </div>
-          <span className="bg-green-100 text-green-700 p-1 pl-3 pr-3 rounded-2xl">
-            Approvata
+          <span className="bg-orange-100 text-orange-700 p-1 pl-3 pr-3 rounded-2xl">
+            Inoltrata
           </span>
         </div>
 
         {(form as contentForm).sections.map((s, index) => {
           return (
-            <div className="mb-5">
+            <div className="mb-5" key={s.sectionTitle}>
               <div className="bg-gray-100 p-3 pl-5 rounded-tl-2xl rounded-tr-2xl">
                 <p className="font-bold">{`Sezione ${index+1} · ${s.sectionTitle}`}</p>
               </div>
               <div className="columns-1 lg:columns-2 gap-4 p-3 pl-5 border-r-2 border-l-2 border-b-2 rounded-bl-2xl rounded-br-2xl border-gray-100">
                 {s.fields.map((f) => {
                   return (
-                    <div className="flex-col lg: flex lg:flex-row justify-between mb-3 break-inside-avoid">
+                    <div className="flex-col lg: flex lg:flex-row justify-between mb-3 break-inside-avoid" key={`${s.sectionTitle}-${f.fieldTitle}`}>
                       <p className="text-gray-500 mr-2">{`${f.fieldTitle}`}</p>
                       <p className="font-bold">
                         {`${value[s.sectionTitle][f.fieldTitle]}`.replaceAll(
@@ -184,7 +187,7 @@ export default function pdfPage() {
           </div>
           {files?.map((f) => {
             return (
-              <div className="border-2  border-gray-100 rounded-2xl mb-5">
+              <div className="border-2  border-gray-100 rounded-2xl mb-5" key={f.name}>
               <div className=" flex flex-col items-center justify-center gap-3  md:flex md:flex-row md:items-center md:justify-between  p-3 ">
                 <div className="flex flex-row items-center gap-4 justify-start w-full">
                   <File className="bg-gray-100 w-10 h-10 p-2.5 rounded-lg text-black shrink-0" />

@@ -1,11 +1,19 @@
 import { Router } from "express";
-import { getFormsAsync, saveFormsAsync } from "../controller/formController.js";
-import { Request, Response } from "express";
+import {
+  deleteFormAsync,
+  getFormAsync,
+  getFormsAsync,
+  saveFormAsync,
+} from "../controller/formController.js";
 
 const router = Router();
 
-router.get("/get", getFormsAsync);
+router.get("/get-all", getFormsAsync);
 
-router.post("/insert-form", saveFormsAsync);
+router.get("/get/:idForm", getFormAsync);
+
+router.post("/insert-update-form", saveFormAsync);
+
+router.post("/delete-form", deleteFormAsync);
 
 export default router;

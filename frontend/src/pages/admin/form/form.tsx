@@ -6,12 +6,18 @@ import {
   ExternalLink,
   Form,
   icons,
+  InfoIcon,
   Loader2,
   LucideGlasses,
   Plus,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Navigate, useNavigate } from "react-router";
+import {
+  Navigate,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from "react-router";
 import FormEditor from "./formEditor";
 import { Button } from "@/components/ui/button";
 import FormBase from "./formBase";
@@ -25,6 +31,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import FormReview from "./formReview";
+import FormCompleted from "./formCompleted";
+import axios from "axios";
+import { toast } from "sonner";
 
 export default function FormAdminPage() {
   // Controllo sessione default
@@ -40,10 +49,16 @@ export default function FormAdminPage() {
     return <Navigate to={"/login"} />;
   }
 
+  // Controllo parametri URL
+  const { idForm } = useParams();
+  const [isLoading, setIsLoading] = useState(true);
+  const [isError, setIsError] = useState(false);
+
   // Gestione navigazione
   const navigate = useNavigate();
 
-  const [form, setForm] = useState<Omit<form, "_id" | "lastEdit" | "created">>({
+  const [form, setForm] = useState<Omit<form, "lastEdit" | "created">>({
+    _id: "",
     title: "",
     note: "",
     content: {
@@ -91,7 +106,8 @@ export default function FormAdminPage() {
         i < index ? { ...s, completed: true } : { ...s, completed: false },
       );
       setSteps(updatedSteps);
-      localStorage.setItem("formInCostruzione", JSON.stringify(form));
+      if (index !== 3)
+        localStorage.setItem("formInCostruzione", JSON.stringify(form));
     }
   };
 
@@ -99,11 +115,38 @@ export default function FormAdminPage() {
   const [draftFormDialogOpen, setDraftFormDialogOpen] = useState(false);
 
   useEffect(() => {
+    getForm();
+  }, []);
+
+  const getForm = async () => {
+    if (idForm) {
+      setIsLoading(true);
+      try {
+        const response = await axios.get(`/api/form/get/${idForm}`);
+
+        const form = response.data.form;
+        setForm(form);
+      } catch (error: any) {
+        if (axios.isAxiosError(error)) {
+          if (error.response) {
+            toast.error(
+              error.response.data?.message || "Errore durante la creazione",
+            );
+          }
+        }
+        setIsError(true);
+      } finally {
+        setIsLoading(false);
+      }
+      return;
+    }
+    setIsLoading(false);
+    // Nuovo form
     const draftForm = localStorage.getItem("formInCostruzione");
     if (draftForm) {
       setDraftFormDialogOpen(true);
     }
-  }, []);
+  };
 
   const recoveryForm = () => {
     const draftForm = localStorage.getItem("formInCostruzione");
@@ -131,51 +174,66 @@ export default function FormAdminPage() {
           <ChevronLeft />
         </Button>
         <div className="flex flex-col">
-          <h1 className="font-bold text-3xl">Crea Nuovo Form</h1>
+          <h1 className="font-bold text-3xl">
+            {idForm ? "Aggiorna" : "Crea nuovo"} Form
+          </h1>
           <p className="text-sm text-gray-500">
             Gestisci i form della piattaforma
           </p>
         </div>
       </div>
-      {/* Steps  */}
-      <div className="border shadow rounded-xl mt-8 p-4">
-        <div className="w-[75%] mx-auto flex items-center justify-between">
-          {steps.map((step, index) => (
-            <div
-              key={step.id}
-              className="flex flex-col items-center flex-1 relative"
-            >
-              <div className="border rounded-full p-4 bg-white ">
-                <step.icon
-                  className={`w-5 h-5 ${step.completed ? "text-black" : "text-gray-500"}`}
-                />
-                {index !== steps.length - 1 && (
-                  <div
-                    className={`absolute top-7 -z-10 w-full h-0.5 ${step.completed ? "bg-black" : "bg-gray-200"}`}
-                  ></div>
-                )}
-              </div>
-              <p
-                className={`${step.completed ? "text-black" : "text-gray-500"}`}
-              >
-                {step.title}
-              </p>
-            </div>
-          ))}
+      {isLoading ? (
+        <div className="flex items-center h-full flex-col justify-center gap-4">
+          <Loader2 className="h-12 w-12 animate-spin" />
+          <p className="text-xl">Stiamo recuperando i dati</p>
         </div>
-      </div>
-      {steps[presentStepIndex].id === 1 ? (
-        <FormBase form={form} setForm={setForm} goToStep={goToStep} />
-      ) : steps[presentStepIndex].id === 2 ? (
-        <FormEditor form={form} setForm={setForm} goToStep={goToStep} />
-      ) : steps[presentStepIndex].id === 3 ? (
-        <FormReview form={form} setForm={setForm} goToStep={goToStep} />
-      ) : steps[presentStepIndex].id === 4 ? (
-        <></>
+      ) : isError ? (
+        <div className="flex items-center h-full flex-col justify-center gap-4">
+          <InfoIcon className="h-12 w-12 text-red-600" />
+          <p className="text-xl">Non è stato possibile recuperare il form</p>
+        </div>
       ) : (
-        <Navigate to="/admin/dashboard" />
+        <>
+          {/* Steps  */}
+          <div className="border shadow rounded-xl mt-8 p-4">
+            <div className="w-[75%] mx-auto flex items-center justify-between">
+              {steps.map((step, index) => (
+                <div
+                  key={step.id}
+                  className="flex flex-col items-center flex-1 relative"
+                >
+                  <div className="border rounded-full p-4 bg-white ">
+                    <step.icon
+                      className={`w-5 h-5 ${step.completed ? "text-black" : "text-gray-500"}`}
+                    />
+                    {index !== steps.length - 1 && (
+                      <div
+                        className={`absolute top-7 -z-10 w-full h-0.5 ${step.completed ? "bg-black" : "bg-gray-200"}`}
+                      ></div>
+                    )}
+                  </div>
+                  <p
+                    className={`${step.completed ? "text-black" : "text-gray-500"}`}
+                  >
+                    {step.title}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+          {steps[presentStepIndex].id === 1 ? (
+            <FormBase form={form} setForm={setForm} goToStep={goToStep} />
+          ) : steps[presentStepIndex].id === 2 ? (
+            <FormEditor form={form} setForm={setForm} goToStep={goToStep} />
+          ) : steps[presentStepIndex].id === 3 ? (
+            <FormReview form={form} setForm={setForm} goToStep={goToStep} />
+          ) : steps[presentStepIndex].id === 4 ? (
+            <FormCompleted />
+          ) : (
+            <Navigate to="/admin/dashboard" />
+          )}
+        </>
       )}
-
       <Dialog onOpenChange={setDraftFormDialogOpen} open={draftFormDialogOpen}>
         <DialogContent onInteractOutside={() => null}>
           <DialogHeader>

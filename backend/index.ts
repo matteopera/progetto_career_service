@@ -50,10 +50,6 @@ app.get("/api/test", async (req, res) => {
   });
 });
 
-app.post("/api/test", (req, res) => {
-  res.send("Hello world via POST!");
-  console.log("Response sent POST");
-});
 app.use("/api/form", formRouter);
 
 app.use("/api/aziende", aziendeRouter);

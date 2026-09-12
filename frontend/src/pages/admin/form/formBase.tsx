@@ -20,8 +20,8 @@ export default function formBase({
   setForm,
   goToStep,
 }: {
-  form: Omit<form, "_id" | "lastEdit" | "created">;
-  setForm: Dispatch<SetStateAction<Omit<form, "_id" | "lastEdit" | "created">>>;
+  form: Omit<form, "lastEdit" | "created">;
+  setForm: Dispatch<SetStateAction<Omit<form, "lastEdit" | "created">>>;
   goToStep: (index: number) => void;
 }) {
   const [errorBaseForm, setErrorBaseForm] = useState<{

@@ -1,5 +1,11 @@
 import { MongoError } from "mongodb";
-import { findFormsAsync, insertNewForm } from "../db/form.js";
+import {
+  deleteFormById,
+  findFormAsync,
+  findFormsAsync,
+  insertNewForm,
+  updateForm,
+} from "../db/form.js";
 import { Request, Response } from "express";
 import { DBError, handleDBError } from "../errors/DBError.js";
 import { contentForm, form } from "../types/form.js";
@@ -7,7 +13,7 @@ import { contentForm, form } from "../types/form.js";
 export async function getFormsAsync(req: Request, res: Response) {
   try {
     const forms = await findFormsAsync();
-    return res.status(200).json(forms);
+    return res.status(200).json({ forms });
   } catch (error) {
     console.log("Errore durante il recupero dei form", error);
     //codice in base all'errore del DB
@@ -20,7 +26,57 @@ export async function getFormsAsync(req: Request, res: Response) {
   }
 }
 
-export async function saveFormsAsync(req: Request, res: Response) {
+export async function getFormAsync(req: Request, res: Response) {
+  try {
+    const { idForm } = req.params;
+    console.log(req.params);
+    if (!idForm) {
+      return res.status(400).json({ message: "Id form mancante" });
+    }
+    const form = await findFormAsync(idForm.toString());
+    return res.status(200).json({ form });
+  } catch (error) {
+    console.log("Errore durante il recupero dei form", error);
+    //codice in base all'errore del DB
+    if (error instanceof MongoError) {
+      const errorRes: DBError = handleDBError(error);
+      return res.status(errorRes[0]).json({ message: errorRes[1] });
+    }
+
+    return res.status(500).json({ message: "Impossibile recuperare il form" });
+  }
+}
+
+export async function deleteFormAsync(req: Request, res: Response) {
+  try {
+    const { idForm } = req.body;
+
+    if (!idForm) {
+      return res.status(400).json({ message: "Id form mancante" });
+    }
+    const deleteRes = await deleteFormById(idForm.toString());
+
+    if (deleteRes === 0) {
+      return res
+        .status(500)
+        .json({ message: "Errore durante eliminazione del form" });
+    }
+    return res
+      .status(200)
+      .json({ message: "Il form è stato eliminato con successo" });
+  } catch (error) {
+    console.log("Errore durante il recupero dei form", error);
+    //codice in base all'errore del DB
+    if (error instanceof MongoError) {
+      const errorRes: DBError = handleDBError(error);
+      return res.status(errorRes[0]).json({ message: errorRes[1] });
+    }
+
+    return res.status(500).json({ message: "Impossibile eliminare il form" });
+  }
+}
+
+export async function saveFormAsync(req: Request, res: Response) {
   try {
     // Controllo dati form obbligatori se presenti
     const { form }: { form: form } = req.body;
@@ -116,6 +172,7 @@ export async function saveFormsAsync(req: Request, res: Response) {
         }),
       })),
     };
+
     const finalForm: Omit<form, "_id"> = {
       created: new Date(),
       lastEdit: new Date(),
@@ -130,17 +187,25 @@ export async function saveFormsAsync(req: Request, res: Response) {
       },
     };
 
-    // Procedo con il salvataggio del form
-    const id = await insertNewForm(finalForm);
+    // Procedo con il salvataggio / aggiornamento del form
 
-    if (!id) {
-      return res.status(500).json("Errore durante inserimento del form");
+    let id;
+    if (form._id) {
+      id = await updateForm(finalForm, form._id);
+    } else {
+      id = await insertNewForm(finalForm);
+    }
+
+    if (id === 0) {
+      return res
+        .status(500)
+        .json({ message: "Errore durante inserimento/aggiornamento del form" });
     }
     return res
       .status(200)
-      .json({ message: "Il form è stato inserito con successo" });
+      .json({ message: "Il form è stato inserito/aggiornato con successo" });
   } catch (error) {
-    console.log("Errore durante il recupero dei form", error);
+    console.log("Errore durante il inserimento/aggiornamento del form", error);
     //codice in base all'errore del DB
     if (error instanceof MongoError) {
       const errorRes: DBError = handleDBError(error);

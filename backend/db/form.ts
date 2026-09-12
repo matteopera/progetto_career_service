@@ -11,6 +11,23 @@ export async function findFormsAsync() {
   return res;
 }
 
+export async function findFormAsync(idForm: string) {
+  //apertura della collezione
+  const collection = db.collection("form");
+  const res = await collection.findOne({ _id: new ObjectId(idForm) });
+
+  return res;
+}
+
+//deleteFormAsync.
+export async function deleteFormById(idForm: string) {
+  //apertura della collezione
+  const collection = db.collection("form");
+  const res = await collection.deleteOne({ _id: new ObjectId(idForm) });
+
+  return res.deletedCount;
+}
+
 export async function findFormByStatus(state: string) {
   const collection = db.collection("form");
   const res = await collection.findOne({ status: state });
@@ -34,5 +51,15 @@ export async function findCompiledFormById(id: string) {
 export async function insertNewForm(form: Omit<form, "_id">) {
   const collection = db.collection("form");
   const res = await collection.insertOne(form);
-  return res.insertedId;
+  return res.insertedId ? 1 : 0;
+}
+
+export async function updateForm(form: Omit<form, "_id">, idForm: string) {
+  const { created, ...formFinal } = form;
+  const collection = db.collection("form");
+  const res = await collection.updateOne(
+    { _id: new ObjectId(idForm) },
+    { $set: formFinal },
+  );
+  return res.modifiedCount;
 }

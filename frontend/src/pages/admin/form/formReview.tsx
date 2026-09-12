@@ -12,8 +12,15 @@ import {
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import type { contentForm, form } from "@/types/formType";
-import { Check, ChevronLeft, ChevronRight, ExternalLink } from "lucide-react";
-import type { Dispatch, SetStateAction } from "react";
+import axios from "axios";
+import {
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  ExternalLink,
+  Loader2,
+} from "lucide-react";
+import { useState, type Dispatch, type SetStateAction } from "react";
 import { toast } from "sonner";
 
 export default function FormReview({
@@ -21,41 +28,64 @@ export default function FormReview({
   setForm,
   goToStep,
 }: {
-  form: Omit<form, "_id" | "lastEdit" | "created">;
-  setForm: Dispatch<SetStateAction<Omit<form, "_id" | "lastEdit" | "created">>>;
+  form: Omit<form, "lastEdit" | "created">;
+  setForm: Dispatch<SetStateAction<Omit<form, "lastEdit" | "created">>>;
   goToStep: (index: number) => void;
 }) {
+  const [isSending, setIsSending] = useState<boolean>(false);
+
   const saveForm = async () => {
-    const response = await fetch("/api/form/insert-form", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ form: form }),
-    });
+    try {
+      setIsSending(true);
+      await axios.post("/api/form/insert-update-form", {
+        form: form,
+      });
 
-    if (!response.ok) {
-      const json = await response.json();
-      toast.error(json);
-      return;
+      toast.success("Form creato con successo!");
+      localStorage.removeItem("formInCostruzione");
+
+      goToStep(3);
+    } catch (error: any) {
+      if (axios.isAxiosError(error)) {
+        if (error.response) {
+          toast.error(
+            error.response.data?.message || "Errore durante la creazione",
+          );
+        }
+      }
+    } finally {
+      setIsSending(false);
     }
-
-    toast.success("Form creato con successo!");
-    localStorage.setItem("formInCostruzioneBase", "");
-    localStorage.setItem("formInCostruzioneContent", "");
-
-    goToStep(3);
   };
 
   return (
     <div className="border shadow rounded-xl mt-8 p-4">
       <div className="flex justify-between mb-4">
-        <Button onClick={() => goToStep(1)} className="px-4 h-10!">
+        <Button
+          disabled={isSending}
+          onClick={() => goToStep(1)}
+          className="px-4 h-10!"
+        >
           <ChevronLeft />
           <span>Vai allo step precedente</span>
         </Button>
         <h1 className="font-semibold text-2xl">Revisione finale form</h1>
-        <Button onClick={saveForm} className="px-4 h-10!">
-          <span>Conferma creazione form</span>
-          <Check />
+        <Button disabled={isSending} onClick={saveForm} className="px-4 h-10!">
+          {isSending ? (
+            <>
+              <span>
+                {form._id ? "Aggiornamento" : "Creazione"} in corso...
+              </span>
+              <Loader2 className="w-5 h-5 animate-spin" />
+            </>
+          ) : (
+            <>
+              <span>
+                Conferma {form._id ? "aggiornamento" : "creazione"} form
+              </span>
+              <Check />
+            </>
+          )}
         </Button>
       </div>
 

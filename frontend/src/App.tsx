@@ -20,7 +20,7 @@ function App() {
           <Route path="/" element={<Login />} />
           <Route path="/login" element={<Login />} />
           <Route path="/form" element={<Form />} />
-          <Route path="/company/pdf" element={<PdfPage/>} />
+          <Route path="/company/pdf" element={<PdfPage />} />
           {/* Rotte admin */}
           <Route
             path="/admin/dashboard"
@@ -46,8 +46,18 @@ function App() {
               </AdminLayout>
             }
           />
+
           <Route
             path="/admin/form"
+            element={
+              <AdminLayout>
+                <FormAdminPage />
+              </AdminLayout>
+            }
+          />
+
+          <Route
+            path="/admin/form/:idForm"
             element={
               <AdminLayout>
                 <FormAdminPage />

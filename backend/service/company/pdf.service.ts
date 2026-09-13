@@ -8,7 +8,7 @@ export default async function generateInscriptionPdf(
   idCompiledForm:string,
 ) {
     //fetching compiledForm
-    const contentForm=await findOnlineForm()
+    const {contentForm}=await findOnlineForm()
 
     //fetching compiledForm by id
     const compiledForm:compiledForm=await findCompiledForm(idCompiledForm)

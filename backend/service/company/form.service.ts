@@ -14,24 +14,27 @@ export async function findOnlineForm() {
   //check of the form's structure with zod
   const parsedForm = zodForm.parse(form);
 
+  const idForm=parsedForm._id
   //extracting contentForm from parsedForm
   const contentForm = parsedForm.content;
 
-  return contentForm;
+  return {contentForm,idForm};
 }
 
 export async function insertCompiledForm(compiledForm: compiledForm) {
   //check over the form field
-  const onlineForm = await findOnlineForm();
+  const {contentForm,idForm} = await findOnlineForm();
   const compiledFormkeys = Object.keys(compiledForm);
-  const onlineFormKeys = onlineForm.sections.map((s) => s.sectionTitle);
+  const onlineFormKeys = contentForm.sections.map((s) => s.sectionTitle);
   const invalidKeys = compiledFormkeys.filter(
     (k) => !onlineFormKeys.includes(k),
   );
   const checked: boolean = invalidKeys.length === 0;
 
+
   if (checked) {
     //upload into db
+    compiledForm["info"]={"idOnlineForm":idForm}
     const res = await insertNewCompiledForm(compiledForm);
     return res;
   } else {

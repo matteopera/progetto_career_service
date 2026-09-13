@@ -10,9 +10,9 @@ import { zodCompiledForm } from "../../types/form.js";
 
 export async function getOnlineForm(req: Request, res: Response) {
   try {
-    const form = await findOnlineForm();
+    const {contentForm} = await findOnlineForm();
 
-    return res.status(200).json(form);
+    return res.status(200).json(contentForm);
   } catch (error) {
     console.error(`Errore durante il salvataggio del form compilato: ${error}`);
     console.error(error);
@@ -29,6 +29,7 @@ export async function uploadForm(req: Request, res: Response) {
   try {
     const uploadedData = req.body;
 
+    const {idForm}=await findOnlineForm()
     //check with zod
     const checkedCompiledForm = zodCompiledForm.parse(uploadedData);
 

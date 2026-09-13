@@ -21,18 +21,18 @@ export async function formRequest() {
 
   //per ora il form è solo uno ma si potrà ricercare per nome
 
-  let form = await collection.findOne({ formTitle:"MODULO DI ADESIONE A RECRUITING DAY VERONA VICENZA 2025"  });
+  let form = await collection.findOne({
+    formTitle: "MODULO DI ADESIONE A RECRUITING DAY VERONA VICENZA 2025",
+  });
 
   //restituzione del form
   return { ...form, _id: form?._id.toString() };
 }
 
+export async function findRegisteredCompanies() {
+  const collection = db.collection("compiledForm");
 
+  const companies = collection.find({}).toArray();
 
-export async function findRegisteredCompanies(){
-  const collection=db.collection("compiledForm")
-
-  const companies=collection.find({}).toArray()
-
-  return companies
+  return companies;
 }

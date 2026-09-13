@@ -3,12 +3,15 @@ import generateInscriptionPdf from "../../service/company/pdf.service.js";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
-import { findCompiledForm, findOnlineForm } from "../../service/company/form.service.js";
+import {
+  findCompiledForm,
+  findOnlineForm,
+} from "../../service/company/form.service.js";
 import { compiledForm, contentForm } from "../../types/form.js";
 import { MongoError } from "mongodb";
 import { DBError, handleDBError } from "../../errors/DBError.js";
 import multer from "multer";
-import { findCompiledFormById } from "../../db/form.js";
+import { findCompiledFormById } from "../../db/formDb.js";
 export default async function getPdf(req: Request, res: Response) {
   try {
     const { formId } = req.params;
@@ -45,28 +48,29 @@ export async function saveCompiledPDF(req: Request, res: Response) {
       res.status(400).json({ message: "File o nome del file mancante" });
     } else {
       //controllo che il form corrispondente all'id esista
-      const correspondingForm=await findCompiledForm(fileName)
-      if(!correspondingForm){
+      const correspondingForm = await findCompiledForm(fileName);
+      if (!correspondingForm) {
         return res
-            .status(500)
-            .json({ message: "Errore nel salvataggio del file" });
-      }
-      else{
+          .status(500)
+          .json({ message: "Errore nel salvataggio del file" });
+      } else {
         const filePath = path.join(
-        __dirname,
-        "../../savedPDF/",
-        `${fileName}.pdf`,
-      );
-      fs.writeFile(filePath, file.buffer, (error) => {
-        if (error) {
-          console.error(error);
-          return res
-            .status(500)
-            .json({ message: "Errore nel salvataggio del file" });
-        }
-        res.status(201).json({ message: "Salvataggio avvenuto con successo" });
-      });
-      }    
+          __dirname,
+          "../../savedPDF/",
+          `${fileName}.pdf`,
+        );
+        fs.writeFile(filePath, file.buffer, (error) => {
+          if (error) {
+            console.error(error);
+            return res
+              .status(500)
+              .json({ message: "Errore nel salvataggio del file" });
+          }
+          res
+            .status(201)
+            .json({ message: "Salvataggio avvenuto con successo" });
+        });
+      }
     }
   } catch (error) {
     res.status(500).json({ message: "Errore nel salvataggio del file" });

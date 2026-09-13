@@ -56,7 +56,7 @@ export default function Forms() {
   const navigate = useNavigate();
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [error, setError] = useState<boolean>(false);
+  const [isError, setIsError] = useState<boolean>(false);
   const [forms, setForms] = useState<form[]>([]);
   const [deleteFormDialogOpen, setDeleteFormDialogOpen] = useState(false);
   const [selectedFormId, setSelectedFormId] = useState("");
@@ -88,9 +88,9 @@ export default function Forms() {
           lastEdit: new Date(form.lastEdit),
         })),
       );
-      setError(false);
+      setIsError(false);
     } catch (error) {
-      setError(true);
+      setIsError(true);
     } finally {
       setIsLoading(false);
     }
@@ -190,7 +190,7 @@ export default function Forms() {
             <div className="flex justify-center items-center h-full">
               <Loader2 className="w-12 h-12 animate-spin" />
             </div>
-          ) : error ? (
+          ) : isError ? (
             <div className="mt-4 bg-red-100 p-4 text-red-600 rounded-xl text-center flex gap-4 justify-center">
               <CircleAlert />
               <p className=" rounded-xl text-center">

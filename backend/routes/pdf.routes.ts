@@ -1,9 +1,12 @@
 import { Router } from "express";
-import { getPreviewPdfAsync } from "../controller/pdfController.js";
+import {
+  downloadCompiledFormsAsync,
+  getPreviewPdfAsync,
+} from "../controller/pdfController.js";
 
 const router = Router();
 
 router.get("/preview/:id", getPreviewPdfAsync);
-//router.get("/form", getForm);
+router.post("/download-compiled-forms", downloadCompiledFormsAsync);
 
 export default router;

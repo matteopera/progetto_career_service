@@ -6,7 +6,19 @@ import { db } from "./db.js";
 export async function findFormsAsync() {
   //apertura della collezione
   const collection = db.collection("form");
-  const res = await collection.find({}).toArray();
+  const res = await collection.find({}).sort({ lastEdit: -1 }).toArray();
+
+  return res;
+}
+
+export async function findLastFormsAsync() {
+  //apertura della collezione
+  const collection = db.collection("form");
+  const res = await collection
+    .find({})
+    .sort({ lastEdit: -1 })
+    .limit(5)
+    .toArray();
 
   return res;
 }
@@ -54,7 +66,7 @@ export async function insertNewForm(form: Omit<form, "_id">) {
   return res.insertedId ? 1 : 0;
 }
 
-export async function updateForm(form: Omit<form, "_id">, idForm: string) {
+export async function updateFormAsync(form: Omit<form, "_id">, idForm: string) {
   const { created, ...formFinal } = form;
   const collection = db.collection("form");
   const res = await collection.updateOne(
@@ -62,4 +74,19 @@ export async function updateForm(form: Omit<form, "_id">, idForm: string) {
     { $set: formFinal },
   );
   return res.modifiedCount;
+}
+
+export async function getDataCardAsync() {
+  const collectionForm = db.collection("form");
+  const collectionCompiledForm = db.collection("compiledForm");
+  const res = {
+    nrForm: await collectionForm.countDocuments(),
+    nrCompiledForm: await collectionCompiledForm.countDocuments(),
+    lastCreatedForm: await collectionForm.findOne(
+      {},
+      { sort: { created: -1 }, projection: { created: 1, _id: 0 } },
+    ),
+    nrCompiledFormLastEvent: await collectionCompiledForm.countDocuments(),
+  };
+  return res;
 }

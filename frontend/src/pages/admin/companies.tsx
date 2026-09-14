@@ -100,20 +100,66 @@ export default function Companies() {
     }
   };
 
+  const getPdfCompany = async (id: string) => {
+    try {
+      const response = await axios.post(
+        "/api/pdf/download-compiled-form",
+        {
+          idCompiledForm: id,
+        },
+        { responseType: "blob" },
+      );
+      var url = window.URL.createObjectURL(response.data);
+      var a = document.createElement("a");
+      a.href = url;
+      a.download = `${id}.pdf`;
+      a.click();
+      a.remove();
+      setTimeout(() => window.URL.revokeObjectURL(url), 100);
+      toast.success("PDF scaricato con successo");
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        if (error.response) {
+          const jsonString = await error.response.data.text();
+          const json = JSON.parse(jsonString);
+          toast.error(json.message || "Errore durante il download");
+        }
+      }
+    }
+  };
+
+  const getAllPdf = async (idForm: string) => {
+    try {
+      const response = await axios.post(
+        "/api/pdf/download-compiled-forms",
+        {
+          idForm: idForm,
+        },
+        { responseType: "blob" },
+      );
+      var url = window.URL.createObjectURL(response.data);
+      var a = document.createElement("a");
+      a.href = url;
+      a.download = `${idForm}.zip`;
+      a.click();
+      a.remove();
+      setTimeout(() => window.URL.revokeObjectURL(url), 100);
+      toast.success("ZIP scaricato con successo");
+    } catch (error) {
+      toast.error("Non è stato possibile scaricare lo ZIP");
+    }
+  };
+
   const getCompiledForms = async () => {
     try {
       setIsErrorCompiledForms(false);
       setIsLoadingCompiledForms(true);
-      const response = await axios.get("/api/form/get-compiled-forms/1");
-      const compiledFormsRes = response.data.compiledForms;
-      // Le date sono stringhe devo trasformarle in Date
-      setCompiledForms(
-        compiledFormsRes.map((form: any) => ({
-          ...form,
-          created: new Date(form.created),
-          lastEdit: new Date(form.lastEdit),
-        })),
+      const response = await axios.get(
+        `/api/form/get-compiled-forms/${selectedForm?._id}`,
       );
+      const compiledFormsRes = response.data.compiledForms;
+
+      setCompiledForms(compiledFormsRes);
     } catch (error) {
       setIsErrorCompiledForms(true);
     } finally {
@@ -171,7 +217,10 @@ export default function Companies() {
                 <Table2 />
                 Esporta dati in Excel
               </Button>
-              <Button className="ml-4">
+              <Button
+                className="ml-4"
+                onClick={() => getAllPdf(selectedForm!._id)}
+              >
                 <FolderArchive />
                 Scarica tutti i PDF
               </Button>
@@ -205,151 +254,68 @@ export default function Companies() {
             </p>
           </div>
         ) : (
-          <div className="mx-4">
-            {}
-            <FieldGroup>
-              <p className="border-gray-400 border p-3 font-normal border-l-3 border-l-gray-400">
-                {selectedForm.content.formTitle}
-              </p>
-              <p className="border-gray-400 border p-3 font-normal border-l-3 border-l-gray-400">
-                {selectedForm.content.formNote}
-              </p>
-              {selectedForm.content.sections.map((section, index) => {
-                return (
-                  <div
-                    id={section.sectionTitle}
-                    key={section.sectionTitle}
-                    className="border border-gray-400 p-4 border-l-2"
-                  >
-                    <div className="flex flex-row items-center mb-2">
-                      <FieldLegend className="rounded-full w-8 h-8 bg-blue-300 p-2 flex items-center justify-center ">
-                        {index + 1}
-                      </FieldLegend>
-                      <FieldLegend className="pl-3 pr-3 font-semibold text-black">
-                        {section.sectionTitle}
-                      </FieldLegend>
-                    </div>
-                    {section.sectionNote != "" ? (
-                      <FieldDescription className="p-3 border border-l-2 border-gray-400 border-l-blue-500 mb-2">
-                        {section.sectionNote}
-                      </FieldDescription>
-                    ) : null}
-                    <div className="mb-5 sm:columns-2">
-                      {section.fields.map((field) => {
-                        {
-                          if (field.fieldType == "text") {
-                            return (
-                              <Field
-                                className="break-inside-avoid-column mb-3"
-                                key={`${section.sectionTitle}-${field.fieldTitle}`}
-                              >
-                                <FieldLabel
-                                  htmlFor="field.fieldTitle"
-                                  className="font-medium"
-                                >
-                                  {field.fieldTitle}
-                                </FieldLabel>
-                                <Input
-                                  required
-                                  id={field.fieldTitle}
-                                  name={field.fieldTitle}
-                                  className="rounded-sm border-gray-400 font-normal text-sm"
-                                />
-                              </Field>
-                            );
-                          } else if (field.fieldType == "check") {
-                            return (
-                              <Field
-                                className="break-inside-avoid-column mb-3"
-                                key={`${section.sectionTitle}-${field.fieldTitle}`}
-                              >
-                                <FieldLabel className="font-medium">
-                                  {field.fieldTitle}
-                                </FieldLabel>
-                                <FieldDescription>
-                                  {field.fieldNote != ""
-                                    ? field.fieldNote
-                                    : null}
-                                </FieldDescription>
-                                {field.options.map((option) => {
-                                  return (
-                                    <Field
-                                      orientation="horizontal"
-                                      key={`${field.fieldTitle}-${option.optionName}`}
-                                    >
-                                      <Checkbox
-                                        id={`${field.fieldTitle}-${option.optionName}`}
-                                        name={option.optionName}
-                                        className="border border-gray-400"
-                                      />
-                                      <FieldContent>
-                                        <FieldLabel
-                                          htmlFor={`${field.fieldTitle}-${option.optionName}`}
-                                        >
-                                          {option.optionName}
-                                        </FieldLabel>
-                                        <FieldDescription>
-                                          {option.optionNote != ""
-                                            ? option.optionNote
-                                            : null}
-                                        </FieldDescription>
-                                      </FieldContent>
-                                    </Field>
-                                  );
-                                })}
-                              </Field>
-                            );
-                          } else if (field.fieldType == "radio") {
-                            return (
-                              <Field
-                                className="mb-3 break-inside-avoid-column"
-                                key={`${section.sectionTitle}-${field.fieldTitle}`}
-                              >
-                                <FieldLabel className="font-medium">
-                                  {field.fieldTitle}
-                                </FieldLabel>
-                                <FieldDescription>
-                                  {field.fieldNote != ""
-                                    ? field.fieldNote
-                                    : null}
-                                </FieldDescription>
-                                <RadioGroup className="w-fit">
-                                  {field.options.map((option) => {
-                                    return (
-                                      <div
-                                        className=" flex justify-start gap-5 rounded-sm items-center border-gray-400 border p-2"
-                                        key={`${field.fieldTitle}-${option.optionName}`}
-                                      >
-                                        <RadioGroupItem
-                                          value={option.optionName}
-                                          id={`${field.fieldTitle}-${option.optionName}`}
-                                          className="border border-indigo-300"
-                                        />
-                                        <FieldLabel
-                                          htmlFor={`${field.fieldTitle}-${option.optionName}`}
-                                          className="flex flex-col w-full items-start gap-0"
-                                        >
-                                          {option.optionName}
-                                          <FieldDescription>
-                                            {option.optionNote}
-                                          </FieldDescription>
-                                        </FieldLabel>
-                                      </div>
-                                    );
-                                  })}
-                                </RadioGroup>
-                              </Field>
-                            );
-                          } else {
-                            return null;
-                          }
-                        }
-                      })}
-                    </div>
+          <div className="mx-4 flex flex-col gap-8 ">
+            {compiledForms.map((compiledForm, index) => (
+              <div className="border gap-4 p-4 shadow rounded-xl flex flex-col ">
+                <div className="flex items-center gap-2 border-b pb-4">
+                  <div className="bg-black w-12 h-12 rounded-xl text-white flex items-center justify-center text-xl font-semibold">
+                    # {index + 1}
                   </div>
-                );
-              })}
-            </FieldGroup>
+                  <p className="text-gray-700 text-lg ">
+                    Registrazione {index + 1}
+                  </p>
+                  <Button
+                    className="ml-auto"
+                    onClick={() => getPdfCompany(compiledForm._id)}
+                  >
+                    <FolderArchive />
+                    Scarica PDF
+                  </Button>
+                </div>
+                <div className="grid grid-cols-2 gap-8">
+                  {Object.keys(compiledForm)
+                    .filter(
+                      (sectionName) =>
+                        sectionName !== "_id" && sectionName !== "info",
+                    )
+                    .map((sectionName) => (
+                      <div className="">
+                        <p className="font-semibold text-lg border-b pb-2 mb-2">
+                          {sectionName}
+                        </p>
+                        <div className="grid grid-cols-2 gap-2">
+                          {Object.keys(compiledForm[sectionName]).map(
+                            (nameField) => {
+                              return (
+                                <div>
+                                  <div className="text-gray-600">
+                                    {nameField}:{" "}
+                                    <span className="text-black font-semibold">
+                                      {typeof compiledForm[sectionName][
+                                        nameField
+                                      ] === "object" ? (
+                                        <ul>
+                                          {compiledForm[sectionName][
+                                            nameField
+                                          ].map((element: string) => (
+                                            <li>{element}</li>
+                                          ))}
+                                        </ul>
+                                      ) : (
+                                        compiledForm[sectionName][nameField]
+                                      )}
+                                    </span>
+                                  </div>
+                                </div>
+                              );
+                            },
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </div>

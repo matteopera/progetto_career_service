@@ -5,6 +5,7 @@ import {
   getDataDashboardAsync,
   getFormAsync,
   getFormsAsync,
+  getLastCompiledFormsAsync,
   getLastFormsAsync,
   saveFormAsync,
 } from "../controller/formController.js";
@@ -18,6 +19,8 @@ router.get("/get-last", getLastFormsAsync);
 router.get("/get/:idForm", getFormAsync);
 
 router.get("/get-compiled-forms/:idForm", getCompiledFormsAsync);
+
+router.get("/get-last-compiled-forms", getLastCompiledFormsAsync);
 
 router.post("/insert-update-form", saveFormAsync);
 

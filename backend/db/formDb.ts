@@ -61,9 +61,11 @@ export async function findCompiledFormById(id: string) {
 
 export async function findCompiledFormByInfo(id: string) {
   const collection = db.collection("compiledForm");
-  const res = await collection.find({"info.idOnlineForm":id}).toArray();
+  const res = await collection
+    .find({ "info.idOnlineForm": new ObjectId(id) })
+    .toArray();
 
-  return res
+  return res;
 }
 
 // Funzione richiamata da admin per creazione nuovo form

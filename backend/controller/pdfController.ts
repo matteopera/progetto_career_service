@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { generatePDFPreviewAsync } from "../service/pdf.service.js";
 import fs from "fs";
 import { ZipArchive } from "archiver";
+import { findCompiledFormByInfo } from "../db/formDb.js";
 
 export async function getPreviewPdfAsync(req: Request, res: Response) {
   try {
@@ -40,6 +41,9 @@ export async function downloadCompiledFormsAsync(req: Request, res: Response) {
 
     archive.pipe(output);
 
+    // Ottengo solamente id dei form compilati del form richiest
+    const compiledForms = await findCompiledFormByInfo(idForm);
+
     fs.readdir(folderPdf, (err, files) => {
       if (err) {
         console.error(err);
@@ -49,8 +53,14 @@ export async function downloadCompiledFormsAsync(req: Request, res: Response) {
       }
 
       files.forEach((file) => {
-        const filePath = `${folderPdf}/${file}`;
-        archive.append(fs.createReadStream(filePath), { name: file });
+        if (
+          compiledForms.some((compiledForm) =>
+            file.includes(compiledForm._id.toString()),
+          )
+        ) {
+          const filePath = `${folderPdf}/${file}`;
+          archive.append(fs.createReadStream(filePath), { name: file });
+        }
       });
 
       archive.finalize();
@@ -70,6 +80,36 @@ export async function downloadCompiledFormsAsync(req: Request, res: Response) {
           });
         });
       });
+    });
+  } catch (e) {
+    console.log(
+      "Errore durante la generazione della preview del PDF. Dettagli errore: ",
+      e,
+    );
+    return res.status(500).json({ message: "Errore del server" });
+  }
+}
+
+///Endpoint per scarica il form compilato di una specifica azienda
+export async function downloadCompiledFormAsync(req: Request, res: Response) {
+  try {
+    const { idCompiledForm } = req.body;
+
+    if (!idCompiledForm) {
+      return res.status(400).json({ message: "Id form compilato mancante" });
+    }
+
+    const pathFile = `./savedPDF/${idCompiledForm}.pdf`;
+
+    if (!fs.existsSync(pathFile)) {
+      return res.status(500).json({ message: "Il file PDF non esiste" });
+    }
+
+    res.download(pathFile, `${idCompiledForm}.pdf`, (err) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).send("Errore imprevisto durante il download");
+      }
     });
   } catch (e) {
     console.log(

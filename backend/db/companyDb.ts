@@ -1,3 +1,4 @@
+import { ObjectId } from "mongodb";
 import { db } from "./db.js";
 
 export async function findFaq() {
@@ -33,6 +34,43 @@ export async function findRegisteredCompanies() {
   const collection = db.collection("compiledForm");
 
   const companies = collection.find({}).toArray();
+
+  return companies;
+}
+
+export async function findRegisteredCompaniesByFormId(formId: string) {
+  const collection = db.collection("compiledForm");
+
+  const companies = collection
+    .find({ info: { idOnlineForm: new ObjectId(formId) } })
+    .toArray();
+
+  return companies;
+}
+
+export async function findLastRegisteredCompanies() {
+  const collection = db.collection("compiledForm");
+
+  const companies = collection
+    .aggregate([
+      { $sort: { _id: -1 } },
+      { $limit: 5 },
+      {
+        $lookup: {
+          from: "form",
+          localField: "info.idOnlineForm",
+          foreignField: "_id",
+          as: "formStructure",
+        },
+      },
+      {
+        $unwind: {
+          path: "$formStructure",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+    ])
+    .toArray();
 
   return companies;
 }

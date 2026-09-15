@@ -1,5 +1,6 @@
 import {
   findCompiledFormById,
+  findFormAsync,
   findFormByStatus,
   insertForm,
   insertNewCompiledForm,
@@ -14,7 +15,7 @@ export async function findOnlineForm() {
   //check of the form's structure with zod
   const parsedForm = zodForm.parse(form);
 
-  const idForm=parsedForm._id
+  const idForm=(parsedForm._id).toString()
   //extracting contentForm from parsedForm
   const contentForm = parsedForm.content;
 
@@ -51,4 +52,12 @@ export async function findCompiledForm(id: string) {
   //compiled form parsing
   const parsedCompiledForm = zodCompiledForm.parse(compiledForm);
   return parsedCompiledForm;
+}
+
+export async function findFormById(id:string){
+  const form=await findFormAsync(id);
+
+  const parsedForm=zodForm.parse(form)
+  const content= parsedForm.content
+  return content
 }

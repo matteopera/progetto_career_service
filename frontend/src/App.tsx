@@ -19,7 +19,8 @@ function App() {
         <Routes>
           <Route path="/" element={<Login />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/form" element={<Form />} />
+          <Route path="/form/:formId" element={<Form />} />
+          <Route path="/Form" element={<Form />} />
           <Route path="/company/pdf" element={<PdfPage />} />
           <Route path="/company/iscrizione-effettuata" element={<IscrizioneEffettuata/>}/>
           {/* Rotte admin */}

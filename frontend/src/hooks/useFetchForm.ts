@@ -21,7 +21,7 @@ type useFetchFormType = {
   isLoading: boolean;
   error: Error | null;
 };
-export default function useFetchForm(): useFetchFormType {
+export default function useFetchForm(formId:string|null): useFetchFormType {
   const [form, setForm] = useState<contentForm | null>(null);
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -30,7 +30,7 @@ export default function useFetchForm(): useFetchFormType {
 
   useEffect(() => {
     //fetchign form from DB
-    fetchForm()
+    fetchForm(formId)
       .then((data) => {
         setForm(data);
       })
@@ -387,17 +387,11 @@ export function useValue(form: contentForm) {
     setError(null)
     if (formValidityCheck()) {
       uploadCompiledForm(value).then((res)=>{
-        const {isOk, id}=res
-        if(isOk){
+        const id=res
           //passing the id to the new page
-          
         navigate("/company/pdf",{ replace: true ,state:{id:id,value:value,form:form}})
-      }
-      else{
-        setSendable(true)
-        setError(new Error("Salvataggio non avvenuto correttamente"))
-      }
       }).catch((e)=>{
+        setSendable(true)
         setError(e)
       })
       

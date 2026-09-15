@@ -1,5 +1,6 @@
 import { MongoError, ObjectId } from "mongodb";
 import {
+  findFormById,
   findOnlineForm,
   insertCompiledForm,
 } from "../../service/company/form.service.js";
@@ -14,7 +15,6 @@ export async function getOnlineForm(req: Request, res: Response) {
 
     return res.status(200).json(contentForm);
   } catch (error) {
-    console.error(`Errore durante il salvataggio del form compilato: ${error}`);
     console.error(error);
     if (error instanceof MongoError) {
       const errorRes: DBError = handleDBError(error);
@@ -29,7 +29,6 @@ export async function uploadForm(req: Request, res: Response) {
   try {
     const uploadedData = req.body;
 
-    const {idForm}=await findOnlineForm()
     //check with zod
     const checkedCompiledForm = zodCompiledForm.parse(uploadedData);
 
@@ -50,5 +49,18 @@ export async function uploadForm(req: Request, res: Response) {
       return res.status(errorRes[0]).json({ message: errorRes[1] });
     }
     return res.status(500).json({ message: "Impossibile salvare il form" });
+  }
+}
+
+
+export async function getFormById(req: Request, res: Response){
+  try{
+    const {formId}=req.params
+
+    const contentForm=await findFormById(formId as string);
+    console.log(contentForm)
+    res.status(200).json(contentForm)
+  }catch(error){
+    return res.status(500).json({ message: "Impossibile recuparare il form" });
   }
 }

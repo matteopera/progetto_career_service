@@ -30,13 +30,7 @@ export default function pdfPage() {
   async function downloadPdf(id: string) {
     try {
       const res = await getPDF(id);
-      if (!res.ok) {
-        setFetchingFileError(new Error("Errore nel downlaod del file"));
-      } else {
-        setFetchingFileError(null);
-      }
-    } catch (e) {
-      console.log("Cathco l'errore");
+    }catch (e) {
       setFetchingFileError(new Error("Errore nel download del file"));
     }
   }
@@ -45,14 +39,9 @@ export default function pdfPage() {
     try {
       setSavingFileError(null);
       const res = await saveCompiledPDF(file,id);
-
-      if (!res.ok) {
-        throw new Error("Errore nel salvataggio del file");
-      } else {
         setSavingFileError(null);
         //navigazione pagina finale
         navigate("/company/iscrizione-effettuata",{"replace":true})
-      }
     } catch (error) {
       setSavingFileError(new Error("Errore nel salvataggio del file"));
     }

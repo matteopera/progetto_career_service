@@ -30,7 +30,7 @@ export async function formRequest() {
   return { ...form, _id: form?._id.toString() };
 }
 
-export async function findRegisteredCompanies() {
+export async function findRegisteredCompanies(formId:string) {
   const collection = db.collection("compiledForm");
 
   const companies = collection.find({}).toArray();

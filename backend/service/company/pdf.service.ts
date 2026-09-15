@@ -12,6 +12,8 @@ export default async function generateInscriptionPdf(
 
     //fetching compiledForm by id
     const compiledForm:compiledForm=await findCompiledForm(idCompiledForm)
+
+    //modifica delle info in stringa
   const doc = new PDFDocument();
 
   doc.pipe(res);

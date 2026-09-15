@@ -1,15 +1,11 @@
-import { zodFaqList, type faqListType} from "@/types/FAQType"
+import { zodFaqList, type faqListType } from "@/types/FAQType";
+import axios from "axios";
+export default async function faqApi() {
+  const response = await axios.get("/api/aziende/faq");
 
-export default async function faqApi(){
-    const response=await fetch("/api/aziende/faq")
+  const faqJson = await response.data;
+  //check with zod type
+  const parsedFaqs = zodFaqList.parse(faqJson);
 
-    if(!response.ok){
-        console.error("Errore nella richiesta delle faq")
-    }
-
-    const faqJson=await response.json()
-    //check with zod type
-    const parsedFaqs=zodFaqList.parse(faqJson)
-
-    return parsedFaqs
+  return parsedFaqs;
 }

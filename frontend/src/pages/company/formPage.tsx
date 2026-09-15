@@ -11,8 +11,10 @@ import useFetchForm  from "@/hooks/useFetchForm";
 import { Spinner } from "@/components/ui/spinner";
 import type { faqListType } from "@/types/FAQType";
 import faqApi from "@/api/faqApi";
+import { useParams } from "react-router";
 export default function formPage() {
-  const { form, isLoading, error } = useFetchForm();
+  const {formId}=useParams()
+  const { form, isLoading, error } = useFetchForm(formId===undefined? null:formId);
 
   const [faqList, setFaqList] = useState<faqListType | null>(null);
 
@@ -51,7 +53,7 @@ export default function formPage() {
     <div className=" bg-slate-50">
       <nav className="border-b border-gray-300">
         <img
-          src="logo_univr.png"
+          src="/logo_univr.png"
           alt="Logo Università di Verona"
           className="w-54 mx-auto "
         />

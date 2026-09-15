@@ -1,6 +1,6 @@
 //form type with zod library
 import z from "zod";
-
+import { ObjectId } from "mongodb";
 export const zodOption = z.object({
   optionName: z.string(),
   optionNote: z.string(),
@@ -50,7 +50,7 @@ export const zodContentForm = z.object({
 export const zodStatusForm = z.enum(["draft", "online", "offline"]);
 
 export const zodForm = z.object({
-  _id: z.string(),
+  _id: z.instanceof(ObjectId),
   content: zodContentForm,
   title: z.string(),
   note: z.string(),
@@ -82,7 +82,7 @@ export type form = z.infer<typeof zodForm>;
 
 export const zodCompiledForm = z.record(
   z.string(),
-  z.record(z.string(), z.union([z.string(), z.array(z.string())])),
+  z.record(z.string(), z.union([z.string(), z.array(z.string()),z.instanceof(ObjectId)])),
 );
 
 export type compiledForm = z.infer<typeof zodCompiledForm>;

@@ -1,13 +1,5 @@
 import { Button } from "@/components/ui/button";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
   Table,
   TableBody,
   TableCell,
@@ -18,25 +10,22 @@ import {
 import { authClient } from "@/lib/auth-client";
 import type { form } from "@/types/formType";
 import axios from "axios";
-import { error } from "better-auth/api";
 import {
   Calendar,
   CircleAlert,
   Database,
-  EllipsisVertical,
   ExternalLink,
   FormIcon,
   Loader2,
   Users,
-  type IconNode,
   type LucideIcon,
-  type LucideProps,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, Navigate } from "react-router";
 import { toast } from "sonner";
 
 export default function Dashboard() {
+  // Controllo sessione
   const { data: session, isPending } = authClient.useSession();
   if (isPending) {
     return (
@@ -49,12 +38,10 @@ export default function Dashboard() {
     return <Navigate to={"/login"} />;
   }
 
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [isError, setIsError] = useState<boolean>(false);
-  const [forms, setForms] = useState<form[]>([]);
-  const [compiledForms, setCompiledForms] = useState<any[]>([]);
-
-  const [cardDatas, setCardData] = useState<
+  // Gestione stati dati card
+  const [isLoadingCardData, setIsLoadingCardData] = useState<boolean>(true);
+  const [isErrorCardData, setIsErrorCardData] = useState<boolean>(false);
+  const [cardData, setCardData] = useState<
     {
       id: number;
       name: string;
@@ -63,11 +50,26 @@ export default function Dashboard() {
     }[]
   >([]);
 
+  // Gestione stati ultime risposte dei form
+  const [isLoadingLastCompiledForms, setIsLoadingLastCompiledForms] =
+    useState<boolean>(true);
+  const [isErrorLastCompiledForms, setIsErrorLastCompiledForms] =
+    useState<boolean>(false);
+  const [lastCompiledForms, setLastCompiledForms] = useState<any[]>([]);
+
+  // Gestione stati ultimi form
+  const [isLoadingLastForms, setIsLoadingLastForms] = useState<boolean>(true);
+  const [isErrorLastForms, setIsErrorLastForms] = useState<boolean>(false);
+  const [lastForms, setLastForms] = useState<form[]>([]);
+
+  // Recupero dati dashboard
   useEffect(() => {
-    getCardData();
-    getForms();
-    getLastCompiledForms();
-  }, []);
+    if (session.user) {
+      getCardData();
+      getLastForms();
+      getLastCompiledForms();
+    }
+  }, [session]);
 
   const getCardData = async () => {
     try {
@@ -75,6 +77,7 @@ export default function Dashboard() {
       const data = response.data;
 
       const lastCreatedFormDate = new Date(data.lastCreatedForm.created);
+
       // Le date sono stringhe devo trasformarle in Date
       setCardData([
         {
@@ -103,7 +106,17 @@ export default function Dashboard() {
         },
       ]);
     } catch (error) {
+      if (axios.isAxiosError(error)) {
+        if (error.response) {
+          toast.error(
+            error.response.data?.message ||
+              "Errore durante il recupero delle statistiche generali",
+          );
+        }
+      }
+      setIsErrorCardData(true);
     } finally {
+      setIsLoadingCardData(false);
     }
   };
 
@@ -111,44 +124,46 @@ export default function Dashboard() {
     try {
       const response = await axios.get("/api/form/get-last-compiled-forms");
       const compiledFormsRes = response.data.compiledForms;
-
-      setCompiledForms(compiledFormsRes);
+      setLastCompiledForms(compiledFormsRes);
     } catch (error) {
       if (axios.isAxiosError(error)) {
         if (error.response) {
           toast.error(
-            error.response.data.message ||
+            error.response.data?.message ||
               "Errore durante il recupero delle ultime aziende",
           );
         }
       }
+      setIsErrorLastCompiledForms(true);
+    } finally {
+      setIsLoadingLastCompiledForms(false);
     }
   };
 
-  const getForms = async () => {
+  const getLastForms = async () => {
     try {
       const response = await axios.get("/api/form/get-last");
       const forms = response.data.forms;
       // Le date sono stringhe devo trasformarle in Date
-      setForms(
+      setLastForms(
         forms.map((form: any) => ({
           ...form,
           created: new Date(form.created),
           lastEdit: new Date(form.lastEdit),
         })),
       );
-      setForms(
-        forms.map((form: any) => ({
-          ...form,
-          created: new Date(form.created),
-          lastEdit: new Date(form.lastEdit),
-        })),
-      );
-      setIsError(false);
     } catch (error) {
-      setIsError(true);
+      if (axios.isAxiosError(error)) {
+        if (error.response) {
+          toast.error(
+            error.response.data?.message ||
+              "Errore durante il recupero degli ultimi form creati",
+          );
+        }
+      }
+      setIsErrorLastForms(true);
     } finally {
-      setIsLoading(false);
+      setIsLoadingLastForms(false);
     }
   };
 
@@ -164,94 +179,139 @@ export default function Dashboard() {
 
       {/* cardData */}
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-4 mt-8">
-        {cardDatas.map((data) => (
-          <div
-            key={data.id}
-            className="border flex justify-between items-start rounded-xl shadow-xs p-4 w-full"
-          >
-            <div className="">
-              {/* titolo */}
-              <span className="text-sm font-medium text-gray-500">
-                {data.name}
-              </span>
-              <p className="text-2xl mt-2 font-bold">{data.value}</p>
-            </div>
-            <div className=" shadow  rounded-lg p-4">
-              <data.icon className="text-black w-5 h-5" />
-            </div>
+        {isLoadingCardData ? (
+          <div className="col-span-4 flex justify-center items-center h-full">
+            <Loader2 className="w-12 h-12 animate-spin" />
           </div>
-        ))}
+        ) : isErrorCardData ? (
+          <div className="col-span-4 mt-4 bg-red-100 p-4 text-red-600 rounded-xl text-center flex gap-4 justify-center">
+            <CircleAlert />
+            <p className=" rounded-xl text-center">
+              Non è stato possibile recuperare le statistiche
+            </p>
+          </div>
+        ) : cardData.length === 0 ? (
+          <div className="col-span-4 bg-gray-100 mt-4 flex w-full p-4 text-gray-600 rounded-xl text-center gap-4 justify-center">
+            <CircleAlert />
+            <p className=" rounded-xl text-center">
+              Non è disponibile nessuna statistica
+            </p>
+          </div>
+        ) : (
+          <>
+            {cardData.map((data) => (
+              <div
+                key={data.id}
+                className="border flex justify-between items-start rounded-xl shadow-xs p-4 w-full"
+              >
+                <div className="">
+                  {/* titolo */}
+                  <span className="text-sm font-medium text-gray-500">
+                    {data.name}
+                  </span>
+                  <p className="text-2xl mt-2 font-bold">{data.value}</p>
+                </div>
+                <div className=" shadow  rounded-lg p-4">
+                  <data.icon className="text-black w-5 h-5" />
+                </div>
+              </div>
+            ))}
+          </>
+        )}
       </div>
 
       {/* Tabella ultime aziende */}
       <div className="border shadow rounded-xl h-80 mt-8 p-4 overflow-y-auto">
         <h1 className="font-medium text-xl">Ultime aziende registrate</h1>
-        {compiledForms.map((compiledForm, index) => (
-          <div className=" gap-4 p-4 border-b flex flex-col ">
-            <div className="flex items-center gap-2  pb-4">
-              <div className="bg-black w-12 h-12 rounded-xl text-white flex items-center justify-center text-xl font-semibold">
-                # {index + 1}
-              </div>
-              <div>
-                {" "}
-                <p className="text-black">
-                  Form: {compiledForm["formStructure"]["title"]}
-                </p>
-                <p className="text-gray-700 text-sm ">
-                  Registrazione {compiledForm["info"]["idOnlineForm"]}
-                </p>
-              </div>
-              <div className="ml-4 border rounded-full flex px-4 py-1 bg-gray-50">
-                <p>Numero sezioni:</p>
-                {
-                  Object.keys(compiledForm).filter(
-                    (sectionName) =>
-                      sectionName !== "_id" &&
-                      sectionName !== "info" &&
-                      sectionName !== "formStructure",
-                  ).length
-                }
-              </div>
-              <div className="ml-4 border rounded-full flex px-4 py-1 bg-gray-50">
-                <p>Numero campi:</p>
-                {
-                  Object.keys(compiledForm)
-                    .filter(
-                      (sectionName) =>
-                        sectionName !== "_id" &&
-                        sectionName !== "info" &&
-                        sectionName !== "formStructure",
-                    )
-                    .flatMap((sectionName) =>
-                      Object.keys(compiledForm[sectionName]),
-                    ).length
-                }
-              </div>
-              <Link className="ml-auto" to={"/admin/companies"}>
-                <Button>
-                  Visualizza tutti i form <ExternalLink />
-                </Button>
-              </Link>
-            </div>
+        {isLoadingLastCompiledForms ? (
+          <div className="flex justify-center items-center h-full">
+            <Loader2 className="w-12 h-12 animate-spin" />
           </div>
-        ))}
+        ) : isErrorLastCompiledForms ? (
+          <div className="mt-4 bg-red-100 p-4 text-red-600 rounded-xl text-center flex gap-4 justify-center">
+            <CircleAlert />
+            <p className=" rounded-xl text-center">
+              Non è stato possibile recuperare gli ultimi form compilati.
+              Riprovare più tardi
+            </p>
+          </div>
+        ) : lastCompiledForms.length === 0 ? (
+          <div className="bg-gray-100 mt-4 flex w-full p-4 text-gray-600 rounded-xl text-center gap-4 justify-center">
+            <CircleAlert />
+            <p className=" rounded-xl text-center">
+              Non è presente nessuna compilazione
+            </p>
+          </div>
+        ) : (
+          <>
+            {lastCompiledForms.map((compiledForm, index) => (
+              <div className=" gap-4 p-4 border-b flex flex-col ">
+                <div className="flex items-center gap-2  pb-4">
+                  <div className="bg-black w-12 h-12 rounded-xl text-white flex items-center justify-center text-xl font-semibold">
+                    # {index + 1}
+                  </div>
+                  <div>
+                    {" "}
+                    <p className="text-black">
+                      Form: {compiledForm["formStructure"]["title"]}
+                    </p>
+                    <p className="text-gray-700 text-sm ">
+                      Registrazione {compiledForm["info"]["idOnlineForm"]}
+                    </p>
+                  </div>
+                  <div className="ml-4 border rounded-full flex px-4 py-1 bg-gray-50">
+                    <p>Numero sezioni:</p>
+                    {
+                      Object.keys(compiledForm).filter(
+                        (sectionName) =>
+                          sectionName !== "_id" &&
+                          sectionName !== "info" &&
+                          sectionName !== "formStructure",
+                      ).length
+                    }
+                  </div>
+                  <div className="ml-4 border rounded-full flex px-4 py-1 bg-gray-50">
+                    <p>Numero campi:</p>
+                    {
+                      Object.keys(compiledForm)
+                        .filter(
+                          (sectionName) =>
+                            sectionName !== "_id" &&
+                            sectionName !== "info" &&
+                            sectionName !== "formStructure",
+                        )
+                        .flatMap((sectionName) =>
+                          Object.keys(compiledForm[sectionName]),
+                        ).length
+                    }
+                  </div>
+                  <Link className="ml-auto" to={"/admin/companies"}>
+                    <Button>
+                      Visualizza tutti i form <ExternalLink />
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            ))}
+          </>
+        )}
       </div>
 
       {/* Tabella ultimi form */}
       <div className="border shadow rounded-xl h-80 mt-8 p-8 overflow-y-auto">
         <h1 className="font-medium text-xl">Ultimi form creati</h1>
-        {isLoading ? (
+        {isLoadingLastForms ? (
           <div className="flex justify-center items-center h-full">
             <Loader2 className="w-12 h-12 animate-spin" />
           </div>
-        ) : isError ? (
+        ) : isErrorLastForms ? (
           <div className="mt-4 bg-red-100 p-4 text-red-600 rounded-xl text-center flex gap-4 justify-center">
             <CircleAlert />
             <p className=" rounded-xl text-center">
               Non è stato possibile recuperare i form. Riprovare più tardi
             </p>
           </div>
-        ) : forms.length === 0 ? (
+        ) : lastForms.length === 0 ? (
           <div className="bg-gray-100 mt-4 flex w-full p-4 text-gray-600 rounded-xl text-center gap-4 justify-center">
             <CircleAlert />
             <p className=" rounded-xl text-center">
@@ -273,7 +333,7 @@ export default function Dashboard() {
             </TableHeader>
 
             <TableBody>
-              {forms.map((form) => (
+              {lastForms.map((form) => (
                 <TableRow key={form._id} className="">
                   <TableCell className="font-medium ">{form.title}</TableCell>
                   <TableCell className="w-64 wrap-break-word whitespace-normal">

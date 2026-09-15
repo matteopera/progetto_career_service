@@ -176,7 +176,7 @@ export default function formBase({
       <h2 className="font-medium text-lg  ">Dati Interni Form</h2>
       <p className="text-sm text-gray-700">
         In questa sezione si possono aggiungere altre informazioni utili che
-        rimarranno a disposizione solamente nella dashboard
+        rimarranno a disposizione solamente nell'area admin
       </p>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Field className="mt-4">
@@ -204,7 +204,7 @@ export default function formBase({
               setForm((prev) => ({ ...prev, status: status }))
             }
           >
-            <SelectTrigger className="w-1/4 h-11!">
+            <SelectTrigger className="w-1/4 h-12!">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -215,6 +215,10 @@ export default function formBase({
               </SelectGroup>
             </SelectContent>
           </Select>
+          <p className="text-blue-500 text-sm">
+            Settando lo status ONLINE, il form che si trova online in questo
+            momento verrà aggiornato con status IN BOZZA
+          </p>
         </Field>
       </div>
       <Field className="mt-4">

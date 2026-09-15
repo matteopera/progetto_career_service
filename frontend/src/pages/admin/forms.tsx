@@ -65,8 +65,8 @@ export default function Forms() {
   const [searchInput, setSearchInput] = useState("");
   const [searchStatus, setSearchStatus] = useState("");
   useEffect(() => {
-    getForms();
-  }, []);
+    if (session.user) getForms();
+  }, [session]);
   const [filteredForms, setFilteredForms] = useState<form[]>([]);
 
   const getForms = async () => {
@@ -137,6 +137,10 @@ export default function Forms() {
     );
   }, [searchInput, searchStatus]);
 
+  const copyLink = async (link: string) => {
+    await navigator.clipboard.writeText(link);
+    toast.success("Link copiato con successo!");
+  };
   return (
     <>
       <div className="flex flex-col w-full h-full">
@@ -261,7 +265,13 @@ export default function Forms() {
                           </DropdownMenuTrigger>
                           <DropdownMenuContent side="left">
                             <DropdownMenuGroup>
-                              <DropdownMenuItem>Copia link</DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() =>
+                                  copyLink("https://" + location.host)
+                                }
+                              >
+                                Copia link
+                              </DropdownMenuItem>
                             </DropdownMenuGroup>
                             <DropdownMenuSeparator />
                             <DropdownMenuGroup>

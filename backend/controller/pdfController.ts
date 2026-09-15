@@ -4,25 +4,25 @@ import fs from "fs";
 import { ZipArchive } from "archiver";
 import { findCompiledFormByInfo } from "../db/formDb.js";
 
-export async function getPreviewPdfAsync(req: Request, res: Response) {
-  try {
-    //TODO: controllo id del pdf se esiste o meno
+// export async function getPreviewPdfAsync(req: Request, res: Response) {
+//   try {
+//     //TODO: controllo id del pdf se esiste o meno
 
-    // Impostazioni header di risposta
-    res.setHeader("Content-Type", "application/pdf");
-    res.setHeader("Content-Disposition", "inline; filename=TEST_MATTEO.pdf");
+//     // Impostazioni header di risposta
+//     res.setHeader("Content-Type", "application/pdf");
+//     res.setHeader("Content-Disposition", "inline; filename=TEST_MATTEO.pdf");
 
-    await generatePDFPreviewAsync(null, res);
+//     await generatePDFPreviewAsync(null, res);
 
-    return res.status(200);
-  } catch (e) {
-    console.log(
-      "Errore durante la generazione della preview del PDF. Dettagli errore: ",
-      e,
-    );
-    return res.status(500).json({ message: "Errore del server" });
-  }
-}
+//     return res.status(200);
+//   } catch (e) {
+//     console.log(
+//       "Errore durante la generazione della preview del PDF. Dettagli errore: ",
+//       e,
+//     );
+//     return res.status(500).json({ message: "Errore del server" });
+//   }
+// }
 
 export async function downloadCompiledFormsAsync(req: Request, res: Response) {
   try {
@@ -70,7 +70,7 @@ export async function downloadCompiledFormsAsync(req: Request, res: Response) {
             console.error(err);
             return res
               .status(500)
-              .send("Errore imprevisto durante il download");
+              .json({ message: "Errore imprevisto durante il download" });
           }
 
           fs.unlink(zipName, (err) => {
@@ -108,7 +108,9 @@ export async function downloadCompiledFormAsync(req: Request, res: Response) {
     res.download(pathFile, `${idCompiledForm}.pdf`, (err) => {
       if (err) {
         console.error(err);
-        return res.status(500).send("Errore imprevisto durante il download");
+        return res
+          .status(500)
+          .json({ message: "Errore imprevisto durante il download" });
       }
     });
   } catch (e) {

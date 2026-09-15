@@ -67,10 +67,9 @@ export default function Login() {
           setIsSubmitting(false);
           return;
         }
-        console.log(response);
 
         // Errore non gestito ma sempre proveniente da better auth
-        throw Error("Errore login lato Better Auth");
+        throw Error("Errore login");
       }
     } catch (e) {
       console.error("Errore durante la fase di login", e);

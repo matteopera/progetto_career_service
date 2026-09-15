@@ -1,6 +1,9 @@
-import express from "express"
+import express from "express";
 import { Router } from "express";
-import { getOnlineForm, uploadForm } from "../controller/company/formController.js";
+import {
+  getOnlineForm,
+  uploadForm,
+} from "../controller/company/formController.js";
 import { getFaq } from "../controller/company/faqController.js";
 import getPdf from "../controller/company/pdfController.js";
 import { saveCompiledPDF } from "../controller/company/pdfController.js";
@@ -11,9 +14,9 @@ const router = Router();
 
 router.get("/faq", getFaq);
 router.get("/form", getOnlineForm);
-router.get("/pdf/:formId",getPdf);
-router.get("/excel",getCompanyExcel)
+router.get("/pdf/:formId", getPdf);
+router.get("/excel", getCompanyExcel);
 const upload = multer({ storage: multer.memoryStorage() });
-router.post("/uploadForm",uploadForm);
-router.post("/upload/pdf",upload.single("file"),saveCompiledPDF);
+router.post("/uploadForm", uploadForm);
+router.post("/upload/pdf", upload.single("file"), saveCompiledPDF);
 export default router;

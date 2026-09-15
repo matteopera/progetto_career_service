@@ -1,55 +1,19 @@
 import { Button } from "@/components/ui/button";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
-import {
   SelectTrigger,
   SelectValue,
   SelectContent,
   SelectGroup,
   SelectItem,
 } from "@/components/ui/select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { authClient } from "@/lib/auth-client";
 import type { form } from "@/types/formType";
 import axios from "axios";
-import {
-  CircleAlert,
-  Download,
-  EllipsisVertical,
-  Folder,
-  FolderArchive,
-  Loader2,
-  Plus,
-  Table2,
-} from "lucide-react";
+import { CircleAlert, FolderArchive, Loader2, Table2 } from "lucide-react";
 import { Select } from "@/components/ui/select";
 import { useEffect, useState } from "react";
-import { Link, Navigate, useNavigate } from "react-router";
+import { Navigate } from "react-router";
 import { toast } from "sonner";
-import {
-  Field,
-  FieldContent,
-  FieldDescription,
-  FieldGroup,
-  FieldLabel,
-  FieldLegend,
-} from "@/components/ui/field";
-import { Checkbox } from "@/components/ui/checkbox";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 export default function Companies() {
   const { data: session, isPending } = authClient.useSession();
@@ -64,22 +28,26 @@ export default function Companies() {
     return <Navigate to={"/login"} />;
   }
 
+  // Gestione forms
   const [isLoadingForms, setIsLoadingForms] = useState<boolean>(true);
   const [isErrorForms, setIsErrorForms] = useState<boolean>(false);
   const [forms, setForms] = useState<form[]>([]);
 
+  // Stato form selezionato da visualizzare i dati
+  const [selectedForm, setSelectedForm] = useState<form | null>(null);
+
+  // Gestione form compilati
   const [isLoadingCompiledForms, setIsLoadingCompiledForms] =
     useState<boolean>(true);
   const [isErrorCompiledForms, setIsErrorCompiledForms] =
     useState<boolean>(false);
-
   const [compiledForms, setCompiledForms] = useState<any[]>([]);
 
-  const [selectedForm, setSelectedForm] = useState<form | null>(null);
+  const [isDownloadingPDF, setIsDownloadingPDF] = useState<boolean>(false);
 
   useEffect(() => {
-    getForms();
-  }, []);
+    if (session.user) getForms();
+  }, [session]);
 
   const getForms = async () => {
     try {
@@ -94,13 +62,48 @@ export default function Companies() {
         })),
       );
     } catch (error) {
+      if (axios.isAxiosError(error)) {
+        if (error.response) {
+          toast.error(
+            error.response.data?.message ||
+              "Errore durante il recupero dei form",
+          );
+        }
+      }
       setIsErrorForms(true);
     } finally {
       setIsLoadingForms(false);
     }
   };
 
+  const getCompiledForms = async () => {
+    try {
+      setIsErrorCompiledForms(false);
+      setIsLoadingCompiledForms(true);
+      const response = await axios.get(
+        `/api/form/get-compiled-forms/${selectedForm?._id}`,
+      );
+      const compiledFormsRes = response.data.compiledForms;
+
+      setCompiledForms(compiledFormsRes);
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        if (error.response) {
+          toast.error(
+            error.response.data?.message ||
+              "Errore durante il recupero dei form compilati",
+          );
+        }
+      }
+      setIsErrorCompiledForms(true);
+    } finally {
+      setIsLoadingCompiledForms(false);
+    }
+  };
+
+  // Gestione PDF
   const getPdfCompany = async (id: string) => {
+    setIsDownloadingPDF(true);
     try {
       const response = await axios.post(
         "/api/pdf/download-compiled-form",
@@ -122,13 +125,15 @@ export default function Companies() {
         if (error.response) {
           const jsonString = await error.response.data.text();
           const json = JSON.parse(jsonString);
-          toast.error(json.message || "Errore durante il download");
+          toast.error(json.message || "Errore durante il download del PDF");
         }
       }
     }
+    setIsDownloadingPDF(false);
   };
 
   const getAllPdf = async (idForm: string) => {
+    setIsDownloadingPDF(true);
     try {
       const response = await axios.post(
         "/api/pdf/download-compiled-forms",
@@ -146,29 +151,15 @@ export default function Companies() {
       setTimeout(() => window.URL.revokeObjectURL(url), 100);
       toast.success("ZIP scaricato con successo");
     } catch (error) {
-      toast.error("Non è stato possibile scaricare lo ZIP");
+      if (axios.isAxiosError(error)) {
+        if (error.response) {
+          const jsonString = await error.response.data.text();
+          const json = JSON.parse(jsonString);
+          toast.error(json.message || "Errore durante il download dello ZIP");
+        }
+      }
     }
-  };
-
-  const getCompiledForms = async () => {
-    try {
-      setIsErrorCompiledForms(false);
-      setIsLoadingCompiledForms(true);
-      const response = await axios.get(
-        `/api/form/get-compiled-forms/${selectedForm?._id}`,
-      );
-      const compiledFormsRes = response.data.compiledForms;
-
-      setCompiledForms(compiledFormsRes);
-    } catch (error) {
-      setIsErrorCompiledForms(true);
-    } finally {
-      setIsLoadingCompiledForms(false);
-    }
-  };
-
-  const toStringDate = (date: Date) => {
-    return `${date.getDate().toString().padStart(2, "0")}/${(date.getMonth() + 1).toString().padStart(2, "0")}/${date.getFullYear()}`;
+    setIsDownloadingPDF(false);
   };
 
   useEffect(() => {
@@ -193,7 +184,9 @@ export default function Companies() {
           }}
         >
           <SelectTrigger className="w-full h-11!">
-            <SelectValue placeholder="Seleziona un form" />
+            <SelectValue
+              placeholder={`${isLoadingForms ? "Caricamento form in corso..." : isErrorForms ? "Non è stato possibile caricare i form" : "Seleziona un form"}`}
+            />
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
@@ -220,6 +213,7 @@ export default function Companies() {
               <Button
                 className="ml-4"
                 onClick={() => getAllPdf(selectedForm!._id)}
+                disabled={isDownloadingPDF}
               >
                 <FolderArchive />
                 Scarica tutti i PDF
@@ -250,7 +244,7 @@ export default function Companies() {
           <div className="bg-gray-100 mt-4 flex w-full p-4 text-gray-600 rounded-xl text-center gap-4 justify-center">
             <CircleAlert />
             <p className=" rounded-xl text-center">
-              Non è presente nessun form. Crea il tuo primo form subito!
+              Non è presente nessuna compilazione
             </p>
           </div>
         ) : (
@@ -267,6 +261,7 @@ export default function Companies() {
                   <Button
                     className="ml-auto"
                     onClick={() => getPdfCompany(compiledForm._id)}
+                    disabled={isDownloadingPDF}
                   >
                     <FolderArchive />
                     Scarica PDF

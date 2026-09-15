@@ -7,15 +7,20 @@ import {
   getDataCardAsync,
   insertNewForm,
   updateFormAsync,
+  updateFormsToDraft,
 } from "../db/formDb.js";
 import { Request, Response } from "express";
 import { DBError, handleDBError } from "../errors/DBError.js";
-import { contentForm, form } from "../types/form.js";
+import { form } from "../types/form.js";
 import {
   findLastRegisteredCompanies,
   findRegisteredCompanies,
   findRegisteredCompaniesByFormId,
 } from "../db/companyDb.js";
+import {
+  checkStructureForm,
+  fixNullValueStructureForm,
+} from "../service/form.service.js";
 
 export async function getFormsAsync(req: Request, res: Response) {
   try {
@@ -52,7 +57,6 @@ export async function getLastFormsAsync(req: Request, res: Response) {
 export async function getFormAsync(req: Request, res: Response) {
   try {
     const { idForm } = req.params;
-    console.log(req.params);
     if (!idForm) {
       return res.status(400).json({ message: "Id form mancante" });
     }
@@ -73,7 +77,6 @@ export async function getFormAsync(req: Request, res: Response) {
 export async function getCompiledFormsAsync(req: Request, res: Response) {
   try {
     const { idForm } = req.params;
-    console.log(req.params);
     if (!idForm) {
       return res.status(400).json({ message: "Id form mancante" });
     }
@@ -141,97 +144,15 @@ export async function saveFormAsync(req: Request, res: Response) {
     // Controllo dati form obbligatori se presenti
     const { form }: { form: form } = req.body;
 
-    if (form.title === "")
-      return res.status(400).json("Il titolo del form interno è obbligatorio");
-    if (
-      form.content.sections.length == 0 ||
-      form.content.sections.some((s) => s.fields.length == 0)
-    ) {
-      // Controllo dati base del form se sono OK
-      return res
-        .status(400)
-        .json(
-          "Creare almeno una sezione e un campo. Ogni sezione deve avere almeno un campo",
-        );
-    }
-    if (form.content.sections.some((s) => s.sectionTitle === "")) {
-      return res
-        .status(400)
-        .json("Le sezioni devono avere un titolo obbligatorio");
-    }
-    if (
-      form.content.sections
-        .flatMap((s) => s.fields)
-        .some((f) => f.fieldTitle === "")
-    ) {
-      return res
-        .status(400)
-        .json("I campi devono avere un titolo obbligatorio");
-    }
-    if (
-      form.content.sections
-        .flatMap((s) => s.fields)
-        .filter((f) => f.fieldType === "check" || f.fieldType === "radio")
-        .flatMap((f) => f.options)
-        .some((o) => o.optionName === "")
-    ) {
-      return res
-        .status(400)
-        .json(
-          "Le opzioni dei campi radio o checkbox devono avere un titolo obbligatorio",
-        );
+    // Controllo validità della struttura del form
+    const checkStructureRes = checkStructureForm(form);
+
+    if (!checkStructureRes.success && checkStructureRes.message) {
+      return res.status(400).json({ message: checkStructureRes.message });
     }
 
-    // Imposto la string "null" dove non era presente niente
-    let checkedContentForm = { ...form.content };
-    checkedContentForm = {
-      ...checkedContentForm,
-      formSubtitle:
-        checkedContentForm.formSubtitle === ""
-          ? "null"
-          : checkedContentForm.formSubtitle,
-      formNote:
-        checkedContentForm.formNote === ""
-          ? "null"
-          : checkedContentForm.formNote,
-    };
-    // Fix note
-    checkedContentForm = {
-      ...checkedContentForm,
-      sections: checkedContentForm.sections.map((s) => ({
-        ...s,
-        sectionNote: s.sectionNote === "" ? "null" : s.sectionNote,
-      })),
-    };
-
-    checkedContentForm = {
-      ...checkedContentForm,
-      sections: checkedContentForm.sections.map((s) => ({
-        ...s,
-        fields: s.fields.map((f) => ({
-          ...f,
-          fieldNote: f.fieldNote === "" ? "null" : f.fieldNote,
-        })),
-      })),
-    };
-
-    checkedContentForm = {
-      ...checkedContentForm,
-      sections: checkedContentForm.sections.map((s) => ({
-        ...s,
-        fields: s.fields.map((f) => {
-          if (f.fieldType === "text") return f;
-
-          return {
-            ...f,
-            options: f.options.map((o) => ({
-              ...o,
-              optionNote: o.optionNote === "" ? "null" : o.optionNote,
-            })),
-          };
-        }),
-      })),
-    };
+    // Form valido, mposto la string "null" dove non era presente niente
+    const fixedContentForm = fixNullValueStructureForm(form);
 
     const finalForm: Omit<form, "_id"> = {
       created: new Date(),
@@ -240,15 +161,22 @@ export async function saveFormAsync(req: Request, res: Response) {
       title: form.title,
       status: form.status,
       content: {
-        formNote: checkedContentForm.formNote,
-        formTitle: checkedContentForm.formTitle,
-        formSubtitle: checkedContentForm.formSubtitle,
-        sections: checkedContentForm.sections,
+        formNote: fixedContentForm.formNote,
+        formTitle: fixedContentForm.formTitle,
+        formSubtitle: fixedContentForm.formSubtitle,
+        sections: fixedContentForm.sections,
       },
     };
 
-    // Procedo con il salvataggio / aggiornamento del form
+    // Controllo lo status del nuovo form. Se online metto in bozza i restanti
+    if (finalForm.status === "online") {
+      const updated = await updateFormsToDraft();
+      if (!updated) {
+        finalForm.status = "draft";
+      }
+    }
 
+    // Procedo con il salvataggio / aggiornamento del form
     let id;
     if (form._id) {
       id = await updateFormAsync(finalForm, form._id);

@@ -116,7 +116,7 @@ export default function FormAdminPage() {
 
   useEffect(() => {
     getForm();
-  }, []);
+  }, [session]);
 
   const getForm = async () => {
     if (idForm) {

@@ -75,6 +75,12 @@ export async function insertNewForm(form: Omit<form, "_id">) {
   return res.insertedId ? 1 : 0;
 }
 
+export async function updateFormsToDraft() {
+  const collection = db.collection("form");
+  const res = await collection.updateMany({}, { $set: { status: "draft" } });
+  return res.acknowledged;
+}
+
 export async function updateFormAsync(form: Omit<form, "_id">, idForm: string) {
   const { created, ...formFinal } = form;
   const collection = db.collection("form");

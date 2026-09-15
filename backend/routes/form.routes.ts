@@ -9,23 +9,24 @@ import {
   getLastFormsAsync,
   saveFormAsync,
 } from "../controller/formController.js";
+import { requireAdmin } from "../betterAuthMiddleware.js";
 
 const router = Router();
 
-router.get("/get-all", getFormsAsync);
-
-router.get("/get-last", getLastFormsAsync);
+router.get("/get-all", requireAdmin, getFormsAsync);
 
 router.get("/get/:idForm", getFormAsync);
 
-router.get("/get-compiled-forms/:idForm", getCompiledFormsAsync);
+router.get("/get-last", requireAdmin, getLastFormsAsync);
 
-router.get("/get-last-compiled-forms", getLastCompiledFormsAsync);
+router.get("/get-last-compiled-forms", requireAdmin, getLastCompiledFormsAsync);
 
-router.post("/insert-update-form", saveFormAsync);
+router.get("/get-compiled-forms/:idForm", requireAdmin, getCompiledFormsAsync);
 
-router.post("/delete-form", deleteFormAsync);
+router.post("/insert-update-form", requireAdmin, saveFormAsync);
 
-router.get("/get-data-dashboard", getDataDashboardAsync);
+router.post("/delete-form", requireAdmin, deleteFormAsync);
+
+router.get("/get-data-dashboard", requireAdmin, getDataDashboardAsync);
 
 export default router;

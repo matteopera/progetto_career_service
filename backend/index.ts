@@ -1,7 +1,7 @@
 import express from "express";
 import { db } from "./db/db.js";
 import cors from "cors";
-import { fromNodeHeaders, toNodeHandler } from "better-auth/node";
+import { toNodeHandler } from "better-auth/node";
 import { auth } from "./auth/auth.js";
 import aziendeRouter from "./routes/azienda.routes.js";
 import pdfRouter from "./routes/pdf.routes.js";
@@ -29,26 +29,26 @@ app.all("/api/auth/*splat", toNodeHandler(auth));
 app.use(express.json());
 
 // Test chiamata per ottenere sessione
-app.get("/api/me", async (req, res) => {
-  const session = await auth.api.getSession({
-    headers: fromNodeHeaders(req.headers),
-  });
-  return res.json(session);
-});
+// app.get("/api/me", async (req, res) => {
+//   const session = await auth.api.getSession({
+//     headers: fromNodeHeaders(req.headers),
+//   });
+//   return res.json(session);
+// });
 
-app.get("/api/test", async (req, res) => {
-  res.send("Hello world via GET!");
-  console.log("Response sent get");
-  // Creo utente. Nota per Manuel: se tu ora provi a farlo col get, ti dirà utente già esistente.
-  await auth.api.signUpEmail({
-    body: {
-      email: "mario.rossi04@gmail.com",
-      password: "12345678",
-      name: "Mario",
-    },
-    headers: await fromNodeHeaders(req.headers),
-  });
-});
+// app.get("/api/test", async (req, res) => {
+//   res.send("Hello world via GET!");
+//   console.log("Response sent get");
+//   // Creo utente. Nota per Manuel: se tu ora provi a farlo col get, ti dirà utente già esistente.
+//   await auth.api.signUpEmail({
+//     body: {
+//       email: "mario.rossi04@gmail.com",
+//       password: "12345678",
+//       name: "Mario",
+//     },
+//     headers: await fromNodeHeaders(req.headers),
+//   });
+// });
 
 app.use("/api/form", formRouter);
 

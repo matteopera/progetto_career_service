@@ -6,7 +6,7 @@ import { auth } from "./auth/auth.js";
 import aziendeRouter from "./routes/azienda.routes.js";
 import pdfRouter from "./routes/pdf.routes.js";
 import formRouter from "./routes/form.routes.js";
-import excelRouter from "./routes/excel.routes.js"
+import excelRouter from "./routes/excel.routes.js";
 const app = express();
 const port = process.env.PORT;
 
@@ -56,7 +56,7 @@ app.use("/api/aziende", aziendeRouter);
 
 app.use("/api/pdf", pdfRouter);
 
-app.use("/api/excel",excelRouter)
+app.use("/api/excel", excelRouter);
 
 app.listen(port, () => {
   console.log(`Server in ascolto sulla porta ${port}`);

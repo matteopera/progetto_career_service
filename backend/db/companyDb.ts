@@ -30,10 +30,10 @@ export async function formRequest() {
   return { ...form, _id: form?._id.toString() };
 }
 
-export async function findRegisteredCompanies(formId:string) {
+export async function findRegisteredCompanies(formId: string) {
   const collection = db.collection("compiledForm");
 
-  const companies = collection.find({}).toArray();
+  const companies = await collection.find({}).toArray();
 
   return companies;
 }
@@ -41,7 +41,7 @@ export async function findRegisteredCompanies(formId:string) {
 export async function findRegisteredCompaniesByFormId(formId: string) {
   const collection = db.collection("compiledForm");
 
-  const companies = collection
+  const companies = await collection
     .find({ info: { idOnlineForm: new ObjectId(formId) } })
     .toArray();
 
@@ -51,7 +51,7 @@ export async function findRegisteredCompaniesByFormId(formId: string) {
 export async function findLastRegisteredCompanies() {
   const collection = db.collection("compiledForm");
 
-  const companies = collection
+  const companies = await collection
     .aggregate([
       { $sort: { _id: -1 } },
       { $limit: 5 },
@@ -71,6 +71,8 @@ export async function findLastRegisteredCompanies() {
       },
     ])
     .toArray();
+
+  console.log(companies);
 
   return companies;
 }

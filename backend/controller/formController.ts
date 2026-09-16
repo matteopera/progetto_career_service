@@ -179,7 +179,7 @@ export async function saveFormAsync(req: Request, res: Response) {
     // Procedo con il salvataggio / aggiornamento del form
     let id;
     if (form._id) {
-      id = await updateFormAsync(finalForm, form._id);
+      id = await updateFormAsync(finalForm, form._id.toString());
     } else {
       id = await insertNewForm(finalForm);
     }

@@ -111,7 +111,7 @@ export default function FormReview({
                   {section.sectionTitle}
                 </FieldLegend>
               </div>
-              {section.sectionNote != "" ? (
+              {section.sectionNote != "" && section.sectionNote != "null" ? (
                 <FieldDescription className="p-3 border border-l-2 border-gray-400 border-l-blue-500 mb-2">
                   {section.sectionNote}
                 </FieldDescription>
@@ -149,7 +149,10 @@ export default function FormReview({
                             {field.fieldTitle}
                           </FieldLabel>
                           <FieldDescription>
-                            {field.fieldNote != "" ? field.fieldNote : null}
+                            {field.fieldNote !== "" &&
+                            field.fieldNote !== "null"
+                              ? field.fieldNote
+                              : null}
                           </FieldDescription>
                           {field.options.map((option) => {
                             return (
@@ -169,7 +172,8 @@ export default function FormReview({
                                     {option.optionName}
                                   </FieldLabel>
                                   <FieldDescription>
-                                    {option.optionNote != ""
+                                    {option.optionNote !== "" &&
+                                    option.optionNote !== "null"
                                       ? option.optionNote
                                       : null}
                                   </FieldDescription>

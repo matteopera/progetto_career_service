@@ -8,6 +8,7 @@ import {
 import z from "zod";
 import { compiledForm, zodCompiledForm, zodForm } from "../../types/form.js";
 import { error } from "node:console";
+import { ObjectId } from "mongodb";
 export async function findOnlineForm() {
   //db query
   const form = await findFormByStatus("online");
@@ -15,16 +16,16 @@ export async function findOnlineForm() {
   //check of the form's structure with zod
   const parsedForm = zodForm.parse(form);
 
-  const idForm=(parsedForm._id).toString()
+  const idForm = parsedForm._id.toString();
   //extracting contentForm from parsedForm
   const contentForm = parsedForm.content;
 
-  return {contentForm,idForm};
+  return { contentForm, idForm };
 }
 
 export async function insertCompiledForm(compiledForm: compiledForm) {
   //check over the form field
-  const {contentForm,idForm} = await findOnlineForm();
+  const { contentForm, idForm } = await findOnlineForm();
   const compiledFormkeys = Object.keys(compiledForm);
   const onlineFormKeys = contentForm.sections.map((s) => s.sectionTitle);
   const invalidKeys = compiledFormkeys.filter(
@@ -32,10 +33,9 @@ export async function insertCompiledForm(compiledForm: compiledForm) {
   );
   const checked: boolean = invalidKeys.length === 0;
 
-
   if (checked) {
     //upload into db
-    compiledForm["info"]={"idOnlineForm":idForm}
+    compiledForm["info"] = { idOnlineForm: new ObjectId(idForm) };
     const res = await insertNewCompiledForm(compiledForm);
     return res;
   } else {
@@ -54,10 +54,10 @@ export async function findCompiledForm(id: string) {
   return parsedCompiledForm;
 }
 
-export async function findFormById(id:string){
-  const form=await findFormAsync(id);
+export async function findFormById(id: string) {
+  const form = await findFormAsync(id);
 
-  const parsedForm=zodForm.parse(form)
-  const content= parsedForm.content
-  return content
+  const parsedForm = zodForm.parse(form);
+  const content = parsedForm.content;
+  return content;
 }

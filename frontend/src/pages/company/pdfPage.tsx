@@ -17,7 +17,7 @@ import { useEffect, useState } from "react";
 import getPDF, { saveCompiledPDF } from "@/api/pdfApi";
 import { error } from "better-auth/api";
 export default function pdfPage() {
-  const navigate=useNavigate()
+  const navigate = useNavigate();
   const maxSizeInMB = 2;
   const [files, setFiles] = useState<File[] | null>();
   const [fileError, setFileError] = useState<string | null>(null);
@@ -30,7 +30,7 @@ export default function pdfPage() {
   async function downloadPdf(id: string) {
     try {
       const res = await getPDF(id);
-    }catch (e) {
+    } catch (e) {
       setFetchingFileError(new Error("Errore nel download del file"));
     }
   }
@@ -38,10 +38,10 @@ export default function pdfPage() {
   async function savePDF(file: File) {
     try {
       setSavingFileError(null);
-      const res = await saveCompiledPDF(file,id);
-        setSavingFileError(null);
-        //navigazione pagina finale
-        navigate("/company/iscrizione-effettuata",{"replace":true})
+      const res = await saveCompiledPDF(file, id);
+      setSavingFileError(null);
+      //navigazione pagina finale
+      navigate("/company/iscrizione-effettuata", { replace: true });
     } catch (error) {
       setSavingFileError(new Error("Errore nel salvataggio del file"));
     }
@@ -98,7 +98,7 @@ export default function pdfPage() {
             </p>
           </div>
           <span className="bg-orange-100 text-orange-700 p-1 pl-3 pr-3 rounded-2xl">
-            Inoltrata
+            Da inoltrare
           </span>
         </div>
 
@@ -106,12 +106,15 @@ export default function pdfPage() {
           return (
             <div className="mb-5" key={s.sectionTitle}>
               <div className="bg-gray-100 p-3 pl-5 rounded-tl-2xl rounded-tr-2xl">
-                <p className="font-bold">{`Sezione ${index+1} · ${s.sectionTitle}`}</p>
+                <p className="font-bold">{`Sezione ${index + 1} · ${s.sectionTitle}`}</p>
               </div>
               <div className="columns-1 lg:columns-2 gap-4 p-3 pl-5 border-r-2 border-l-2 border-b-2 rounded-bl-2xl rounded-br-2xl border-gray-100">
                 {s.fields.map((f) => {
                   return (
-                    <div className="flex-col lg: flex lg:flex-row justify-between mb-3 break-inside-avoid" key={`${s.sectionTitle}-${f.fieldTitle}`}>
+                    <div
+                      className="flex-col lg: flex lg:flex-row justify-between mb-3 break-inside-avoid"
+                      key={`${s.sectionTitle}-${f.fieldTitle}`}
+                    >
                       <p className="text-gray-500 mr-2">{`${f.fieldTitle}`}</p>
                       <p className="font-bold">
                         {`${value[s.sectionTitle][f.fieldTitle]}`.replaceAll(
@@ -176,28 +179,38 @@ export default function pdfPage() {
           </div>
           {files?.map((f) => {
             return (
-              <div className="border-2  border-gray-100 rounded-2xl mb-5" key={f.name}>
-              <div className=" flex flex-col items-center justify-center gap-3  md:flex md:flex-row md:items-center md:justify-between  p-3 ">
-                <div className="flex flex-row items-center gap-4 justify-start w-full">
-                  <File className="bg-gray-100 w-10 h-10 p-2.5 rounded-lg text-black shrink-0" />
-                  <div className="flex flex-col  ">
-                    <p className="font-semibold">{f.name}</p>
+              <div
+                className="border-2  border-gray-100 rounded-2xl mb-5"
+                key={f.name}
+              >
+                <div className=" flex flex-col items-center justify-center gap-3  md:flex md:flex-row md:items-center md:justify-between  p-3 ">
+                  <div className="flex flex-row items-center gap-4 justify-start w-full">
+                    <File className="bg-gray-100 w-10 h-10 p-2.5 rounded-lg text-black shrink-0" />
+                    <div className="flex flex-col  ">
+                      <p className="font-semibold">{f.name}</p>
+                    </div>
+                  </div>
+                  <div className="flex flex-row gap-3 mt-2 md:mt-0">
+                    <Button
+                      variant={"destructive"}
+                      onClick={() => {
+                        setFiles(null);
+                        setSavingFileError(null);
+                      }}
+                    >
+                      <X />
+                      Cancella
+                    </Button>
+                    <Button onClick={() => savePDF(f)} className="bg-blue-500 ">
+                      Invia
+                    </Button>
                   </div>
                 </div>
-                <div className="flex flex-row gap-3 mt-2 md:mt-0">
-                <Button variant={"destructive"}
-                  onClick={() => {
-                    setFiles(null);
-                    setSavingFileError(null);
-                  }}
-                >
-                  <X />
-                  Cancella
-                </Button>
-                <Button onClick={() => savePDF(f)} className="bg-blue-500 ">Invia</Button>
-                </div>
-              </div>
-              {savingFileError===null? null:<p className="text-red-400 ml-3 mr-3 mb-3">Errore nel salvaggio del file si prega di riprovare</p>}
+                {savingFileError === null ? null : (
+                  <p className="text-red-400 ml-3 mr-3 mb-3">
+                    Errore nel salvaggio del file si prega di riprovare
+                  </p>
+                )}
               </div>
             );
           })}

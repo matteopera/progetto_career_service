@@ -44,6 +44,7 @@ export default function Companies() {
   const [compiledForms, setCompiledForms] = useState<any[]>([]);
 
   const [isDownloadingPDF, setIsDownloadingPDF] = useState<boolean>(false);
+  const [isDownloadingExcel, setIsDownloadingExcel] = useState<boolean>(false);
 
   useEffect(() => {
     if (session.user) getForms();
@@ -162,6 +163,34 @@ export default function Companies() {
     setIsDownloadingPDF(false);
   };
 
+  const getExcel = async (idForm: string) => {
+    setIsDownloadingExcel(true);
+    try {
+      const response = await axios.get(`/api/excel/${selectedForm?._id}`, {
+        responseType: "blob",
+      });
+      var url = window.URL.createObjectURL(response.data);
+      var a = document.createElement("a");
+      a.href = url;
+      a.download = `${idForm}.xlsx`;
+      a.click();
+      a.remove();
+      setTimeout(() => window.URL.revokeObjectURL(url), 100);
+      toast.success("Excel scaricato con successo");
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        if (error.response) {
+          const jsonString = await error.response.data.text();
+          const json = JSON.parse(jsonString);
+          toast.error(
+            json.message || "Errore durante il download del file Excel",
+          );
+        }
+      }
+    }
+    setIsDownloadingExcel(false);
+  };
+
   useEffect(() => {
     if (selectedForm) {
       getCompiledForms();
@@ -206,7 +235,10 @@ export default function Companies() {
           <h1 className="font-semibold text-xl">Le aziende registrate</h1>
           {compiledForms.length > 0 && (
             <div>
-              <Button>
+              <Button
+                onClick={() => getExcel(selectedForm!._id)}
+                disabled={isDownloadingExcel}
+              >
                 <Table2 />
                 Esporta dati in Excel
               </Button>

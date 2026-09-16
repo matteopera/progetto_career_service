@@ -61,7 +61,7 @@ export default function FormEditor({
   useEffect(() => {
     const saveTimeout = setTimeout(() => {
       localStorage.setItem("formInCostruzione", JSON.stringify(form));
-    }, 10000);
+    }, 5000);
 
     return () => clearTimeout(saveTimeout);
   }, [form]);
@@ -121,6 +121,7 @@ export default function FormEditor({
   const moveUpSection = (e: any, indexSection: number) => {
     e.preventDefault();
     setSectionToEdit(-1);
+    setFieldToEdit("");
     if (indexSection === 0 || form.content.sections.length == 1) {
       return;
     }
@@ -139,6 +140,8 @@ export default function FormEditor({
 
   const moveDownSection = (e: any, indexSection: number) => {
     e.preventDefault();
+    setSectionToEdit(-1);
+    setFieldToEdit("");
 
     if (
       indexSection === form.content.sections.length - 1 ||
@@ -387,7 +390,7 @@ export default function FormEditor({
         {/* Griglia dove a sinistra metto titolo e altro... */}
         <div className="grid grid-cols-8 mt-4 gap-8">
           <div className="col-span-6">
-            <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center justify-between ">
               <h2 className="font-medium text-lg ">Campi del form</h2>
               <p className="text-sm bg-gray-50 rounded-full px-2 py-1">
                 {form.content.sections.length}{" "}
@@ -396,6 +399,9 @@ export default function FormEditor({
                 {form.content.sections.length === 1 ? "Campo" : "Campi"}
               </p>
             </div>
+            <p className="text-sm text-gray-500 mb-8">
+              Il campo firma e data verranno generati a ogni form in automatico
+            </p>
             {form.content.sections.length === 0 ? (
               <div
                 onClick={createSection}
@@ -431,8 +437,9 @@ export default function FormEditor({
                             <p
                               className={`${section.sectionNote === "" ? "text-gray-400" : "text-gray-600"} font-light`}
                             >
-                              {section.sectionNote === ""
-                                ? "Nessun titolo fornito"
+                              {section.sectionNote === "" ||
+                              section.sectionNote === "null"
+                                ? "Nessuna nota fornita"
                                 : section.sectionNote}
                             </p>
                           </div>
@@ -535,8 +542,9 @@ export default function FormEditor({
                                       <p
                                         className={`${field.fieldNote === "" ? "text-gray-400" : "text-gray-600"}  font-light group-hover:underline`}
                                       >
-                                        {field.fieldNote === ""
-                                          ? "Nessun titolo fornito"
+                                        {field.fieldNote === "" ||
+                                        field.fieldNote === "null"
+                                          ? "Nessuna nota fornita"
                                           : field.fieldNote}
                                       </p>
                                     </div>
@@ -706,7 +714,15 @@ export default function FormEditor({
                   <Input
                     value={
                       form.content.sections[Number(fieldToEdit.split("-")[0])]
-                        .fields[Number(fieldToEdit.split("-")[1])].fieldNote
+                        .fields[Number(fieldToEdit.split("-")[1])].fieldNote ===
+                        "" ||
+                      form.content.sections[Number(fieldToEdit.split("-")[0])]
+                        .fields[Number(fieldToEdit.split("-")[1])].fieldNote ===
+                        "null"
+                        ? ""
+                        : form.content.sections[
+                            Number(fieldToEdit.split("-")[0])
+                          ].fields[Number(fieldToEdit.split("-")[1])].fieldNote
                     }
                     placeholder="Note della sezione..."
                     onChange={(e) =>
@@ -850,7 +866,12 @@ export default function FormEditor({
                                   Note opzione
                                 </FieldLabel>
                                 <Input
-                                  value={option.optionNote}
+                                  value={
+                                    option.optionNote === "" ||
+                                    option.optionNote === "null"
+                                      ? ""
+                                      : option.optionNote
+                                  }
                                   placeholder="Note della opzione..."
                                   onChange={(e) => {
                                     updateOption(

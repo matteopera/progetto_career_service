@@ -1,5 +1,5 @@
 import { fromNodeHeaders } from "better-auth/node";
-import { auth } from "./auth/auth.js";
+import { auth } from "../auth/auth.js";
 import { Request, Response, NextFunction } from "express";
 
 export async function requireAdmin(

@@ -22,7 +22,7 @@ let conn;
 try {
   conn = await mongoClient.connect();
 } catch (e) {
-  console.error("Errore connessione database", conn);
+  console.error("Errore connessione database", e);
   throw e;
 }
 

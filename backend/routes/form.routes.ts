@@ -9,7 +9,7 @@ import {
   getLastFormsAsync,
   saveFormAsync,
 } from "../controller/formController.js";
-import { requireAdmin } from "../betterAuthMiddleware.js";
+import { requireAdmin } from "../middleware/betterAuthMiddleware.js";
 
 const router = Router();
 

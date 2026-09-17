@@ -28,28 +28,6 @@ app.all("/api/auth/*splat", toNodeHandler(auth));
 // Middleware express. Va sotto altrimenti intercetta anche quelle di better-auth prima
 app.use(express.json());
 
-// Test chiamata per ottenere sessione
-// app.get("/api/me", async (req, res) => {
-//   const session = await auth.api.getSession({
-//     headers: fromNodeHeaders(req.headers),
-//   });
-//   return res.json(session);
-// });
-
-// app.get("/api/test", async (req, res) => {
-//   res.send("Hello world via GET!");
-//   console.log("Response sent get");
-//   // Creo utente. Nota per Manuel: se tu ora provi a farlo col get, ti dirà utente già esistente.
-//   await auth.api.signUpEmail({
-//     body: {
-//       email: "mario.rossi04@gmail.com",
-//       password: "12345678",
-//       name: "Mario",
-//     },
-//     headers: await fromNodeHeaders(req.headers),
-//   });
-// });
-
 app.use("/api/form", formRouter);
 
 app.use("/api/aziende", aziendeRouter);

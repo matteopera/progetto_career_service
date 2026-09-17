@@ -3,7 +3,7 @@ import {
   downloadCompiledFormAsync,
   downloadCompiledFormsAsync,
 } from "../controller/pdfController.js";
-import { requireAdmin } from "../betterAuthMiddleware.js";
+import { requireAdmin } from "../middleware/betterAuthMiddleware.js";
 
 const router = Router();
 

@@ -1,11 +1,9 @@
 import { Router } from "express";
 
-import { requireAdmin } from "../betterAuthMiddleware.js";
+import { requireAdmin } from "../middleware/betterAuthMiddleware.js";
 import getCompanyExcel from "../controller/excelController.js";
-const router=Router()
+const router = Router();
 
+router.get("/:formId", requireAdmin, getCompanyExcel);
 
-router.get("/:formId",requireAdmin,getCompanyExcel)
-
-
-export default router
+export default router;

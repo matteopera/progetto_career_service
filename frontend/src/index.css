@@ -119,9 +119,13 @@
   * {
     @apply border-border outline-ring/50;
   }
-
+  html,body{
+    overscroll-behavior-x: none;
+    overflow-x: hidden;
+  }
   body {
     @apply bg-background text-foreground;
     font-family: "inter", sans-serif;
+    
   }
 }

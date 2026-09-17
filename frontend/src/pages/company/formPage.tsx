@@ -7,16 +7,23 @@ import {
 
 import Form from "@/components/form";
 import { useEffect, useState } from "react";
-import useFetchForm  from "@/hooks/useFetchForm";
+import useFetchForm, { type value } from "@/hooks/useFetchForm";
 import { Spinner } from "@/components/ui/spinner";
-import type { faqListType } from "@/types/FAQType";
+import type { faqListType } from "@/types/faqType";
 import faqApi from "@/api/faqApi";
 import { useParams } from "react-router";
+import { TriangleAlert } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router";
 export default function formPage() {
-  const {formId}=useParams()
-  const { form, isLoading, error } = useFetchForm(formId===undefined? null:formId);
-
+  const { formId } = useParams();
+  const { form, isLoading, error } = useFetchForm(
+    formId === undefined ? null : formId,
+  );
+  const [pendingSubmissionId,setPendingSubmissionId]=useState<string | null>(null)
+  const [pendingSubmissionValue,setPendingSubmissionValue]=useState<value|null>(null)
   const [faqList, setFaqList] = useState<faqListType | null>(null);
+  const navigate=useNavigate()
 
   useEffect(() => {
     faqApi()
@@ -26,10 +33,18 @@ export default function formPage() {
       .catch((error) => {
         console.error(`Errore nel caricamento delle Faq:${error}`);
       });
+    const id=localStorage.getItem("id_compiled_form")
+    const pendingValue=localStorage.getItem("value_compiled_form")
+    if(id && pendingValue){
+      setPendingSubmissionId(id)
+      setPendingSubmissionValue(JSON.parse(pendingValue))
+    }
+    
   }, []);
+
   if (isLoading) {
     return (
-      <div className="min-h-screen w-full flex flex-col items-center justify-center bg-linear-to-r from-orange-400 via-red-500 to-pink-500">
+      <div className="min-h-screen w-full flex flex-col items-center justify-center bg-slate-50">
         <Spinner className="h-7 w-7" />
         <p>Caricamento del form in corso</p>
       </div>
@@ -37,20 +52,20 @@ export default function formPage() {
   }
   if (error != null) {
     return (
-      <div className="min-h-screen w-full flex flex-col items-center justify-center bg-linear-to-br from-gray-100 via-blue-50 to-gray-100">
+      <div className="min-h-screen w-full flex flex-col items-center justify-center bg-slate-50">
         <p>Si è verificato un errore. Si consiglia di riprovare</p>
       </div>
     );
   }
   if (form == null) {
     return (
-      <div className="min-h-screen w-full flex flex-col items-center justify-center bg-linear-to-br from-gray-100 via-blue-50 to-gray-100">
+      <div className="min-h-screen w-full flex flex-col items-center justify-center bg-slate-50">
         <p>Si è verificato un errore. Si consiglia di riprovare</p>
       </div>
     );
   }
   return (
-    <div className=" bg-slate-50">
+    <div className="min-h-screen bg-slate-50 overflow-x-hidden">
       <nav className="border-b border-gray-300">
         <img
           src="/logo_univr.png"
@@ -58,38 +73,44 @@ export default function formPage() {
           className="w-54 mx-auto "
         />
       </nav>
-      <div className="flex flex-row w-screen bg-slate-50">
-        {/* <div
-          id="sidebar"
-          className="hidden h-screen md:block w-xs bg-indigo-100  pl-3 pt-3 pr-3"
+      <div className="flex flex-row w-full bg-slate-50">
+        <div
+          id="form"
+          className="font-semibold md:ml-32 md:mr-32 ml-7 mr-7 mt-4 w-full"
         >
-          <h2 className="font-semibold text-2xl">Registrati all'evento</h2>
-          <h3 className="text-sm">Evento di maggio 2025</h3>
-          <div className="gap-3 flex flex-col justify-start mt-7">
-            {form.sections.map((s) => {
-              return (
-                <Button
-                  key={`${s.sectionTitle}Button`}
-                  variant="link"
-                  className="text-sm h-12 items-center justify-start pl-4 overflow-hidden"
-                >
-                  <a href={`#${s.sectionTitle}`}>{s.sectionTitle}</a>
-                </Button>
-              );
-            })}
+          {formId===undefined? null:(<div className="border border-yellow-500 rounded-2xl p-5 gap-3 flex flex-col mb-7">
+            <div className="flex flex-row items-center gap-5">
+              <TriangleAlert className="h-10 w-10 text-yellow-500" />
+              <h1 className="text-4xl text-yellow-500">Attenzione</h1>
+            </div>
+            <p className=" font-normal text-xl ">
+              Pagina di sola anteprima del modulo per le aziende: l'invio dei
+              dati è disabilitato{" "}
+            </p>
+          </div>)}
+          <div className="border border-gray-300 rounded-2xl p-5 gap-3 flex flex-col mb-7">
+            <h1 className="text-4xl">Registra la tua azienda</h1>
+            <h2 className=" font-normal text-xl text-gray-400">
+              Compila il modulo per iscriverti al nostro evento di Career
+              Service e scoprire le opportunità di collaborazione con i nostri
+              studenti
+            </h2>
           </div>
-        </div> */}
-        <div id="form" className="font-semibold md:ml-32 md:mr-32 ml-7 mr-7 mt-4 w-full">
-          <div className="border border-gray-300 rounded-2xl p-5 gap-3 flex flex-col">
-          <h1 className="text-4xl">
-            Registra la tua azienda
-          </h1>
-          <h2 className=" font-normal text-xl text-gray-400">
-            Compila il modulo per iscriverti al nostro evento di Career Service
-            e scoprire le opportunità di collaborazione con i nostri studenti
-          </h2>
-          </div>
-            <Form contentForm={form}></Form>
+          {pendingSubmissionId===null? null:(<div className="  p-3 rounded-2xl gap-3 flex flex-row justify-between items-center mb-2 border-yellow-500 border ">
+            <p className=" font-normal text-lg">
+              Hai una registrazione in sospeso: il modulo è già stato inviato, manca solo la firma del documento
+            </p>
+            <div className="flex felx-row gap-4">
+              <Button className="bg-blue-500" onClick={()=>{
+                navigate("/company/pdf",{ replace: true ,state:{id:pendingSubmissionId,value:pendingSubmissionValue,form:form}})
+              }}>Riprendi registrazione</Button>
+              <Button variant={"secondary"} className="bg-gray-300" onClick={()=>setPendingSubmissionId(null)}>Inizia da capo</Button>
+            </div>
+          </div>)}
+          <Form
+            contentForm={form}
+            formId={formId === undefined ? null : formId}
+          ></Form>
           <h2 className=" font-normal text-xl bg-gray-100 rounded-tl-2xl rounded-tr-2xl p-3 pl-5">
             Frequently Asked Questions
           </h2>

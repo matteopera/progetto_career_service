@@ -16,8 +16,9 @@ import { useValue } from "@/hooks/useFetchForm";
 
 type formProps = {
   contentForm: contentForm;
+  formId:string|null
 };
-export default function Form({ contentForm }: formProps) {
+export default function Form({ contentForm, formId }: formProps) {
   const { value, handleChange, cleanForm, sendForm, isNotValid, sendable,error } =
     useValue(contentForm);
 
@@ -25,12 +26,12 @@ export default function Form({ contentForm }: formProps) {
     return isNotValid.includes(key) && sendable;
   }
   return (
-    <div className="mt-7">
+    <div>
       <form>
         <FieldGroup>
-          <p className="border rounded-2xl border-gray-100 p-3 bg-gray-100 font-semibold ">
+          {contentForm.formNote==="null"? null:<p className="border rounded-2xl border-gray-100 p-3 bg-gray-100 font-semibold ">
             {contentForm.formNote}
-          </p>
+          </p>}
           {contentForm.sections.map((section, index) => {
             return (
               <div
@@ -41,7 +42,7 @@ export default function Form({ contentForm }: formProps) {
                 <div className="flex flex-row items-center p-3 pl-5 rounded-tl-2xl rounded-tr-2xl bg-gray-100">
                   <p className="font-bold">{`Sezione ${index+1} · ${section.sectionTitle}`}</p>
                 </div>
-                {section.sectionNote != "null" ? (
+                {section.sectionNote !== "null" ? (
                   <FieldDescription className=" pl-5 pr-5 pt-3  border-2 border-b-0 border-gray-100">
                     {section.sectionNote}
                   </FieldDescription>
@@ -95,7 +96,7 @@ export default function Form({ contentForm }: formProps) {
                               {field.fieldTitle}
                             </FieldLabel>
                             <FieldDescription>
-                              {field.fieldNote != "null"
+                              {field.fieldNote !== "null"
                                 ? field.fieldNote
                                 : null}
                             </FieldDescription>
@@ -133,7 +134,7 @@ export default function Form({ contentForm }: formProps) {
                                       {option.optionName}
                                     </FieldLabel>
                                     <FieldDescription>
-                                      {option.optionNote != "null"
+                                      {option.optionNote !== "null"
                                         ? option.optionNote
                                         : null}
                                     </FieldDescription>
@@ -153,7 +154,7 @@ export default function Form({ contentForm }: formProps) {
                               {field.fieldTitle}
                             </FieldLabel>
                             <FieldDescription>
-                              {field.fieldNote != "null"
+                              {field.fieldNote !== "null"
                                 ? field.fieldNote
                                 : null}
                             </FieldDescription>
@@ -189,9 +190,9 @@ export default function Form({ contentForm }: formProps) {
                                         className="flex flex-col w-full items-start gap-0"
                                       >
                                         {option.optionName}
-                                        <FieldDescription>
+                                        {option.optionNote==="null"? null:<FieldDescription>
                                           {option.optionNote}
-                                        </FieldDescription>
+                                        </FieldDescription>}
                                       </FieldLabel>
                                     
                                   </div>
@@ -243,10 +244,10 @@ export default function Form({ contentForm }: formProps) {
         </p>
       ) : null}
       <div className="gap-3 flex justify-end mb-7">
-        <Button variant="destructive" size="lg" onClick={cleanForm}>
+        <Button variant="destructive" size="lg" onClick={cleanForm} disabled={formId===null? false:true}>
           Svuota
         </Button>
-        <Button className="bg-blue-500" size="lg" onClick={sendForm}>
+        <Button className="bg-blue-500" size="lg" onClick={sendForm} disabled={formId===null? false:true}>
           Invia
         </Button>
       </div>

@@ -30,10 +30,12 @@ export default async function generateInscriptionPdf(
     .font("Helvetica")
     .text(contentForm.formSubtitle, { align: "center" });
 
-  doc
+  if(contentForm.formNote!=="null"){
+    doc
     .fontSize(12)
     .font("Helvetica")
     .text(contentForm.formNote, { align: "center" });
+  }
 
   contentForm.sections.forEach((s) => {
     doc.y = doc.y + 20;

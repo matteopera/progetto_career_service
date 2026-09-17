@@ -15,7 +15,6 @@ import { useLocation, useNavigate } from "react-router";
 import { useDropzone } from "react-dropzone";
 import { useEffect, useState } from "react";
 import getPDF, { saveCompiledPDF } from "@/api/pdfApi";
-import { error } from "better-auth/api";
 export default function pdfPage() {
   const navigate = useNavigate();
   const maxSizeInMB = 2;
@@ -40,6 +39,9 @@ export default function pdfPage() {
       setSavingFileError(null);
       const res = await saveCompiledPDF(file, id);
       setSavingFileError(null);
+      //rimozione pagina errore 
+      localStorage.removeItem("id_compiled_form")
+      localStorage.removeItem("value_compiled_form")
       //navigazione pagina finale
       navigate("/company/iscrizione-effettuata", { replace: true });
     } catch (error) {

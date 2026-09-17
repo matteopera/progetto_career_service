@@ -14,10 +14,9 @@ import { requireAdmin } from "../middleware/betterAuthMiddleware.js";
 const router = Router();
 
 router.get("/faq", getFaq);
-router.get("/form/:formId", requireAdmin, getFormById);
+router.get("/form/:formId", requireAdmin,getFormById);
 router.get("/form", getOnlineForm);
 router.get("/pdf/:formId", getPdf);
-router.get("/excel/:formId", getCompanyExcel);
 const upload = multer({ storage: multer.memoryStorage() });
 router.post("/uploadForm", uploadForm);
 router.post("/upload/pdf", upload.single("file"), saveCompiledPDF);

@@ -388,7 +388,10 @@ export function useValue(form: contentForm) {
     if (formValidityCheck()) {
       uploadCompiledForm(value).then((res)=>{
         const id=res
-          //passing the id to the new page
+        //saving in local storage 
+        localStorage.setItem("id_compiled_form",id)
+        localStorage.setItem("value_compiled_form",JSON.stringify(value))
+        //passing the id to the new page
         navigate("/company/pdf",{ replace: true ,state:{id:id,value:value,form:form}})
       }).catch((e)=>{
         setSendable(true)

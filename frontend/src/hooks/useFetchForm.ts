@@ -45,7 +45,10 @@ export default function useFetchForm(formId:string|null): useFetchFormType {
 
   return { form, isLoading, error };
 }
-
+export const valueZod = z.record(
+  z.string(),
+  z.record(z.string(), z.union([z.string(), z.array(z.string())]))
+);
 export type value = Record<string, Record<string, string | string[]>>;
 
 /**

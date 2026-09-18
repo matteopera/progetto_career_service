@@ -96,7 +96,7 @@ export default function pdfPage() {
               Iscrizione espositori- completa
             </h1>
             <p className="text-gray-400">
-              Inviata il 3/09/2026 alle ore che vuoi
+              Scarica, firma e invia il PDF per iscriverti ufficialemente all'evento
             </p>
           </div>
           <span className="bg-orange-100 text-orange-700 p-1 pl-3 pr-3 rounded-2xl">

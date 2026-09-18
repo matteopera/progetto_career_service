@@ -28,7 +28,7 @@ export async function saveCompiledPDF(file:File,id:string){
     const formData=new FormData()
     formData.append("file",file)
     formData.append("fileName",id)
-    const res=await axios.post("/api/aziende/upload/pdf",formData)
+    const res=await axios.post("/api/aziende/uploadPdf",formData)
 
     return res
 

@@ -7,7 +7,7 @@ import {
 
 import Form from "@/components/form";
 import { useEffect, useState } from "react";
-import useFetchForm, { type value } from "@/hooks/useFetchForm";
+import useFetchForm, { valueZod, type value } from "@/hooks/useFetchForm";
 import { Spinner } from "@/components/ui/spinner";
 import type { faqListType } from "@/types/faqType";
 import faqApi from "@/api/faqApi";
@@ -20,10 +20,13 @@ export default function formPage() {
   const { form, isLoading, error } = useFetchForm(
     formId === undefined ? null : formId,
   );
-  const [pendingSubmissionId,setPendingSubmissionId]=useState<string | null>(null)
-  const [pendingSubmissionValue,setPendingSubmissionValue]=useState<value|null>(null)
+  const [pendingSubmissionId, setPendingSubmissionId] = useState<string | null>(
+    null,
+  );
+  const [pendingSubmissionValue, setPendingSubmissionValue] =
+    useState<value | null>(null);
   const [faqList, setFaqList] = useState<faqListType | null>(null);
-  const navigate=useNavigate()
+  const navigate = useNavigate();
 
   useEffect(() => {
     faqApi()
@@ -32,14 +35,28 @@ export default function formPage() {
       })
       .catch((error) => {
         console.error(`Errore nel caricamento delle Faq:${error}`);
+        setFaqList(null)
       });
-    const id=localStorage.getItem("id_compiled_form")
-    const pendingValue=localStorage.getItem("value_compiled_form")
-    if(id && pendingValue){
-      setPendingSubmissionId(id)
-      setPendingSubmissionValue(JSON.parse(pendingValue))
+    try {
+      const id = localStorage.getItem("id_compiled_form");
+      const pendingValue = localStorage.getItem("value_compiled_form");
+      if (id && pendingValue) {
+        const value = JSON.parse(pendingValue);
+        //parsing con zod del value
+        const parsedValue = valueZod.safeParse(value);
+
+        if (parsedValue.success) {
+          setPendingSubmissionValue(JSON.parse(pendingValue));
+          setPendingSubmissionId(id);
+        } else {
+          setPendingSubmissionId(null);
+          setPendingSubmissionValue(null);
+        }
+      }
+    } catch (error) {
+      setPendingSubmissionId(null);
+          setPendingSubmissionValue(null);
     }
-    
   }, []);
 
   if (isLoading) {
@@ -65,7 +82,7 @@ export default function formPage() {
     );
   }
   return (
-    <div className="min-h-screen bg-slate-50 overflow-x-hidden">
+    <div className="min-h-screen  overflow-x-hidden">
       <nav className="border-b border-gray-300">
         <img
           src="/logo_univr.png"
@@ -73,21 +90,23 @@ export default function formPage() {
           className="w-54 mx-auto "
         />
       </nav>
-      <div className="flex flex-row w-full bg-slate-50">
+      <div className="flex flex-row w-full ">
         <div
           id="form"
           className="font-semibold md:ml-32 md:mr-32 ml-7 mr-7 mt-4 w-full"
         >
-          {formId===undefined? null:(<div className="border border-yellow-500 rounded-2xl p-5 gap-3 flex flex-col mb-7">
-            <div className="flex flex-row items-center gap-5">
-              <TriangleAlert className="h-10 w-10 text-yellow-500" />
-              <h1 className="text-4xl text-yellow-500">Attenzione</h1>
+          {formId === undefined ? null : (
+            <div className="border border-yellow-500 rounded-2xl p-5 gap-3 flex flex-col mb-7">
+              <div className="flex flex-row items-center gap-5">
+                <TriangleAlert className="h-10 w-10 text-yellow-500" />
+                <h1 className="text-4xl text-yellow-500">Attenzione</h1>
+              </div>
+              <p className=" font-normal text-xl ">
+                Pagina di sola anteprima del modulo per le aziende: l'invio dei
+                dati è disabilitato{" "}
+              </p>
             </div>
-            <p className=" font-normal text-xl ">
-              Pagina di sola anteprima del modulo per le aziende: l'invio dei
-              dati è disabilitato{" "}
-            </p>
-          </div>)}
+          )}
           <div className="border border-gray-300 rounded-2xl p-5 gap-3 flex flex-col mb-7">
             <h1 className="text-4xl">Registra la tua azienda</h1>
             <h2 className=" font-normal text-xl text-gray-400">
@@ -96,17 +115,38 @@ export default function formPage() {
               studenti
             </h2>
           </div>
-          {pendingSubmissionId===null? null:(<div className="  p-3 rounded-2xl gap-3 flex flex-row justify-between items-center mb-2 border-yellow-500 border ">
-            <p className=" font-normal text-lg">
-              Hai una registrazione in sospeso: il modulo è già stato inviato, manca solo la firma del documento
-            </p>
-            <div className="flex felx-row gap-4">
-              <Button className="bg-blue-500" onClick={()=>{
-                navigate("/company/pdf",{ replace: true ,state:{id:pendingSubmissionId,value:pendingSubmissionValue,form:form}})
-              }}>Riprendi registrazione</Button>
-              <Button variant={"secondary"} className="bg-gray-300" onClick={()=>setPendingSubmissionId(null)}>Inizia da capo</Button>
+          {pendingSubmissionId === null ? null : (
+            <div className="  p-3 rounded-2xl gap-3 flex flex-row justify-between items-center mb-2 border-yellow-500 border ">
+              <p className=" font-normal text-lg">
+                Hai una registrazione in sospeso: il modulo è già stato inviato,
+                manca solo la firma del documento
+              </p>
+              <div className="flex felx-row gap-4">
+                <Button
+                  className="bg-blue-500"
+                  onClick={() => {
+                    navigate("/company/pdf", {
+                      replace: true,
+                      state: {
+                        id: pendingSubmissionId,
+                        value: pendingSubmissionValue,
+                        form: form,
+                      },
+                    });
+                  }}
+                >
+                  Riprendi registrazione
+                </Button>
+                <Button
+                  variant={"secondary"}
+                  className="bg-gray-300"
+                  onClick={() => setPendingSubmissionId(null)}
+                >
+                  Inizia da capo
+                </Button>
+              </div>
             </div>
-          </div>)}
+          )}
           <Form
             contentForm={form}
             formId={formId === undefined ? null : formId}

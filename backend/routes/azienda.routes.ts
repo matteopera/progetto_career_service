@@ -19,5 +19,5 @@ router.get("/form", getOnlineForm);
 router.get("/pdf/:formId", getPdf);
 const upload = multer({ storage: multer.memoryStorage() });
 router.post("/uploadForm", uploadForm);
-router.post("/upload/pdf", upload.single("file"), saveCompiledPDF);
+router.post("/uploadPdf", upload.single("file"), saveCompiledPDF);
 export default router;

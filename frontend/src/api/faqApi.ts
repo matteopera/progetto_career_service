@@ -1,4 +1,4 @@
-import { zodFaqList, type faqListType } from "@/types/FAQType";
+import { zodFaqList, type faqListType } from "@/types/faqType";
 import axios from "axios";
 export default async function faqApi() {
   const response = await axios.get("/api/aziende/faq");

@@ -267,7 +267,16 @@ export default function Forms() {
                             <DropdownMenuGroup>
                               <DropdownMenuItem
                                 onClick={() =>
-                                  copyLink("https://" + location.host)
+                                  copyLink(
+                                    form.status === "online"
+                                      ? "http://" +
+                                          location.host +
+                                          "/company/form"
+                                      : "http://" +
+                                          location.host +
+                                          "/form/" +
+                                          form._id.toString(),
+                                  )
                                 }
                               >
                                 Copia link

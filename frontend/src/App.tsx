@@ -11,7 +11,7 @@ import Forms from "./pages/admin/forms";
 import FormEditor from "./pages/admin/form/formEditor";
 import FormAdminPage from "./pages/admin/form/form";
 import PdfPage from "./pages/company/pdfPage";
-import IscrizioneEffettuata from "./pages/company/iscrizioneEffettuata"
+import IscrizioneEffettuata from "./pages/company/iscrizioneEffettuata";
 function App() {
   return (
     <TooltipProvider>
@@ -20,9 +20,12 @@ function App() {
           <Route path="/" element={<Login />} />
           <Route path="/login" element={<Login />} />
           <Route path="/form/:formId" element={<Form />} />
-          <Route path="company/form" element={<Form />} />
+          <Route path="/company/form" element={<Form />} />
           <Route path="/company/pdf" element={<PdfPage />} />
-          <Route path="/company/iscrizione-effettuata" element={<IscrizioneEffettuata/>}/>
+          <Route
+            path="/company/iscrizione-effettuata"
+            element={<IscrizioneEffettuata />}
+          />
           {/* Rotte admin */}
           <Route
             path="/admin/dashboard"

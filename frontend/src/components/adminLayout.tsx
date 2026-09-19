@@ -184,17 +184,6 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         </div>
       </aside>
 
-      {isMobile ||
-        (1 == 2 && (
-          <Button
-            onClick={() => setMenuVisible(true)}
-            variant={"ghost"}
-            className="mt-2 ml-2 "
-          >
-            <Menu className="h-6! w-6!" />
-          </Button>
-        ))}
-
       {/* CONTENUTO PAGINA */}
       <div
         className={cn(

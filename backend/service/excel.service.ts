@@ -11,7 +11,6 @@ export default async function generateCompaniesExcel(idForm:string) {
   
   if(!f){
     //non ha trovato il form relativo
-    console.log(idForm)
     throw new Error("form non trovato")
   }
   //parsing con zod
@@ -61,7 +60,7 @@ export default async function generateCompaniesExcel(idForm:string) {
   XLSX.utils.sheet_add_aoa(worksheet, [sections], { origin: "A1" });
   XLSX.utils.sheet_add_aoa(worksheet, [fields], { origin: "A2" });
   worksheet["!merges"] = merge;
-  console.log(sections);
+  
   //inserimento intestazione nomi campi
   contentForm;
   //inserimento valori

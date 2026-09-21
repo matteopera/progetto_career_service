@@ -7,7 +7,6 @@ import {
 } from "../../db/formDb.js";
 import z from "zod";
 import { compiledForm, zodCompiledForm, zodForm } from "../../types/form.js";
-import { error } from "node:console";
 import { ObjectId } from "mongodb";
 export async function findOnlineForm() {
   //db query

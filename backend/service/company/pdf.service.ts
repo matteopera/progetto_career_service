@@ -5,15 +5,15 @@ import { loadEnvFile } from "node:process";
 import { findCompiledForm, findOnlineForm } from "./form.service.js";
 export default async function generateInscriptionPdf(
   res: Response,
-  idCompiledForm:string,
+  idCompiledForm: string,
 ) {
-    //fetching compiledForm
-    const {contentForm}=await findOnlineForm()
+  //fetching compiledForm
+  const { contentForm } = await findOnlineForm();
 
-    //fetching compiledForm by id
-    const compiledForm:compiledForm=await findCompiledForm(idCompiledForm)
+  //fetching compiledForm by id
+  const compiledForm: compiledForm = await findCompiledForm(idCompiledForm);
 
-    //modifica delle info in stringa
+  //modifica delle info in stringa
   const doc = new PDFDocument();
 
   doc.pipe(res);
@@ -30,11 +30,11 @@ export default async function generateInscriptionPdf(
     .font("Helvetica")
     .text(contentForm.formSubtitle, { align: "center" });
 
-  if(contentForm.formNote!=="null"){
+  if (contentForm.formNote !== "null") {
     doc
-    .fontSize(12)
-    .font("Helvetica")
-    .text(contentForm.formNote, { align: "center" });
+      .fontSize(12)
+      .font("Helvetica")
+      .text(contentForm.formNote, { align: "center" });
   }
 
   contentForm.sections.forEach((s) => {
@@ -50,65 +50,86 @@ export default async function generateInscriptionPdf(
         .text(s.sectionNote, { align: "left", paragraphGap: 6 });
     }
 
-    let lastEndX: number | null = null;
-    let lastY: number | null = null;
-    s.fields.forEach((f, index) => {
-      if (f.fieldType === "text") {
-        if (f.fieldNote !== "null") {
-          doc.fontSize(11).font("Helvetica").text(f.fieldNote);
-        }
+    const left = doc.page.margins.left;
+    const pageBottom = () => doc.page.height - doc.page.margins.bottom;
 
+    // stato della riga corrente (solo per i campi text)
+    let lastEndX: number | null = null;
+    let rowTop: number | null = null;
+    let rowHeight = 0;
+
+    s.fields.forEach((f) => {
+      if (f.fieldType === "text") {
+        const hasNote = f.fieldNote !== "null";
         const titleText = `${f.fieldTitle}:    `;
-        const valueText = `${compiledForm[`${s.sectionTitle}`][`${f.fieldTitle}`]}`;
+        const valueText = `${compiledForm[s.sectionTitle][f.fieldTitle]}`;
 
         doc.fontSize(12).font("Helvetica-Bold");
         const titleWidth = doc.widthOfString(titleText);
-
         doc.fontSize(12).font("Helvetica");
         const valueWidth = doc.widthOfString(valueText);
 
-        const textWidth = titleWidth + valueWidth;
-        const gap = 30;
-
-        let x: number;
-        let y: number;
-
-        if (
-          lastEndX != null &&
-          lastY != null &&
-          textWidth + gap + lastEndX < pageWidth
-        ) {
-          //si va dritto
-          x = lastEndX + gap;
-          y = lastY;
-          lastEndX += textWidth + gap;
-        } else {
-          //si va a capo
-          x = doc.page.margins.left;
-          y = lastY !== null ? lastY + 20 : doc.y;
-          lastEndX = doc.page.margins.left + textWidth;
-          lastY = y;
+        let noteWidth = 0;
+        if (hasNote) {
+          doc.fontSize(11).font("Helvetica");
+          noteWidth = doc.widthOfString(f.fieldNote);
         }
 
+        const cellWidth = Math.max(titleWidth + valueWidth, noteWidth);
+        const noteHeight = hasNote ? 15 : 0;
+        const cellHeight = noteHeight + 20;
+        const gap = 30;
+
+        const fitsOnLine =
+          lastEndX !== null &&
+          rowTop !== null &&
+          lastEndX + gap + cellWidth <= left + pageWidth;
+
+        let x: number;
+        if (fitsOnLine) {
+          x = lastEndX! + gap;
+        } else {
+          const newTop = rowTop === null ? doc.y : rowTop + rowHeight;
+          if (newTop + cellHeight > pageBottom()) {
+            doc.addPage();
+            rowTop = doc.page.margins.top;
+          } else {
+            rowTop = newTop;
+          }
+          rowHeight = 0;
+          x = left;
+        }
+
+        const y = rowTop!;
+
+        if (hasNote) {
+          doc
+            .fontSize(11)
+            .font("Helvetica")
+            .text(f.fieldNote, x, y, { lineBreak: false });
+        }
         doc
           .fontSize(12)
           .font("Helvetica-Bold")
-          .text(titleText, x, y, { lineBreak: false });
+          .text(titleText, x, y + noteHeight, { lineBreak: false });
         doc
           .fontSize(12)
           .font("Helvetica")
-          .text(valueText, x + titleWidth, y, { lineBreak: false });
+          .text(valueText, x + titleWidth, y + noteHeight, {
+            lineBreak: false,
+          });
 
-        doc.x = doc.page.margins.left;
-        doc.y = lastY! + 20;
+        lastEndX = x + cellWidth;
+        rowHeight = Math.max(rowHeight, cellHeight);
+
+        doc.x = left;
+        doc.y = rowTop! + rowHeight;
       }
-      const x = doc.page.margins.left;
-      let y = doc.y;
-      const rowHeight = 20;
-      const pageBottom = doc.page.height - doc.page.margins.bottom;
+
       if (f.fieldType === "check" || f.fieldType === "radio") {
-        const pageBottom = doc.page.height - doc.page.margins.bottom;
-        const rowH = rowHeight;
+        const x = left;
+        let y = doc.y;
+        const rowH = 20;
 
         doc.fontSize(12).font("Helvetica-Bold");
         let blockHeight =
@@ -140,7 +161,7 @@ export default async function generateInscriptionPdf(
           }
         });
 
-        if (y + blockHeight > pageBottom) {
+        if (y + blockHeight > pageBottom()) {
           doc.addPage();
           y = doc.page.margins.top;
         }
@@ -189,6 +210,11 @@ export default async function generateInscriptionPdf(
 
         doc.x = x;
         doc.y = y;
+
+        // il prossimo campo text riparte da una nuova riga
+        lastEndX = null;
+        rowTop = null;
+        rowHeight = 0;
       }
     });
   });

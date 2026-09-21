@@ -62,6 +62,11 @@ export default function Form({ contentForm, formId }: formProps) {
                             >
                               {field.fieldTitle}
                             </FieldLabel>
+                            <FieldDescription>
+                              {field.fieldNote !== "null"
+                                ? field.fieldNote
+                                : null}
+                            </FieldDescription>
                             <Input
                               aria-invalid={toAriaInvalid(
                                 `${section.sectionTitle}-${field.fieldTitle}`,

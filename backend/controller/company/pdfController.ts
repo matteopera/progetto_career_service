@@ -9,7 +9,6 @@ import {
 } from "../../service/company/form.service.js";
 import { compiledForm, contentForm } from "../../types/form.js";
 import { MongoError } from "mongodb";
-import { DBError, handleDBError } from "../../errors/DBError.js";
 import multer from "multer";
 import { findCompiledFormById } from "../../db/formDb.js";
 export default async function getPdf(req: Request, res: Response) {
@@ -26,11 +25,6 @@ export default async function getPdf(req: Request, res: Response) {
     return res.status(200);
   } catch (error) {
     console.error(`Errore durante la generazione del PDF: ${error}`);
-    //MongoDB Errors
-    if (error instanceof MongoError) {
-      const errorRes: DBError = handleDBError(error);
-      return res.status(errorRes[0]).json({ message: errorRes[1] });
-    }
     return res
       .status(500)
       .json({ message: "Impossibile ottenere il file richiesto" });

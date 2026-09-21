@@ -5,7 +5,6 @@ import {
   insertCompiledForm,
 } from "../../service/company/form.service.js";
 import { Request, Response } from "express";
-import { DBError, handleDBError } from "../../errors/DBError.js";
 import { check } from "zod/mini";
 import { zodCompiledForm } from "../../types/form.js";
 
@@ -16,10 +15,6 @@ export async function getOnlineForm(req: Request, res: Response) {
     return res.status(200).json(contentForm);
   } catch (error) {
     console.error(error);
-    if (error instanceof MongoError) {
-      const errorRes: DBError = handleDBError(error);
-      return res.status(errorRes[0]).json({ message: errorRes[1] });
-    }
 
     return res.status(500).json({ message: "Impossibile recuperare il form" });
   }
@@ -35,7 +30,6 @@ export async function uploadForm(req: Request, res: Response) {
     const _id = await insertCompiledForm(checkedCompiledForm);
     const idAsString = _id.toString();
 
-    console.log(`L'id messo in stringa è il seguente:${idAsString}`);
     //creating the response
 
     return res
@@ -43,11 +37,6 @@ export async function uploadForm(req: Request, res: Response) {
       .json({ message: "Iscrizione salvata con successo", _id: idAsString });
   } catch (error) {
     console.error(`Errore durante il salvataggio del form compilato: ${error}`);
-    //MongoDB Errors
-    if (error instanceof MongoError) {
-      const errorRes: DBError = handleDBError(error);
-      return res.status(errorRes[0]).json({ message: errorRes[1] });
-    }
     return res.status(500).json({ message: "Impossibile salvare il form" });
   }
 }
@@ -58,7 +47,7 @@ export async function getFormById(req: Request, res: Response){
     const {formId}=req.params
 
     const contentForm=await findFormById(formId as string);
-    console.log(contentForm)
+    
     res.status(200).json(contentForm)
   }catch(error){
     return res.status(500).json({ message: "Impossibile recuparare il form" });

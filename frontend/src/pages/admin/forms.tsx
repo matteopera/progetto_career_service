@@ -63,7 +63,7 @@ export default function Forms() {
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
 
   const [searchInput, setSearchInput] = useState("");
-  const [searchStatus, setSearchStatus] = useState("");
+  const [searchStatus, setSearchStatus] = useState("all");
   useEffect(() => {
     if (session.user) getForms();
   }, [session]);

@@ -675,7 +675,13 @@ export default function FormEditor({
                     Note sezione
                   </FieldLabel>
                   <Input
-                    value={form.content.sections[sectionToEdit].sectionNote}
+                    value={
+                      form.content.sections[sectionToEdit].sectionNote === "" ||
+                      form.content.sections[sectionToEdit].sectionNote ===
+                        "null"
+                        ? ""
+                        : form.content.sections[sectionToEdit].sectionNote
+                    }
                     placeholder="Note della sezione..."
                     onChange={(e) => {
                       updateSection(

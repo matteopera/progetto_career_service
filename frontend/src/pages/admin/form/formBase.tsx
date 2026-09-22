@@ -157,7 +157,11 @@ export default function formBase({
         <Textarea
           required
           className=""
-          value={form.content.formNote}
+          value={
+            form.content.formNote === "" || form.content.formNote === "null"
+              ? ""
+              : form.content.formNote
+          }
           onChange={(e) =>
             setForm((prev) => ({
               ...prev,

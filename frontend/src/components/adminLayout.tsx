@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import {
+  ChevronRight,
   Factory,
   FormIcon,
   LayoutDashboard,
@@ -87,21 +88,15 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen w-full flex max-lg:flex-col relative ">
+    <div className="h-screen w-full flex max-sm:flex-col">
       <aside
         className={cn(
-          "max-lg:hidden sticky left-0 h-screen top-0 w-80 max-md:w-3/5 flex flex-col bg-white border-r shadow transition-all duration-250",
+          " sticky left-0 h-screen top-0 w-80 max-md:w-3/5 flex flex-col bg-white border-r shadow transition-all duration-250",
           isMobile &&
             "fixed z-50 top-0 left-0 bottom-0 inset-0 overflow-y-hidden",
-          !menuVisible && isMobile && "-translate-x-100",
+          !menuVisible && isMobile && "-translate-x-full",
         )}
       >
-        {menuVisible && isMobile && (
-          <X
-            className="absolute top-2 right-2"
-            onClick={() => setMenuVisible(false)}
-          />
-        )}
         {/* Titolo e immagine Univr */}
         <div className="border-b p-4">
           <div className="flex gap-2 items-center ">
@@ -115,10 +110,21 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
               <br />
               service
             </h2>
+            {isMobile && (
+              <X
+                className="ml-auto"
+                onClick={
+                  menuVisible && isMobile
+                    ? () => setMenuVisible(false)
+                    : () => {}
+                }
+              />
+            )}
           </div>
           <p className="text-sm text-gray-700 mt-2">
             Gestionale Recruiting Day
           </p>
+          <div></div>
         </div>
         {/* Elementi menù */}
         <div className="flex flex-col gap-2 p-2 mt-4">
@@ -187,52 +193,25 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
       {/* CONTENUTO PAGINA */}
       <div
         className={cn(
-          "min-h-full p-8 w-full bg-gray-50/10",
-          menuVisible && isMobile && " bg-black/70 overlay",
+          "min-h-full p-8 w-full overflow-y-auto bg-gray-50/10",
+          menuVisible && isMobile && " bg-black/70 ",
         )}
         onClick={
           menuVisible && isMobile ? () => setMenuVisible(false) : () => {}
         }
       >
+        {!menuVisible && isMobile && (
+          <div
+            className="absolute -left-3  top-8 bg-gray-200 p-2 rounded-full"
+            onClick={() => setMenuVisible(true)}
+          >
+            <ChevronRight />
+          </div>
+        )}
         {children}
       </div>
 
-      {/* Menù navigazione mobile */}
-      <div className="lg:hidden bg-white border-t fixed bottom-0 p-4 flex justify-around  shadow w-full">
-        {itemsMenu.map((item) =>
-          item.active ? (
-            <a
-              key={item.id}
-              onClick={() => handleChangePage(item.href)}
-              className={cn(
-                "cursor-pointer w-25 flex gap-2 items-center justify-center rounded-full transition-all duration-200  flex-col",
-                location.pathname === item.href
-                  ? "text-black"
-                  : " text-stone-500",
-              )}
-            >
-              <item.icon className="w-6 h-6" />
-              <p className="font-medium text-xs">{item.title}</p>
-            </a>
-          ) : (
-            <Popover key={item.id}>
-              <PopoverTrigger>
-                <div
-                  className={cn(
-                    "flex gap-3 items-center w-25 text-stone-400/50 flex-col",
-                  )}
-                >
-                  <item.icon className="w-6 h-6" />
-                  <p className="font-medium text-xs">{item.title}</p>
-                </div>
-              </PopoverTrigger>
-              <PopoverContent side="top">
-                In arrivo prossimamente...
-              </PopoverContent>
-            </Popover>
-          ),
-        )}
-      </div>
+      {/* Menù navigazione mobile.  */}
     </div>
   );
 }

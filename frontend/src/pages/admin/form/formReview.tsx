@@ -90,7 +90,7 @@ export default function FormReview({
       </div>
 
       <FieldGroup>
-        {form.content.formNote === "null" ||
+        {form.content.formNote === "" ||
         form.content.formNote === "null" ? null : (
           <p className="border rounded-2xl border-gray-100 p-3 bg-gray-100 font-semibold ">
             {form.content.formNote}

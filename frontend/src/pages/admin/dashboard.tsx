@@ -113,7 +113,9 @@ export default function Dashboard() {
   const getLastCompiledForms = async () => {
     try {
       const response = await axios.get("/api/form/get-last-compiled-forms");
-      const compiledFormsRes = response.data.compiledForms;
+      const compiledFormsRes = response.data.compiledForms.filter(
+        (compiledForm: any) => compiledForm?.formStructure?.title,
+      );
       setLastCompiledForms(compiledFormsRes);
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -253,7 +255,6 @@ export default function Dashboard() {
                     # {index + 1}
                   </div>
                   <div>
-                    {" "}
                     <p className="text-black">
                       Form: {compiledForm["formStructure"]["title"]}
                     </p>

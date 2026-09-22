@@ -1,5 +1,4 @@
 import { ObjectId } from "mongodb";
-import { contentFormTest } from "../test-form/test.js";
 import { compiledForm, contentForm, form } from "../types/form.js";
 import { db } from "./db.js";
 
@@ -94,14 +93,23 @@ export async function updateFormAsync(form: Omit<form, "_id">, idForm: string) {
 export async function getDataCardAsync() {
   const collectionForm = db.collection("form");
   const collectionCompiledForm = db.collection("compiledForm");
+
   const res = {
     nrForm: await collectionForm.countDocuments(),
     nrCompiledForm: await collectionCompiledForm.countDocuments(),
     lastCreatedForm: await collectionForm.findOne(
       {},
-      { sort: { created: -1 }, projection: { created: 1, _id: 0 } },
+      { sort: { created: -1 }, projection: { created: 1, _id: 1 } },
     ),
-    nrCompiledFormLastEvent: await collectionCompiledForm.countDocuments(),
+    nrCompiledFormLastEvent: await collectionCompiledForm.countDocuments({
+      "info.idOnlineForm": (
+        await collectionForm.findOne(
+          { status: "online" },
+          { projection: { _id: 1 } },
+        )
+      )?._id,
+    }),
   };
+
   return res;
 }

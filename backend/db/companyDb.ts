@@ -1,7 +1,6 @@
 import { ObjectId } from "mongodb";
 import { db } from "./db.js";
 
-
 export async function findRegisteredCompanies(formId: string) {
   const collection = db.collection("compiledForm");
 
@@ -43,8 +42,6 @@ export async function findLastRegisteredCompanies() {
       },
     ])
     .toArray();
-
-  console.log(companies);
 
   return companies;
 }
